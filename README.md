@@ -57,11 +57,12 @@ tools/                servidor local e gerador de ícones
 | 3 | `03-madeira.js` | Na Madeira | plataformas: Funchal, levada, carro de cesto, Santana |
 | 4 | `04-ciclismo.js` | De Bicicleta | viagem de bicicleta: serra, planície e costa |
 | 5 | `05-solar.js` | O Solar da Família | visita vista de cima: interior do solar e jardim de buxo |
-| 6 | `06-casamento.js` | O Casamento (final) | festa de casamento |
+| 6 | `06-pretarouca.js` | Pretarouca | passeio pela aldeia de granito + forno de lenha |
+| 7 | `07-casamento.js` | O Casamento (final) | festa de casamento |
 | B1 | `b1-xavier.js` | Bem-vindo, Xavier! | quarto azul |
 | B2 | `b2-luisa.js` | Bem-vinda, pequena Luísa! | quarto rosa |
 
-Os níveis 1 a 5 estão feitos. Os restantes são esqueletos jogáveis, montados com troços genéricos,
+Os níveis 1 a 6 estão feitos. Os restantes são esqueletos jogáveis, montados com troços genéricos,
 com textos provisórios; vão ser desenhados ao pormenor um a um.
 
 ### Nível 1 — minijogo "Operação"
@@ -141,6 +142,22 @@ deixam passar quando param. A visita acaba na fonte, depois de mostrados todos o
 
 Os mapas (em texto) e as frases de cada ponto estão em `js/levels/05-solar.js`; o motor
 está em `js/scenes/tour.js`.
+
+### Nível 6 — "Pretarouca"
+
+O Sérgio mostra à Luísa a aldeia onde nasceu, perto de Lamego, na serra de Montemuro.
+Tem duas partes:
+
+1. **Passeio pela aldeia** (o mesmo motor do nível 5, agora com o Sérgio a guiar): calçada
+   e muros de granito, a fonte, o espigueiro, a capela, a horta das tias, e vacas que
+   atravessam o caminho e têm sempre prioridade. Acaba à porta da casa de granito, onde as
+   tias estão à espera.
+2. **O forno de lenha** (`js/scenes/oven.js`): fazer bôla de Lamego com as tias, em três
+   passos — rachar a lenha (tocar com a força no máximo), amassar (tocar à esquerda e à
+   direita, à vez) e cozer (tirar cada bôla quando está dourada).
+
+Um nível de visita passa para uma segunda cena com `then` (aqui, `then: 'oven'`) e escolhe
+quem guia com `leader`. Mapa, frases e figurantes estão em `js/levels/06-pretarouca.js`.
 
 ### Como se desenha um nível de plataformas
 

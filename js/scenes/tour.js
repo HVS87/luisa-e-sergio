@@ -5,9 +5,10 @@
 // Controlos: setas / WASD, ou tocar e manter o dedo no sítio para onde se quer ir.
 import { TILE as T } from '../config.js';
 import { LEVELS } from '../levels/index.js';
-import { getCharacter, charFrame, getSprites } from '../sprites.js';
+import { getCharacter, charFrame, getSprites, makeSprite } from '../sprites.js';
 import { hash } from '../themes.js';
 import { Particles } from '../fx.js';
+import { OvenScene } from './oven.js';
 
 const SPEED = 74;
 const TRAIL = 13;
@@ -15,7 +16,23 @@ const INK = '#2b1d2e', GOLD = '#ffd166';
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 // Blocos que não se atravessam. (O regador 's' só bloqueia enquanto está a regar.)
-const SOLID = new Set('BTFxtWwRbPCAkmonvd'.split(''));
+const SOLID = new Set('BTFxtWwRbPCAkmonvdMGgOEKcYZ'.split(''));
+// Cenas que podem continuar o nível depois da visita (`then` no ficheiro do nível).
+const NEXT = { oven: OvenScene };
+
+const COW = [
+  '...............w..w.',
+  '...............bbbb.',
+  '.bbbbbbbbbbbbbbbbbbb',
+  'bbbbbbbbbbbbbbbbbbkb',
+  'bbbbBBbbbbbbbbbbbbbb',
+  'bbbbBBBbbbbbbbbbbpp.',
+  'tbbbbbbbbbbbbbbb....',
+  't.bbbbbbbbbbbbb.....',
+  '..bb.bb....bb.bb....',
+  '..bb.bb....bb.bb....',
+  '..kk.kk....kk.kk....',
+];
 // Blocos altos, desenhados por cima do chão e ordenados com as personagens.
 const FLOORS = { '.': 'grass', ',': 'gravel', '_': 'wood', ':': 'stone', r: 'rug' };
 
@@ -25,8 +42,18 @@ export class TourScene {
     this.index = index;
     this.level = LEVELS[index];
     this.spr = getSprites();
-    this.luisa = getCharacter('luisa', 'casual');
-    this.sergio = getCharacter('sergio', 'casual');
+    // Quem guia a visita (o jogador) e quem segue: por omissão, a Luísa guia o Sérgio.
+    const leader = this.level.leader || 'luisa';
+    this.lead = getCharacter(leader, 'casual');
+    this.follow = getCharacter(leader === 'luisa' ? 'sergio' : 'luisa', 'casual');
+    this.followName = leader === 'luisa' ? 'ao Sérgio' : 'à Luísa';
+    const cow = makeSprite(COW, { b: '#c98f52', B: '#a8744e', w: '#fff6e6', k: INK, p: '#f0a8a0', t: '#8a5a34' });
+    this.cowImg = { r: cow, l: null };
+    const flipped = document.createElement('canvas');
+    flipped.width = cow.width; flipped.height = cow.height;
+    const fg = flipped.getContext('2d');
+    fg.translate(cow.width, 0); fg.scale(-1, 1); fg.drawImage(cow, 0, 0);
+    this.cowImg.l = flipped;
     this.t = 0;
     this.paused = false;
     this.setup();
@@ -39,17 +66,20 @@ export class TourScene {
     this.pois = [];
     for (const [id, def] of Object.entries(this.level.maps)) {
       const grid = def.rows.map((r) => r.split(''));
-      const m = { id, def, grid, rows: grid.length, cols: grid[0].length, hearts: [], pois: [], sprinklers: [], doors: [], start: null, lost: null };
+      const m = { id, def, grid, rows: grid.length, cols: grid[0].length, hearts: [], pois: [], sprinklers: [], doors: [], cows: [], npcs: [], start: null, lost: null };
       for (let y = 0; y < m.rows; y++) {
         for (let x = 0; x < m.cols; x++) {
           const ch = grid[y][x];
           const cx = x * T + 8, cy = y * T + 12;
-          const floor = def.indoor ? this.floorNear(grid, x, y) : ',';
+          const path = [[-1, 0], [1, 0], [0, 1], [0, -1]].some(([dx, dy]) => (grid[y + dy] || [])[x + dx] === ',');
+          const floor = def.indoor ? this.floorNear(grid, x, y) : path ? ',' : '.';
           if (ch === 'h') { m.hearts.push({ x: cx, y: cy - 4, got: false }); grid[y][x] = floor; }
           else if (ch === 'L') { m.start = { x: cx, y: cy }; grid[y][x] = floor; }
           else if (ch === 'S') { m.lost = { x: cx, y: cy }; grid[y][x] = floor; }
           else if (ch === 's') m.sprinklers.push({ x, y, phase: hash(x * 3.1 + y * 7.7) * 4 });
           else if (ch === 'D') m.doors.push({ x, y });
+          else if (ch === 'V') { m.cows.push({ x: cx, y: cy, x0: cx, dir: 1, wait: 0 }); grid[y][x] = floor; }
+          else if (ch === 'Y' || ch === 'Z') m.npcs.push({ x: cx, y: cy, frames: getCharacter((this.level.npcs || {})[ch] || 'luisa') });
           else if (ch >= '1' && ch <= '9') {
             const poi = { n: ch, map: id, x: cx, y: cy, done: false, def: this.level.pois[ch] || { text: '' } };
             m.pois.push(poi);
@@ -165,6 +195,11 @@ export class TourScene {
         if (s && this.sprinklerOn(s)) { this.wet = true; return true; }
       }
     }
+    // vacas no caminho: não se passa por cima delas (mas dá sempre para nos afastarmos)
+    for (const cow of this.map.cows) {
+      const d = Math.hypot(px - cow.x, (py - cow.y) * 1.6);
+      if (d < 13 && d < Math.hypot(this.p.x - cow.x, (this.p.y - cow.y) * 1.6)) { this.moo = true; return true; }
+    }
     return false;
   }
 
@@ -183,7 +218,11 @@ export class TourScene {
       if (Math.floor(this.timer * 6) !== Math.floor((this.timer - dt) * 6)) {
         this.fx.heart(this.p.x - 14 + Math.random() * 28, this.p.y - 30, Math.random() < 0.3 ? GOLD : '#ff5d8f');
       }
-      if (this.timer > 3.4) this.finish();
+      if (this.timer > 3.4) {
+        const Next = NEXT[this.level.then];
+        if (Next) this.game.setScene(new Next(this.game, this.index, { got: this.got, total: this.totalHearts }));
+        else this.finish();
+      }
     }
     this.updateCamera(false);
   }
@@ -201,6 +240,7 @@ export class TourScene {
     if (p.moving) {
       const sx = (dx / len) * SPEED * dt, sy = (dy / len) * SPEED * dt;
       this.wet = false;
+      this.moo = false;
       const ox = p.x, oy = p.y;
       if (!this.blocked(p.x + sx, p.y)) p.x += sx;
       if (!this.blocked(p.x, p.y + sy)) p.y += sy;
@@ -209,6 +249,7 @@ export class TourScene {
       p.dist += moved;
       p.moving = moved > 0.05;
       if (this.wet && this.hintT <= 0) this.hint('Os regadores estão ligados! Espera que parem.', 2.5);
+      if (this.moo && this.hintT <= 0) { this.hint('Muuu! As vacas têm prioridade: espera que passe.', 2.5); this.game.audio.play('click'); }
       if (p.moving && !this.sergioLost) this.trail.push({ x: p.x, y: p.y, facing: p.facing });
     }
     // O Sérgio segue o caminho da Luísa, uns passos atrás
@@ -221,6 +262,12 @@ export class TourScene {
     } else c.moving = false;
 
     const m = this.map;
+    // Vacas a passear de um lado para o outro
+    for (const cow of m.cows) {
+      if (cow.wait > 0) { cow.wait -= dt; continue; }
+      cow.x += cow.dir * 14 * dt;
+      if (Math.abs(cow.x - cow.x0) > 17) { cow.x = cow.x0 + cow.dir * 17; cow.dir *= -1; cow.wait = 1.2; }
+    }
     // Corações
     for (const h of m.hearts) {
       if (h.got || Math.hypot(h.x - p.x, h.y - (p.y - 6)) > 11) continue;
@@ -244,7 +291,7 @@ export class TourScene {
       if (poi.def.final) {
         const left = this.pois.filter((q) => !q.done && !q.def.final).length;
         if (this.sergioLost) { if (this.hintT <= 0) this.hint('Falta encontrar o Sérgio, que anda perdido nos buxos!', 3); continue; }
-        if (left > 0) { if (this.hintT <= 0) this.hint(`Ainda falta mostrar ${left} ${left === 1 ? 'sítio' : 'sítios'} ao Sérgio. Procura os pontos a brilhar!`, 3); continue; }
+        if (left > 0) { if (this.hintT <= 0) this.hint(`Ainda falta mostrar ${left} ${left === 1 ? 'sítio' : 'sítios'} ${this.followName}. Procura os pontos a brilhar!`, 3); continue; }
         poi.done = true;
         this.state = 'won';
         this.timer = 0;
@@ -301,9 +348,11 @@ export class TourScene {
 
     // 2) Objetos altos e personagens, linha a linha (os de baixo tapam os de cima)
     const ents = [
-      { y: this.c.y, draw: () => this.drawPerson(ctx, this.sergio, this.c, camX, camY, this.sergioLost) },
-      { y: this.p.y + 0.1, draw: () => this.drawPerson(ctx, this.luisa, this.p, camX, camY, false) },
+      { y: this.c.y, draw: () => this.drawPerson(ctx, this.follow, this.c, camX, camY, this.sergioLost) },
+      { y: this.p.y + 0.1, draw: () => this.drawPerson(ctx, this.lead, this.p, camX, camY, false) },
     ];
+    for (const n of m.npcs) ents.push({ y: n.y, draw: () => this.drawPerson(ctx, n.frames, { x: n.x, y: n.y, facing: this.p.x < n.x ? -1 : 1, moving: false, dist: 0 }, camX, camY, false) });
+    for (const cow of m.cows) ents.push({ y: cow.y, draw: () => { ctx.fillStyle = 'rgba(0,0,0,0.22)'; ctx.fillRect(Math.round(cow.x - camX) - 8, Math.round(cow.y - camY) - 1, 17, 3); ctx.drawImage(this.cowImg[cow.dir > 0 ? 'r' : 'l'], Math.round(cow.x - camX) - 10, Math.round(cow.y - camY) - 10 - (cow.wait > 0 ? 0 : Math.floor(t * 6) % 2)); } });
     for (const h of m.hearts) if (!h.got) ents.push({ y: h.y + 4, draw: () => ctx.drawImage(this.spr.heart, Math.round(h.x - camX) - 4, Math.round(h.y - camY) - 6 + Math.round(Math.sin(t * 4 + h.x) * 1.5)) });
     for (const poi of m.pois) if (!poi.done) ents.push({ y: poi.y, draw: () => this.drawSpark(R, poi, t) });
     ents.sort((a, b) => a.y - b.y);
@@ -356,10 +405,18 @@ export class TourScene {
   drawFloor(R, m, c, r) {
     const ch = m.grid[r][c], x = c * T, y = r * T, hs = hash(c * 7.3 + r * 13.1);
     let kind = FLOORS[ch];
-    if (!kind) kind = m.def.indoor ? FLOORS[this.floorNear(m.grid, c, r)] : (ch === 'f' || ch === 't' ? 'grass' : 'gravel');
+    if (!kind) kind = m.def.indoor ? FLOORS[this.floorNear(m.grid, c, r)] : ('ftcEK'.includes(ch) || (ch === 'x' && m.def.ground === 'cobble') ? 'grass' : 'gravel');
+    if (kind === 'gravel' && m.def.ground === 'cobble') kind = 'cobble';
     if (kind === 'grass') {
       R(x, y, T, T, '#5fae5a');
       if (hs > 0.5) { R(x + 3 + Math.floor(hs * 8), y + 4, 2, 1, '#7fcf72'); R(x + 9 - Math.floor(hs * 6), y + 11, 2, 1, '#4f9a4f'); }
+    } else if (kind === 'cobble') {       // calçada de granito das aldeias
+      R(x, y, T, T, '#b4b0a8');
+      R(x, y + 7, T, 1, '#96928a');
+      R(x, y + 15, T, 1, '#96928a');
+      R(x + (r % 2 ? 5 : 11), y, 1, 7, '#96928a');
+      R(x + (r % 2 ? 12 : 3), y + 8, 1, 7, '#96928a');
+      if (hs > 0.55) R(x + 2 + Math.floor(hs * 9), y + 3, 3, 2, '#c8c4bc');
     } else if (kind === 'gravel') {
       R(x, y, T, T, '#e0d2a8');
       R(x + 2 + Math.floor(hs * 10), y + 3, 2, 1, '#c9b888');
@@ -453,6 +510,76 @@ export class TourScene {
         }
         break;
       }
+      case 'M': {   // muro de pedra solta
+        R(x, y - 4, T, T + 4, '#8e8a82');
+        R(x, y - 4, T, 2, '#b4b0a8');
+        R(x + 1 + Math.floor(hs * 6), y, 6, 3, '#a29e96');
+        R(x + 9 - Math.floor(hs * 4), y + 4, 5, 3, '#7a766e');
+        R(x + 7, y - 2, 1, 6, '#6e6a62');
+        if (below !== 'M') { R(x, y + 8, T, 8, '#6e6a62'); R(x + 3, y + 10, 5, 3, '#7e7a72'); R(x + 10, y + 12, 4, 3, '#5e5a54'); R(x, y + 15, T, 1, '#4e4a45'); }
+        break;
+      }
+      case 'G':
+      case 'g':
+      case 'O': {   // casa de granito: parede, janela e porta
+        R(x, y, T, T, '#9a968e');
+        R(x, y + 5, T, 1, '#7e7a72');
+        R(x, y + 11, T, 1, '#7e7a72');
+        R(x + (r % 2 ? 4 : 10), y, 1, 5, '#7e7a72');
+        R(x + (r % 2 ? 11 : 5), y + 6, 1, 5, '#7e7a72');
+        R(x + 2 + Math.floor(hs * 8), y + 2, 3, 2, '#b0aca4');
+        if (ch === 'g') {
+          R(x + 3, y + 2, 10, 10, '#f2ece0');
+          R(x + 4, y + 3, 8, 8, '#3a4a5e');
+          R(x + 7, y + 3, 2, 8, '#f2ece0');
+          R(x + 3, y + 12, 10, 2, '#7e7a72');
+          R(x + 5, y + 10, 2, 2, '#d43d51');
+          R(x + 9, y + 10, 2, 2, '#ff5d8f');
+        } else if (ch === 'O') {
+          R(x + 1, y - 2, 14, 18, '#6e6a62');
+          R(x + 3, y, 10, 16, '#3f6a4a');
+          R(x + 7, y, 1, 16, '#2a4a34');
+          R(x + 3, y + 5, 10, 1, '#2a4a34');
+          R(x + 10, y + 9, 2, 2, GOLD);
+        }
+        break;
+      }
+      case 'E':     // espigueiro (canastro) de granito e madeira
+        R(x - 12, y + 6, 4, 9, '#8e8a82');
+        R(x + 24, y + 6, 4, 9, '#8e8a82');
+        R(x - 14, y + 4, 8, 3, '#b4b0a8');
+        R(x + 22, y + 4, 8, 3, '#b4b0a8');
+        R(x - 15, y - 12, 46, 17, '#2b1d2e');
+        R(x - 14, y - 11, 44, 15, '#9a6a3c');
+        for (let k = 0; k < 11; k++) R(x - 13 + k * 4, y - 11, 1, 15, '#6a4424');
+        R(x - 17, y - 17, 50, 6, '#8e8a82');
+        R(x - 15, y - 19, 46, 3, '#a8a49c');
+        R(x + 7, y - 25, 2, 6, '#8e8a82');
+        R(x + 5, y - 23, 6, 2, '#8e8a82');
+        break;
+      case 'K':     // capela caiada, com sineira e cruz
+        R(x - 13, y - 26, 42, 42, '#2b1d2e');
+        R(x - 12, y - 25, 40, 41, '#f2ece0');
+        R(x - 12, y - 25, 4, 41, '#a8a49c');
+        R(x + 24, y - 25, 4, 41, '#a8a49c');
+        R(x - 14, y - 29, 44, 5, '#c2543a');
+        R(x + 2, y - 40, 12, 12, '#f2ece0');
+        R(x + 5, y - 37, 6, 7, '#3a4a5e');
+        R(x + 6, y - 35, 4, 4, GOLD);
+        R(x + 7, y - 48, 2, 8, '#8e8a82');
+        R(x + 4, y - 46, 8, 2, '#8e8a82');
+        R(x + 2, y - 4, 12, 20, '#a8a49c');
+        R(x + 4, y - 2, 8, 18, '#5a3524');
+        R(x + 7, y - 2, 1, 18, '#3a2414');
+        R(x + 5, y - 16, 6, 6, '#3a4a5e');
+        break;
+      case 'c':     // couves da horta
+        R(x + 3, y + 5, 10, 8, '#3f8f5a');
+        R(x + 1, y + 7, 14, 4, '#3f8f5a');
+        R(x + 5, y + 6, 6, 5, '#6fbf7a');
+        R(x + 7, y + 7, 2, 3, '#a8e0a0');
+        R(x + 2, y + 12, 12, 1, '#2f6a42');
+        break;
       case 'R':     // telhado
         R(x, y, T, T, '#c2543a');
         for (let k = 0; k < 4; k++) R(x, y + k * 4 + 3, T, 1, '#9a3f2c');

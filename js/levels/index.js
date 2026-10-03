@@ -6,12 +6,13 @@ import date from './02-date.js';
 import madeira from './03-madeira.js';
 import ciclismo from './04-ciclismo.js';
 import solar from './05-solar.js';
-import casamento from './06-casamento.js';
+import pretarouca from './06-pretarouca.js';
+import casamento from './07-casamento.js';
 import xavier from './b1-xavier.js';
 import luisinha from './b2-luisa.js';
 
 // Os níveis da história vêm primeiro (o último tem `final: true`), seguidos dos bónus.
-export const LEVELS = [encontro, date, madeira, ciclismo, solar, casamento, xavier, luisinha];
+export const LEVELS = [encontro, date, madeira, ciclismo, solar, pretarouca, casamento, xavier, luisinha];
 
 // Etiqueta de cada nível: "Nível 3", "Bónus 1", ...
 export function levelLabel(index) {
