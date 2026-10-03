@@ -60,11 +60,12 @@ tools/                servidor local e gerador de ícones
 | 6 | `06-pretarouca.js` | Pretarouca | passeio pela aldeia de granito + forno de lenha |
 | 7 | `07-covid.js` | Na Linha da Frente | arcada por vagas numa enfermaria, durante a pandemia |
 | 8 | `08-noruega.js` | Aurora Boreal | cidade nevada, trenó de huskies e a aurora |
-| 9 | `09-casamento.js` | O Casamento (final) | festa de casamento |
+| 9 | `09-pedido.js` | O Pedido | Natal: jogo de memória com os presentes e o pedido de casamento |
+| 10 | `10-casamento.js` | O Casamento (final) | festa de casamento |
 | B1 | `b1-xavier.js` | Bem-vindo, Xavier! | quarto azul |
 | B2 | `b2-luisa.js` | Bem-vinda, pequena Luísa! | quarto rosa |
 
-Os níveis 1 a 8 estão feitos. Os restantes são esqueletos jogáveis, montados com troços genéricos,
+Os níveis 1 a 9 estão feitos. Os restantes são esqueletos jogáveis, montados com troços genéricos,
 com textos provisórios; vão ser desenhados ao pormenor um a um.
 
 ### Nível 1 — minijogo "Operação"
@@ -77,7 +78,7 @@ e largar dentro da zona verde. Cada osso retirado sem falhas vale um coração.
 
 Os ossos, a velocidade do marcador e a largura da zona verde definem-se em
 `js/levels/01-encontro.js`; a lógica e o cenário estão em `js/scenes/operation.js`.
-Um nível escolhe o tipo de jogo com `type` (`operation`, `date`, `bike`, `tour`, `covid`; por omissão, plataformas).
+Um nível escolhe o tipo de jogo com `type` (`operation`, `date`, `bike`, `tour`, `covid`, `proposal`; por omissão, plataformas).
 
 ### Nível 2 — "O Primeiro Date"
 
@@ -191,6 +192,18 @@ A viagem à Noruega para ver a aurora boreal, em duas partes:
 
 Um nível de plataformas passa para uma segunda cena com `then` (aqui, `then: 'aurora'`);
 `sledStyle: 'husky'` troca o carro de cesto pelo trenó de cães.
+
+### Nível 9 — "O Pedido"
+
+É Natal e o Sérgio escondeu um colar na árvore, junto dos presentes. A Luísa abre os
+presentes num jogo de memória: são oito pares e cada par é uma recordação de um nível
+anterior (o bloco operatório, o primeiro date, a Madeira, as bicicletas, o solar,
+Pretarouca, a pandemia e a aurora). Um par encontrado sem andar a virar os mesmos presentes
+vezes sem conta vale um coração. Quando o tapete fica vazio, há uma caixinha a brilhar na
+árvore: é o colar. O Sérgio ajoelha-se, faz o pedido, e toca-se para a Luísa dizer que sim.
+
+As recordações e as frases estão em `js/levels/09-pedido.js`; o jogo em
+`js/scenes/proposal.js`.
 
 ### Como se desenha um nível de plataformas
 

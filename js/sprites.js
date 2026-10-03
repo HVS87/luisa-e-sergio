@@ -99,6 +99,8 @@ const SERGIO = {
     stand: ['....oppppppo....', '....oppooppo....', '....oppooppo....', '....oppooppo....', '....obboobbo....', '....oooooooo....'],
     a: ['....oppppppo....', '...oppo.oppo....', '..oppo...oppo...', '..obbo...obbo...', '..oooo...obbbo..', '.........ooooo..'],
     b: ['....oppppppo....', '.....oppppo.....', '.....oppppo.....', '.....oppppo.....', '.....obbbbo.....', '.....oooooo.....'],
+    // de joelhos (para o pedido de casamento): o sprite fica mais baixo
+    kneel: ['....oppppppoo...', '..oppooopppppo..', '..obbbo..obbbo..', '..ooooo..ooooo..'],
   },
 };
 
@@ -119,6 +121,7 @@ const LOOKS = {
       scrubs: { t: '#4f9be0', T: '#3a78b8', b: '#ffffff', q: '#4f9be0', Q: '#3a78b8', cap: true },
       ppe: { t: '#cfe6f5', T: '#a8cfe6', b: '#ffffff', q: '#7fb8e0', Q: '#5a9ad0', cap: true },
       winter: { t: '#d43d51', T: '#a82a43', b: '#5a3a22', q: '#fff6e6', Q: '#d43d51', cap: true },
+      xmas: { t: '#c2384a', T: '#ffffff', b: '#7a2e4a' },
     },
   },
   sergio: {
@@ -133,6 +136,7 @@ const LOOKS = {
       scrubs: { t: '#3fae8a', k: '#3fae8a', p: '#3fae8a', b: '#ffffff', q: '#3fae8a', Q: '#2f8a6c', cap: true },
       ppe: { t: '#cfe6f5', k: '#cfe6f5', p: '#a8cfe6', b: '#ffffff', q: '#7fb8e0', Q: '#5a9ad0', cap: true },
       winter: { t: '#3d5aa8', k: '#ffd166', p: '#2b2b3a', b: '#5a3a22', q: '#3fae8a', Q: '#2f8a6c', cap: true },
+      xmas: { t: '#2f7a45', k: '#c2384a', p: '#3b4a7a', b: '#2b1d2e' },
     },
   },
 };
@@ -167,7 +171,7 @@ export function getCharacter(name, outfit = 'casual') {
   const pal = { ...BASE, ...look.base, ...clothes };
   const upper = cap ? look.def.upper.map((row, i) => look.def.cap[i] || row) : look.def.upper;
   const frames = {};
-  for (const leg of ['stand', 'a', 'b']) {
+  for (const leg of Object.keys(look.def.legs)) {
     const img = makeSprite([...upper, ...look.def.legs[leg]], pal);
     frames[leg] = { r: img, l: flip(img) };
   }
