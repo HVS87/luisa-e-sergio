@@ -283,6 +283,8 @@ body.in-level .hud { display: flex; }
 }
 body.in-level .hint:not(:empty) { display: block; }
 body.minigame #touch { display: none !important; }
+/* legenda grande ao centro, sobre o ecrã a negro ("1 ano depois...") */
+body.caption .hint { top: 42%; font-size: 1em; background: none; color: var(--gold); }
 
 /* ---------- Vitória ---------- */
 [data-screen="victory"] { justify-content: flex-start; padding-top: calc(var(--sat) + 12vh); }

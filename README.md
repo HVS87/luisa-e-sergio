@@ -1,7 +1,7 @@
 # Luísa ♥ Sérgio — Uma História de Amor
 
 Jogo de plataformas em pixel art sobre a história da Luísa e do Sérgio: do primeiro
-encontro ao casamento, com dois níveis bónus (o nascimento do Xavier e da pequena Luísa).
+encontro ao casamento, com um nível bónus na maternidade (o nascimento do Xavier e da pequena Luísa).
 O jogo termina com uma mensagem de parabéns pelos 4 anos de casados, rodeada de fogo de artifício.
 
 Feito em HTML5 + JavaScript puro (sem dependências nem passo de compilação). Funciona em
@@ -62,8 +62,7 @@ tools/                servidor local e gerador de ícones
 | 8 | `08-noruega.js` | Aurora Boreal | cidade nevada, trenó de huskies e a aurora |
 | 9 | `09-pedido.js` | O Pedido | Natal: jogo de memória com os presentes e o pedido de casamento |
 | 10 | `10-preparativos.js` | Os Preparativos (final) | a azáfama da véspera do casamento, no solar |
-| B1 | `b1-xavier.js` | Bem-vindo, Xavier! | quarto azul |
-| B2 | `b2-luisa.js` | Bem-vinda, pequena Luísa! | quarto rosa |
+| Bónus | `b1-maternidade.js` | Na Maternidade | o Sérgio apanha o Xavier e, 2 anos depois, a Luisinha |
 
 Os dez níveis da história estão feitos. Os restantes são esqueletos jogáveis, montados com troços genéricos,
 com textos provisórios; vão ser desenhados ao pormenor um a um.
@@ -226,6 +225,21 @@ Concluído o nível 10, corre a animação do casamento (`js/scenes/victory.js`)
 na igreja, a festa no solar até de madrugada e, por fim, a imagem sobe até ao céu, onde
 rebenta o fogo de artifício à volta de "Parabéns! pelos 4 anos de Casados" e da data
 08-10-22. Um toque salta a animação. A data e o número de anos estão em `js/config.js`.
+
+### Nível bónus — "Na Maternidade"
+
+Depois do casamento há um nível bónus (`js/scenes/birth.js`, textos em
+`js/levels/b1-maternidade.js`), em duas rondas separadas por um "fade" a negro:
+
+1. **"1 ano depois..."** — a Luísa está na maca a dar à luz, a parteira conta até três e o
+   Xavier salta pelo ar: o Sérgio tem de se pôr debaixo dele (a sombra no chão mostra onde
+   vai cair) e apanhá-lo.
+2. **"2 anos depois..."** — a mesma coisa com a Luisinha, mais rápida, enquanto o Xavier,
+   que já anda, passeia pela sala: se o pai lhe tropeça, perde um instante.
+
+O chão é todo almofadado: se o bebé cair, ressalta e há nova oportunidade (à terceira, é a
+parteira que o apanha). Apanhar à primeira vale 3 corações, depois de um ressalto 2, e
+depois de dois 1. No fim aparece o ecrã "Família completa!".
 
 ### Como se desenha um nível de plataformas
 

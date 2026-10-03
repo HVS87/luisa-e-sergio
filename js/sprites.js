@@ -160,6 +160,9 @@ LOOKS.padre = { def: SERGIO, base: { h: '#8a8794', d: '#f6c9a0' }, outfits: { ca
 // Figurante: o guia dos trenós de huskies, na Noruega (nível 8).
 LOOKS.guia = { def: SERGIO, base: { h: '#d8b25a', d: '#f6c9a0' }, outfits: { casual: { t: '#ff8a4b', k: '#ff8a4b', p: '#2b2b3a', b: '#2b1d2e', q: '#2b2b3a', Q: '#ff8a4b', cap: true } } };
 // Figurante: o carreiro do carro de cesto, de branco e chapéu de palha.
+// Nível bónus, na maternidade: a parteira (figurante) e o Xavier já a andar (desenhado a metade do tamanho dos pais).
+LOOKS.parteira = { def: LUISA, base: { h: '#2b2b3a', H: '#4a4a5e', v: '#2b2b3a', e: '#2b1d2e' }, outfits: { casual: { t: '#f29ac0', T: '#d877a3', b: '#ffffff', q: '#f29ac0', Q: '#d877a3', cap: true } } };
+LOOKS.xavier = { def: SERGIO, base: { h: '#6b4a2e', s: '#f6c9a0', d: '#f6c9a0' }, outfits: { casual: { t: '#8fc4ff', k: '#ffffff', p: '#5a8fd0', b: '#ffffff' } } };
 LOOKS.carreiro = { def: SERGIO, base: { h: '#3b2a20', s: '#e8b088', d: '#b98f72' }, outfits: { casual: { t: '#ffffff', k: '#ffffff', p: '#f2f2f2', b: '#5a3a22', q: '#e8c878', Q: '#2b1d2e', cap: true } } };
 
 const cache = new Map();

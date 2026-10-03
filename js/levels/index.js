@@ -11,16 +11,16 @@ import covid from './07-covid.js';
 import noruega from './08-noruega.js';
 import pedido from './09-pedido.js';
 import preparativos from './10-preparativos.js';
-import xavier from './b1-xavier.js';
-import luisinha from './b2-luisa.js';
+import maternidade from './b1-maternidade.js';
 
-// Os níveis da história vêm primeiro (o último tem `final: true`), seguidos dos bónus.
-export const LEVELS = [encontro, date, madeira, ciclismo, solar, pretarouca, covid, noruega, pedido, preparativos, xavier, luisinha];
+// Os níveis da história vêm primeiro (o último tem `final: true`), seguidos do bónus.
+export const LEVELS = [encontro, date, madeira, ciclismo, solar, pretarouca, covid, noruega, pedido, preparativos, maternidade];
 
-// Etiqueta de cada nível: "Nível 3", "Bónus 1", ...
+// Etiqueta de cada nível: "Nível 3", "Bónus", ...
 export function levelLabel(index) {
   const L = LEVELS[index];
   const n = LEVELS.slice(0, index + 1).filter((x) => !!x.bonus === !!L.bonus).length;
+  if (L.bonus && LEVELS.filter((x) => x.bonus).length === 1) return 'Bónus';
   return (L.bonus ? 'Bónus ' : 'Nível ') + n;
 }
 
