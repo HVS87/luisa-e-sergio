@@ -38,15 +38,17 @@ export const PEOPLE = {
 export const partnerOf = (name) => (name === 'luisa' ? 'sergio' : 'luisa');
 
 // 16x24 píxeis, virados para a direita. Legenda:
-// o contorno · h cabelo · v véu (cabelo, exceto no casamento) · s pele · c corado
+// o contorno · h cabelo · H madeixa · v véu (cabelo, exceto no casamento) · s pele · d barba · c corado
 // e olhos · m boca · t roupa · T sombra da roupa · k camisa/gravata · p calças · b sapatos
 const LUISA = {
   upper: [
     '................',
+    '................',
+    '................',
     '....oooooooo....',
     '...ovvvhhhhho...',
-    '..ovvhhhhhhhho..',
-    '..ovhhhhhhhhho..',
+    '..ovvhHHhhhhho..',
+    '..ovhHhhhhhhho..',
     '..ovhhhhssssho..',
     '..ovhhssssssso..',
     '..ovhsssesseso..',
@@ -56,10 +58,8 @@ const LUISA = {
     '..ovhooooooo....',
     '..ovotttttto....',
     '..ovottttttso...',
-    '..ovottttttso...',
     '...ootttttto....',
     '....otttttto....',
-    '...otttttttto...',
     '...otttttttto...',
     '..otttttttttto..',
     '..oTTTTTTTTTTo..',
@@ -82,8 +82,8 @@ const SERGIO = {
     '..ohhsssssssso..',
     '..ohssssesseso..',
     '..ohssssesseso..',
-    '..ohssssssssso..',
-    '...osssssmmso...',
+    '..ohdsssssssso..',
+    '...odddddmmdo...',
     '....oooooooo....',
     '....ottkktto....',
     '...otttkkttto...',
@@ -106,7 +106,7 @@ const BASE = { o: '#2b1d2e', s: '#f6c9a0', c: '#f09a8c', e: '#2b1d2e', m: '#c254
 const LOOKS = {
   luisa: {
     def: LUISA,
-    base: { h: '#7a4526', v: '#7a4526' },
+    base: { h: '#b07a45', H: '#d6a468', v: '#b07a45', e: '#55703f' },   // castanho claro, olhos esverdeados
     outfits: {
       casual: { t: '#ff5d8f', T: '#d63f72', b: '#7a2e4a' },
       work: { t: '#4f7fd6', T: '#3a62ad', b: '#2b1d2e' },
@@ -117,7 +117,7 @@ const LOOKS = {
   },
   sergio: {
     def: SERGIO,
-    base: { h: '#3b2a20' },
+    base: { h: '#3b2a20', s: '#eebb8e', d: '#b98f72' },   // castanho escuro, barba curta
     outfits: {
       casual: { t: '#3fa672', k: '#3fa672', p: '#3b4a7a', b: '#2b1d2e' },
       work: { t: '#eef2f7', k: '#c2384a', p: '#3a3f55', b: '#2b1d2e' },
