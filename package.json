@@ -1,0 +1,11 @@
+{
+  "name": "luisa-e-sergio",
+  "version": "0.1.0",
+  "description": "Jogo de plataformas em pixel art sobre a história da Luísa e do Sérgio.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node tools/serve.mjs",
+    "icons": "node tools/make-icons.mjs"
+  }
+}

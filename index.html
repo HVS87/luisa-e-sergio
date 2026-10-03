@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Luísa &amp; Sérgio — Uma História de Amor</title>
+  <meta name="description" content="Um jogo de plataformas em pixel art sobre a história da Luísa e do Sérgio.">
+  <meta name="theme-color" content="#1a1433">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Luísa &amp; Sérgio">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="assets/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Ícones reutilizáveis -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="heart" viewBox="0 0 7 6" shape-rendering="crispEdges">
+      <path fill="currentColor" d="M1 0h2v1h1v-1h2v1h1v2h-1v1h-1v1h-1v1h-1v-1h-1v-1h-1v-1h-1v-2h1z"/>
+    </symbol>
+  </svg>
+
+  <canvas id="game" aria-label="Jogo Luísa e Sérgio"></canvas>
+
+  <!-- HUD (durante o nível) -->
+  <div class="hud" id="hud">
+    <div class="hud-hearts"><svg class="ico-heart"><use href="#heart"/></svg><span id="hud-hearts">0/0</span></div>
+    <div class="hud-title" id="hud-title"></div>
+    <button class="btn btn-icon" data-action="pause" aria-label="Pausa"><span class="ico-pause"></span></button>
+  </div>
+
+  <!-- Menu principal -->
+  <section class="screen" data-screen="menu">
+    <header class="title-block">
+      <h1 class="game-title">Luísa <svg class="ico-heart beat"><use href="#heart"/></svg> Sérgio</h1>
+      <p class="subtitle">Uma história de amor em pixel art</p>
+    </header>
+    <nav class="menu-buttons">
+      <button class="btn btn-primary" data-action="play" id="btn-play">Jogar</button>
+      <button class="btn" data-action="levels">Níveis</button>
+      <button class="btn" data-action="howto">Como Jogar</button>
+      <div class="btn-row">
+        <button class="btn btn-small" data-action="character" id="btn-character">Jogo com: Luísa</button>
+        <button class="btn btn-small" data-action="sound" id="btn-sound">Som: Sim</button>
+        <button class="btn btn-small" data-action="fullscreen" id="btn-fullscreen" hidden>Ecrã inteiro</button>
+      </div>
+    </nav>
+  </section>
+
+  <!-- Como Jogar -->
+  <section class="screen" data-screen="howto">
+    <div class="panel panel-wide">
+      <h2>Como Jogar</h2>
+      <div class="scroll">
+        <h3>A história</h3>
+        <p>Acompanha a Luísa e o Sérgio desde o primeiro encontro até ao dia do casamento! Cada nível é um capítulo da vida a dois: conhecerem-se, trabalhar, as férias juntos, o pedido e, por fim, o grande dia.</p>
+        <p>Apanha os corações pelo caminho e chega ao fim de cada nível para desbloquear o seguinte. Depois do casamento esperam-te dois níveis bónus muito especiais...</p>
+
+        <h3>Teclado</h3>
+        <ul class="controls">
+          <li><span class="keys"><kbd>&larr;</kbd><kbd>&rarr;</kbd> ou <kbd>A</kbd><kbd>D</kbd></span><span>Andar</span></li>
+          <li><span class="keys"><kbd>Espaço</kbd> <kbd>&uarr;</kbd> ou <kbd>W</kbd></span><span>Saltar</span></li>
+          <li><span class="keys"><kbd>P</kbd> ou <kbd>Esc</kbd></span><span>Pausa</span></li>
+          <li><span class="keys"><kbd>Enter</kbd></span><span>Confirmar nos menus</span></li>
+        </ul>
+
+        <h3>Ecrã tátil</h3>
+        <ul class="controls">
+          <li><span class="keys"><span class="mini-btn"><i class="tri tri-l"></i></span><span class="mini-btn"><i class="tri tri-r"></i></span></span><span>Andar (em baixo, à esquerda)</span></li>
+          <li><span class="keys"><span class="mini-btn"><i class="tri tri-u"></i></span></span><span>Saltar (em baixo, à direita)</span></li>
+          <li><span class="keys"><span class="mini-btn"><span class="ico-pause"></span></span></span><span>Pausa (em cima, à direita)</span></li>
+        </ul>
+
+        <h3>Dicas</h3>
+        <ul class="tips">
+          <li>Mantém o salto premido para saltar mais alto.</li>
+          <li>Salta em cima das nuvens cinzentas para as afastar.</li>
+          <li>Cuidado com os espinhos e os buracos! Mas não há vidas a perder: voltas sempre ao último ponto de passagem.</li>
+          <li>No telemóvel joga-se melhor com o ecrã deitado.</li>
+        </ul>
+      </div>
+      <button class="btn btn-primary" data-action="back" data-back>Voltar</button>
+    </div>
+  </section>
+
+  <!-- Seleção de níveis -->
+  <section class="screen" data-screen="levels">
+    <div class="panel panel-wide">
+      <h2>Níveis</h2>
+      <div class="scroll level-list" id="level-list"></div>
+      <button class="btn btn-primary" data-action="back" data-back>Voltar</button>
+    </div>
+  </section>
+
+  <!-- Introdução do nível -->
+  <section class="screen" data-screen="story">
+    <div class="panel">
+      <p class="kicker" id="story-kicker">Nível 1</p>
+      <h2 id="story-title"></h2>
+      <p class="story-text" id="story-text"></p>
+      <div class="btn-row">
+        <button class="btn" data-action="menu" data-back>Menu</button>
+        <button class="btn btn-primary" data-action="start">Começar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pausa -->
+  <section class="screen" data-screen="pause">
+    <div class="panel">
+      <h2>Pausa</h2>
+      <div class="menu-buttons">
+        <button class="btn btn-primary" data-action="resume">Continuar</button>
+        <button class="btn" data-action="restart">Recomeçar nível</button>
+        <button class="btn" data-action="sound" id="btn-sound-pause">Som: Sim</button>
+        <button class="btn" data-action="menu">Sair para o menu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Nível concluído -->
+  <section class="screen" data-screen="complete">
+    <div class="panel">
+      <p class="kicker">Nível concluído!</p>
+      <h2 id="complete-title"></h2>
+      <p class="complete-hearts"><svg class="ico-heart"><use href="#heart"/></svg><span id="complete-hearts">0/0</span><span class="perfect" id="complete-perfect" hidden>Perfeito!</span></p>
+      <div class="btn-row">
+        <button class="btn" data-action="menu">Menu</button>
+        <button class="btn" data-action="retry">Repetir</button>
+        <button class="btn btn-primary" data-action="next">Continuar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vitória -->
+  <section class="screen" data-screen="victory">
+    <div class="victory-text">
+      <p class="v-kicker" id="v-kicker">Luísa <svg class="ico-heart beat"><use href="#heart"/></svg> Sérgio</p>
+      <h2 class="v-title" id="v-title">Parabéns!</h2>
+      <p class="v-line" id="v-line">pelos 4 anos de Casados</p>
+    </div>
+    <div class="victory-actions">
+      <button class="btn" data-action="menu" data-back>Menu</button>
+      <button class="btn btn-primary" data-action="bonus" id="v-bonus">Níveis Bónus</button>
+    </div>
+  </section>
+
+  <!-- Controlos táteis -->
+  <div id="touch" aria-hidden="true">
+    <div id="pad">
+      <div class="tbtn tl"><i class="tri tri-l"></i></div>
+      <div class="tbtn tr"><i class="tri tri-r"></i></div>
+    </div>
+    <div id="jump" class="tbtn"><i class="tri tri-u"></i></div>
+  </div>
+
+  <noscript>Este jogo precisa de JavaScript ativo.</noscript>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

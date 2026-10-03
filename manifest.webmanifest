@@ -1,0 +1,16 @@
+{
+  "name": "Luísa & Sérgio — Uma História de Amor",
+  "short_name": "Luísa & Sérgio",
+  "description": "Um jogo de plataformas em pixel art sobre a história da Luísa e do Sérgio.",
+  "lang": "pt-PT",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#1a1433",
+  "theme_color": "#1a1433",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
