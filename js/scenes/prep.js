@@ -9,7 +9,7 @@ import { TILE as T } from '../config.js';
 import { TourScene } from './tour.js';
 import { getCharacter, partnerOf } from '../sprites.js';
 
-const DAY = 175;           // segundos até ao pôr do sol
+const DAY = 230;           // segundos até ao pôr do sol
 const INK = '#2b1d2e', GOLD = '#ffd166', PINK = '#ff5d8f', GREEN = '#5cf08a';
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const NAMES = { toalha: 'a toalha', pratos: 'os pratos', flores: 'as flores', luzes: 'as luzes', bolo: 'o bolo' };

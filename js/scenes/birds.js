@@ -483,7 +483,7 @@ export class BirdsScene {
     // Na mira dos binóculos?
     const cy = b.y - img.height / 2;
     if (!b.found && !b.hidden && this.state === 'play') {
-      if (Math.abs(b.x - this.lx) < 12 && Math.abs(cy - this.ly) < 9) {
+      if (Math.abs(b.x - this.lx) < 15 && Math.abs(cy - this.ly) < 11) {
         b.focus += dt / (way.type === 'fly' ? 0.7 : 1);
         if (b.focus >= 1) this.identify(b);
       } else b.focus = Math.max(0, b.focus - dt * 1.5);

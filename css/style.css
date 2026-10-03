@@ -43,6 +43,8 @@ body {
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;   /* o iOS não aumenta o texto ao rodar o ecrã */
+  text-size-adjust: 100%;
 }
 
 #game {
@@ -224,6 +226,12 @@ kbd {
   }
   [data-screen="menu"] .title-block { grid-column: 1 / span 2; }
   [data-screen="menu"] .menu-buttons { grid-column: 2; gap: 0.55em; }
+  /* telemóvel deitado: pouca altura, botões mais compactos e os pequenos em duas colunas */
+  [data-screen="menu"] .menu-buttons { width: min(24em, 100%); }
+  [data-screen="menu"] .menu-buttons > .btn { padding: 0.7em 1em; }
+  [data-screen="menu"] .btn-row .btn { white-space: nowrap; }
+  [data-screen="menu"] .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45em; }
+  [data-screen="menu"] .btn-row .btn { margin: var(--b); padding: 0.8em 0.6em; }
 }
 
 /* ---------- Lista de níveis ---------- */
@@ -367,5 +375,38 @@ body.is-touch.playing #touch { display: flex; }
 .tri-l { border-right-color: currentColor; border-left-width: 0; }
 .tri-r { border-left-color: currentColor; border-right-width: 0; }
 .tri-u { border-bottom-color: currentColor; border-top-width: 0; }
+
+/* ---------- Instalar como app ---------- */
+.install-lead { color: var(--mint); }
+.install-steps { margin: 0; padding: 0; list-style: none; counter-reset: passo; text-align: left; width: 100%; }
+.install-steps li { position: relative; padding-left: 2.4em; margin-bottom: 0.9em; counter-increment: passo; }
+.install-steps li::before { content: counter(passo); position: absolute; left: 0; top: -0.1em; width: 1.7em; height: 1.7em; line-height: 1.75em; text-align: center; color: #fff; background: var(--pink); }
+
+/* ---------- Aviso de orientação ---------- */
+#rotate {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1em;
+  padding: calc(var(--sat) + 1em) calc(var(--sar) + 1.4em) calc(var(--sab) + 1em) calc(var(--sal) + 1.4em);
+  text-align: center;
+  background: rgba(26, 20, 51, 0.96);
+}
+#rotate[hidden] { display: none; }
+.rotate-title { font-size: 1.05em; color: var(--gold); }
+.rotate-text { font-size: 0.62em; line-height: 1.9; max-width: 20em; }
+.rotate-phone {
+  position: relative;
+  width: 3.2em;
+  height: 5.4em;
+  border: 0.32em solid var(--paper);
+  animation: rodar 2.4s steps(1, end) infinite;
+}
+.rotate-phone i { position: absolute; left: 50%; bottom: 0.25em; width: 0.6em; height: 0.3em; margin-left: -0.3em; background: var(--paper); }
+@keyframes rodar { 0%, 45% { transform: rotate(0deg); } 50%, 95% { transform: rotate(-90deg); } }
 
 noscript { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 2em; text-align: center; }

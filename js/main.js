@@ -17,6 +17,7 @@ import { PrepScene } from './scenes/prep.js';
 import { BirthScene } from './scenes/birth.js';
 import { BirdsScene } from './scenes/birds.js';
 import { VictoryScene } from './scenes/victory.js';
+import { Orientation, Installer, registerServiceWorker } from './device.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d', { alpha: false });
@@ -38,8 +39,11 @@ const game = {
   setScene(scene) {
     if (this.scene && this.scene.exit) this.scene.exit();
     this.scene = scene;
+    // música: a da cena, a do nível, ou a dos níveis por omissão
+    audio.setTrack(scene.music || (scene.level && scene.level.music) || 'play');
     resize();
     if (scene.enter) scene.enter();
+    if (this.orientation) this.orientation.sceneChanged();
   },
 
   goMenu() {
@@ -78,6 +82,7 @@ const game = {
 // de jogo corresponda a um número inteiro de píxeis reais (pixel art sempre nítida).
 function resize() {
   const W = Math.max(1, window.innerWidth), H = Math.max(1, window.innerHeight);
+  document.body.classList.toggle('portrait', H > W);
   const dpr = window.devicePixelRatio || 1;
   const portrait = H > W;
   // Em paisagem arredonda-se (quase sempre) para baixo, para o nível caber inteiro em altura.
@@ -102,11 +107,16 @@ function resize() {
   root.setProperty('--pad-h', (portrait ? (view.pad * k) / dpr : Math.min(H * 0.55, 200)) + 'px');
 
   if (game.scene && game.scene.onResize) game.scene.onResize();
+  if (game.orientation) game.orientation.check();
 }
 
 save.load();
 audio.setMuted(save.data.muted);
+audio.setMusicMuted(save.data.musicMuted);
 game.ui = new UI(game);
+game.orientation = new Orientation(game);
+game.installer = new Installer(game.ui);
+registerServiceWorker();
 input.init({
   onEscape: () => game.ui.escape(),
   onPause: () => { if (game.scene && game.scene.togglePause) game.scene.togglePause(); },
@@ -114,9 +124,14 @@ input.init({
 });
 
 window.addEventListener('resize', resize);
-window.addEventListener('orientationchange', () => setTimeout(resize, 150));
+// Depois de rodar, o Safari do iOS demora um pouco a dar as medidas certas: medir várias vezes.
+const settle = () => [60, 200, 450, 900].forEach((ms) => setTimeout(resize, ms));
+window.addEventListener('orientationchange', settle);
+if (screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener('change', settle);
+window.addEventListener('pageshow', settle);
 if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
 document.addEventListener('visibilitychange', () => {
+  audio.visibility(document.hidden);
   if (document.hidden && game.scene && game.scene.autoPause) game.scene.autoPause();
 });
 

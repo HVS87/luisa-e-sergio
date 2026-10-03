@@ -5,6 +5,7 @@
 export default {
   id: 'pedido',
   type: 'proposal',
+  music: 'menu',
   title: 'O Pedido',
   story: 'É Natal. Junto à árvore há presentes para abrir... e, escondido entre os ramos, o Sérgio guardou o mais importante de todos.',
   help: 'Toca nos presentes para os abrir e encontra os pares (ou usa as setas e o Espaço). Quem tem boa memória ganha mais corações!',

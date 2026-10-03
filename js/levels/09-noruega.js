@@ -17,6 +17,12 @@ const T_CORACOES = [
   '##########',
   '##########',
 ];
+const T_PAUSA = [        // ponto de passagem a meio do trenó
+  '..........',
+  '..h.C..h..',
+  '##########',
+  '##########',
+];
 const T_PEDRA = [
   '......h.....',
   '............',
@@ -90,7 +96,7 @@ export default {
     { zone: 'tromso', base: 3 },
     lift(START, 3), lift(HEARTS, 3), lift(PLATFORMS, 3), lift(HEARTS, 3), lift(GUIA, 3),
     { zone: 'artico', base: 1 },
-    lift(T_CORACOES, 3), lift(T_PEDRA, 3), lift(T_RIACHO, 2), lift(T_CORACOES, 2),
+    lift(T_CORACOES, 3), lift(T_PEDRA, 3), lift(T_RIACHO, 2), lift(T_PAUSA, 2),
     lift(T_DUAS, 1), lift(T_RIACHO, 1), T_PEDRA, T_CORACOES, CHEGADA,
     NEVE, ACAMPAMENTO,
   ],

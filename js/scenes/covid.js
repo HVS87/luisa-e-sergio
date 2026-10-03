@@ -216,7 +216,7 @@ export class CovidScene {
 
     // Cansaço: turnos sem fim gastam a energia; com pouca energia dispara-se mais devagar
     this.energy = Math.max(0, this.energy - 0.026 * dt);
-    this.pressure = Math.max(0, this.pressure - 1.2 * dt);
+    this.pressure = Math.max(0, this.pressure - 2.2 * dt);
     if (this.shield > 0) this.shield -= dt;
 
     // Disparar (desinfetante; na última vaga, vacinas que atravessam vários vírus)
@@ -284,6 +284,7 @@ export class CovidScene {
       if (d.f > 0.86 && d.f < 1.04 && Math.abs(X(d.u) - dx) < 20) {
         this.drops.splice(i, 1);
         if (d.kind === 'heart') {
+          this.goldAt.delete(d.id);     // se a vaga recomeçar, este coração já não volta
           this.got++;
           this.game.audio.play('heart');
           this.game.ui.setHud(this.got, this.total, this.level.title);
@@ -300,12 +301,12 @@ export class CovidScene {
       } else if (d.f > 1.06) this.drops.splice(i, 1);
     }
 
-    // Hospital no limite: a vaga recomeça (à terceira, segue-se em frente)
+    // Hospital no limite: a vaga recomeça mais lenta (à segunda, segue-se em frente)
     if (this.pressure >= 100) {
       this.fails++;
-      this.ease = 1 + this.fails * 0.25;
+      this.ease = 1 + this.fails * 0.4;
       this.game.audio.play('hurt');
-      if (this.fails >= 3) { this.hint('Foi no limite, mas aguentaram. Em frente!', 3); this.nextPhase(); return; }
+      if (this.fails >= 2) { this.hint('Foi no limite, mas aguentaram. Em frente!', 3); this.nextPhase(); return; }
       this.state = 'fail';
       this.timer = 0;
       this.hint('O hospital ficou no limite... Respira fundo. Ninguém desiste!', 3);
@@ -326,7 +327,7 @@ export class CovidScene {
     const tp = TYPES[vi.type];
     this.fx.burst(x, y, vi.type === 'big' ? 16 : 9, [tp.pal.G, '#ffffff', '#bfe6ff'], 55);
     this.game.audio.play('stomp');
-    if (vi.gold) this.drops.push({ u: vi.u, f: vi.f, kind: 'heart' });
+    if (vi.gold) this.drops.push({ u: vi.u, f: vi.f, kind: 'heart', id: vi.id });
   }
 
   // ---------- Desenho ----------

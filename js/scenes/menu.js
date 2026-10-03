@@ -7,6 +7,7 @@ import { Particles } from '../fx.js';
 export class MenuScene {
   constructor(game) {
     this.game = game;
+    this.music = 'menu';
     this.theme = THEMES.park;
     this.tiles = getTiles(this.theme);
     this.luisa = getCharacter('luisa', 'casual');

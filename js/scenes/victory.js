@@ -18,6 +18,7 @@ const ease = (x) => { const c = clamp(x, 0, 1); return c * c * (3 - 2 * c); };
 export class VictoryScene {
   constructor(game, variant = 'wedding') {
     this.game = game;
+    this.music = 'party';
     this.variant = variant;
     const outfit = variant === 'family' ? 'casual' : 'wedding';
     this.luisa = getCharacter('luisa', outfit);

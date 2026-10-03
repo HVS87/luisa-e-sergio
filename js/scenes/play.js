@@ -11,7 +11,7 @@ const NEXT = { aurora: AuroraScene };
 
 const PW = 10, PH = 20;        // caixa de colisão do jogador (o sprite tem 16x24)
 const TRAIL = 16;              // atraso (em passos) com que o par segue o jogador
-const SLED_SPEED = 150;        // velocidade do carro de cesto (px/s)
+const SLED_SPEED = 125;        // velocidade do carro de cesto (px/s)
 const NO_INPUT = { left: false, right: false, jump: false, jumpPressed: false };
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));

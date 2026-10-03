@@ -1,7 +1,8 @@
 // Progresso guardado no próprio dispositivo (localStorage).
 import { SAVE_KEY } from './config.js';
 
-const defaults = () => ({ character: 'luisa', muted: false, done: {} });
+// muted: efeitos sonoros desligados · musicMuted: música desligada
+const defaults = () => ({ character: 'luisa', muted: false, musicMuted: false, done: {} });
 
 export const save = {
   data: defaults(),
@@ -9,7 +10,12 @@ export const save = {
   load() {
     try {
       const raw = localStorage.getItem(SAVE_KEY);
-      if (raw) this.data = Object.assign(defaults(), JSON.parse(raw));
+      if (raw) {
+        const old = JSON.parse(raw);
+        // gravações antigas tinham um só botão de som, que desligava tudo
+        if (old && old.musicMuted === undefined) old.musicMuted = !!old.muted;
+        this.data = Object.assign(defaults(), old);
+      }
     } catch (err) { /* modo privado ou armazenamento bloqueado */ }
     if (this.data.character !== 'sergio') this.data.character = 'luisa';
     if (!this.data.done || typeof this.data.done !== 'object') this.data.done = {};

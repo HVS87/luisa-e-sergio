@@ -244,7 +244,7 @@ export class BikeScene {
     // Pedalar gasta a energia de quem puxa; quem vai na roda recupera
     const pedal = I.right && this.stun <= 0;
     const lead = this.riders[this.front];
-    if (pedal) lead.e -= 0.05 * (1 + Math.max(0, g) * 7) * (wind ? 1.9 : 1) * dt;
+    if (pedal) lead.e -= 0.05 * (1 + Math.max(0, g) * 5.5) * (wind ? 1.7 : 1) * dt;
     else lead.e += 0.035 * dt;
     this.riders[1 - this.front].e += 0.075 * dt;
     for (const r of this.riders) r.e = clamp(r.e, 0, 1);
@@ -258,7 +258,7 @@ export class BikeScene {
     const power = this.bonked ? 0.4 : 1;
     let a = (pedal ? 92 * power : 0) - this.v * (wind ? 0.8 : 0.6) - g * (g > 0 ? 250 : 480);
     if (this.stun > 0) { this.stun -= dt; a -= this.v * 2; }
-    this.v = clamp(this.v + a * dt, pedal ? 20 : 0, VMAX);
+    this.v = clamp(this.v + a * dt, pedal ? 34 : 0, VMAX);
 
     // Salto
     if (I.jumpPressed && this.hop <= 0 && this.stun <= 0) {

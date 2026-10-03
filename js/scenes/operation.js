@@ -12,7 +12,7 @@ import { Particles } from '../fx.js';
 const SW = 240, SH = 146, FLOOR = 96;
 const TRACK0 = 30, TRACK1 = 210, TRACK = TRACK1 - TRACK0, PCY = 126;   // painel de raio-X
 const HITS = 3;            // golpes certeiros necessários por osso
-const FILL_RATE = 0.6;     // velocidade a que a seringa enche (por segundo)
+const FILL_RATE = 0.48;    // velocidade a que a seringa enche (por segundo)
 
 // Onde fica a "janela" de cada osso no corpo do doente: [x, y, largura, altura, é num membro que esperneia?]
 const SLOTS = {

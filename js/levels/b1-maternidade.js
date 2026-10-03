@@ -5,6 +5,7 @@
 export default {
   id: 'maternidade',
   type: 'birth',
+  music: 'menu',
   bonus: true,
   title: 'Na Maternidade',
   story: 'Um ano depois do casamento, a Luísa e o Sérgio voltam ao hospital... mas desta vez não é para trabalhar! Vem aí o Xavier — e vem com pressa.',

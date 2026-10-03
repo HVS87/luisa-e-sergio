@@ -10,9 +10,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Luísa &amp; Sérgio">
+  <meta name="application-name" content="Luísa &amp; Sérgio">
+  <meta name="format-detection" content="telephone=no">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="assets/icon-192.png">
-  <link rel="apple-touch-icon" href="assets/icon-180.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -49,8 +51,10 @@
       <button class="btn" data-action="howto">Como Jogar</button>
       <div class="btn-row">
         <button class="btn btn-small" data-action="character" id="btn-character">Jogo com: Luísa</button>
-        <button class="btn btn-small" data-action="sound" id="btn-sound">Som: Sim</button>
+        <button class="btn btn-small" data-action="music" id="btn-music">Música: Sim</button>
+        <button class="btn btn-small" data-action="sound" id="btn-sound">Sons: Sim</button>
         <button class="btn btn-small" data-action="fullscreen" id="btn-fullscreen" hidden>Ecrã inteiro</button>
+        <button class="btn btn-small" data-action="install" id="btn-install" hidden>Instalar app</button>
       </div>
     </nav>
   </section>
@@ -69,6 +73,7 @@
           <li><span class="keys"><kbd>&larr;</kbd><kbd>&rarr;</kbd> ou <kbd>A</kbd><kbd>D</kbd></span><span>Andar</span></li>
           <li><span class="keys"><kbd>Espaço</kbd> <kbd>&uarr;</kbd> ou <kbd>W</kbd></span><span>Saltar</span></li>
           <li><span class="keys"><kbd>P</kbd> ou <kbd>Esc</kbd></span><span>Pausa</span></li>
+          <li><span class="keys"><kbd>M</kbd></span><span>Ligar/desligar a música</span></li>
           <li><span class="keys"><kbd>Espaço</kbd> ou <kbd>Enter</kbd></span><span>Ação nos minijogos</span></li>
           <li><span class="keys"><kbd>Enter</kbd></span><span>Confirmar nos menus</span></li>
         </ul>
@@ -86,8 +91,13 @@
           <li>Mantém o salto premido para saltar mais alto.</li>
           <li>Salta em cima das nuvens cinzentas para as afastar.</li>
           <li>Cuidado com os espinhos e os buracos! Mas não há vidas a perder: voltas sempre ao último ponto de passagem.</li>
-          <li>No telemóvel joga-se melhor com o ecrã deitado.</li>
+          <li>No telemóvel, os níveis de plataformas e de bicicleta jogam-se melhor com o ecrã deitado (o jogo avisa). Os minijogos funcionam bem nas duas posições.</li>
+          <li>A música e os sons ligam-se e desligam-se em separado, no menu ou na pausa.</li>
         </ul>
+
+        <h3>Instalar como app</h3>
+        <p>O jogo pode ficar no ecrã principal do telemóvel, do tablet ou do computador, com ícone próprio, em ecrã inteiro e a funcionar sem rede. Usa o botão «Instalar app» no menu: no Android e no Chrome abre o pedido de instalação; no iPhone e no iPad mostra os passos (Partilhar → «Adicionar ao ecrã principal»).</p>
+        <p>O progresso fica guardado no próprio dispositivo.</p>
       </div>
       <button class="btn btn-primary" data-action="back" data-back>Voltar</button>
     </div>
@@ -123,9 +133,22 @@
       <div class="menu-buttons">
         <button class="btn btn-primary" data-action="resume">Continuar</button>
         <button class="btn" data-action="restart">Recomeçar nível</button>
-        <button class="btn" data-action="sound" id="btn-sound-pause">Som: Sim</button>
+        <div class="btn-row">
+          <button class="btn btn-small" data-action="music" id="btn-music-pause">Música: Sim</button>
+          <button class="btn btn-small" data-action="sound" id="btn-sound-pause">Sons: Sim</button>
+        </div>
         <button class="btn" data-action="menu">Sair para o menu</button>
       </div>
+    </div>
+  </section>
+
+  <!-- Instalar como app -->
+  <section class="screen" data-screen="install">
+    <div class="panel">
+      <h2>Instalar como app</h2>
+      <p class="install-lead" id="install-lead"></p>
+      <ol class="install-steps" id="install-steps"></ol>
+      <button class="btn btn-primary" data-action="back" data-back>Voltar</button>
     </div>
   </section>
 
@@ -166,6 +189,14 @@
       <div class="tbtn tr"><i class="tri tri-r"></i></div>
     </div>
     <div id="jump" class="tbtn"><i class="tri tri-u"></i></div>
+  </div>
+
+  <!-- Aviso de orientação (telemóvel na vertical, em níveis que se jogam deitados) -->
+  <div id="rotate" hidden>
+    <div class="rotate-phone" aria-hidden="true"><i></i></div>
+    <p class="rotate-title">Roda o telemóvel</p>
+    <p class="rotate-text">Este nível joga-se melhor com o ecrã deitado.</p>
+    <button class="btn btn-small" id="rotate-ok">Jogar na vertical</button>
   </div>
 
   <noscript>Este jogo precisa de JavaScript ativo.</noscript>

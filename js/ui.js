@@ -2,6 +2,7 @@
 import { ANOS_CASADOS, WEDDING_DATE } from './config.js';
 import { LEVELS, levelLabel } from './levels/index.js';
 import { PEOPLE, partnerOf } from './sprites.js';
+import { fullscreen, isStandalone } from './device.js';
 
 const $ = (sel) => document.querySelector(sel);
 const HEART = '<svg class="ico-heart" aria-hidden="true"><use href="#heart"/></svg>';
@@ -14,6 +15,8 @@ export class UI {
     this.kb = false;   // true quando a última interação foi por teclado
 
     document.addEventListener('pointerdown', () => { this.kb = false; game.audio.unlock(); }, true);
+    // o Safari do iOS só liberta o som no fim de um toque
+    document.addEventListener('touchend', () => game.audio.unlock(), true);
     document.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action]');
       if (!btn || btn.disabled) return;
@@ -23,8 +26,7 @@ export class UI {
     });
     document.addEventListener('keydown', (e) => this.onKey(e));
 
-    const fs = $('#btn-fullscreen');
-    if (document.fullscreenEnabled && document.documentElement.requestFullscreen) fs.hidden = false;
+    $('#btn-fullscreen').hidden = !fullscreen.supported || isStandalone();
 
     this.refreshMenu();
   }
@@ -32,6 +34,7 @@ export class UI {
   // Mostra um ecrã pelo nome (ou nenhum, com null).
   show(name) {
     this.current = name;
+    this.game.audio.duck(name === 'pause');
     for (const s of this.screens) s.classList.toggle('active', s.dataset.screen === name);
     const scroller = name && this.active().querySelector('.scroll');
     if (scroller) scroller.scrollTop = 0;
@@ -85,9 +88,11 @@ export class UI {
     const started = Object.keys(d.done).length > 0;
     $('#btn-play').textContent = started ? 'Continuar' : 'Jogar';
     $('#btn-character').textContent = 'Jogo com: ' + PEOPLE[d.character].nome;
-    const som = 'Som: ' + (d.muted ? 'Não' : 'Sim');
-    $('#btn-sound').textContent = som;
-    $('#btn-sound-pause').textContent = som;
+    const sons = 'Sons: ' + (d.muted ? 'Não' : 'Sim'), musica = 'Música: ' + (d.musicMuted ? 'Não' : 'Sim');
+    $('#btn-sound').textContent = sons;
+    $('#btn-sound-pause').textContent = sons;
+    $('#btn-music').textContent = musica;
+    $('#btn-music-pause').textContent = musica;
   }
 
   buildLevels() {
@@ -124,6 +129,19 @@ export class UI {
     $('#story-help').hidden = !L.help;
     this.setLevelMode(false, false);
     this.show('story');
+  }
+
+  // Passos para adicionar o jogo ao ecrã principal (quando o browser não tem pedido próprio).
+  showInstallHelp(info) {
+    $('#install-lead').textContent = info.lead;
+    const ol = $('#install-steps');
+    ol.textContent = '';
+    for (const s of info.steps) {
+      const li = document.createElement('li');
+      li.textContent = s;
+      ol.append(li);
+    }
+    this.show('install');
   }
 
   showComplete(index, got, total, text) {
@@ -190,10 +208,14 @@ export class UI {
         g.audio.play('click');
         this.refreshMenu();
         break;
-      case 'fullscreen':
-        if (document.fullscreenElement) document.exitFullscreen();
-        else document.documentElement.requestFullscreen().catch(() => {});
+      case 'music':
+        save.data.musicMuted = !save.data.musicMuted;
+        save.write();
+        g.audio.setMusicMuted(save.data.musicMuted);
+        this.refreshMenu();
         break;
+      case 'fullscreen': fullscreen.toggle(); break;
+      case 'install': g.installer.install(); break;
       case 'start': this.show(null); g.scene.begin(); break;
       case 'pause':
       case 'resume': if (g.scene.togglePause) g.scene.togglePause(); break;
@@ -208,6 +230,7 @@ export class UI {
   onKey(e) {
     this.kb = true;
     this.game.audio.unlock();
+    if (e.code === 'KeyM' && !e.repeat) { this.act('music'); return; }
     if (document.body.classList.contains('playing') || !this.current) return;
     const list = this.buttons();
     if (!list.length) return;

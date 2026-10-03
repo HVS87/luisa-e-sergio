@@ -22,6 +22,7 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export class AuroraScene {
   constructor(game, index, prev) {
     this.game = game;
+    this.music = 'calm';   // a noite da aurora
     this.index = index;
     this.level = LEVELS[index];
     this.prev = prev || { got: 0, total: 0 };

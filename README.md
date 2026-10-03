@@ -27,7 +27,28 @@ Acrescentar `?debug` ao endereço desbloqueia todos os níveis (útil para testa
 | Saltar  | Espaço, ↑ ou W          | Botão ▲ (em baixo, à direita)     |
 | Ação (minijogos) | Espaço ou Enter | Tocar em qualquer ponto do ecrã |
 | Pausa   | P ou Esc                | Botão de pausa (em cima, à direita) |
+| Música on/off | M                 | Botão «Música» no menu ou na pausa |
 | Menus   | Setas + Enter           | Toque                       |
+
+A música e os efeitos sonoros ligam-se e desligam-se em separado («Música» e «Sons», no
+menu principal e na pausa); a escolha fica guardada.
+
+## Telemóvel, tablet e instalar como app
+
+- **Ecrã**: o jogo ocupa o ecrã inteiro (respeitando o entalhe e a barra do iPhone) e
+  adapta-se a qualquer tamanho, sempre com píxeis nítidos. No Safari do iOS, depois de rodar
+  o telemóvel, as medidas são recalculadas várias vezes (o Safari demora a dá-las certas).
+- **Orientação**: os níveis de plataformas e de bicicleta jogam-se melhor com o telemóvel
+  deitado. Se estiver na vertical, aparece o aviso «Roda o telemóvel» (e, a meio do nível, o
+  jogo faz pausa); dá para continuar na vertical com «Jogar na vertical». Nos tablets e nos
+  minijogos não há aviso. Instalado no Android, o jogo tenta mesmo fixar a orientação.
+- **Instalar como app**: o botão «Instalar app» no menu abre o pedido de instalação no
+  Android e no Chrome/Edge; no iPhone e no iPad mostra os passos (Partilhar → «Adicionar ao
+  ecrã principal»). Instalado, abre em ecrã inteiro, com ícone próprio, e funciona sem rede
+  graças ao service worker (`sw.js`, que vai sempre buscar a versão mais recente quando há
+  rede). O manifesto está em `manifest.webmanifest`.
+- **Som no iPhone**: o som só começa depois do primeiro toque (regra dos browsers) e, no
+  iPhone, segue o botão de silêncio lateral.
 
 ## Estrutura
 
@@ -37,7 +58,8 @@ css/style.css         estilo pixel art da interface e dos controlos táteis
 js/main.js            arranque, ecrã adaptável e ciclo principal
 js/config.js          constantes (física do salto, tamanho dos blocos, anos de casados)
 js/input.js           teclado + ecrã tátil
-js/audio.js           efeitos sonoros gerados por código
+js/audio.js           música e efeitos sonoros gerados por código (melodias originais)
+js/device.js          aviso de orientação, instalar como app, ecrã inteiro, service worker
 js/save.js            progresso guardado no dispositivo
 js/sprites.js         personagens e objetos em pixel art (definidos em texto)
 js/themes.js          cenários de cada ambiente (parque, cidade, praia, noite, casamento, quartos de bebé)
@@ -45,6 +67,7 @@ js/fx.js              partículas e fogo de artifício
 js/ui.js              lógica dos menus e painéis
 js/scenes/            menu, nível de plataformas, minijogos (operation.js) e ecrã de vitória
 js/levels/            um ficheiro por nível + troços reutilizáveis (chunks.js)
+sw.js                 service worker (jogar sem rede)
 tools/                servidor local e gerador de ícones
 ```
 
@@ -168,7 +191,7 @@ o Sérgio, de bata, touca e máscara, andam lado a lado pela enfermaria (arrasta
 ◀ ▶) e o desinfetante dispara sozinho contra os vírus que descem em direção às camas.
 
 - Cada vírus que passa aumenta a **pressão sobre o hospital**; se chegar ao máximo, a vaga
-  recomeça (mais fácil a cada tentativa e, à terceira, segue-se em frente).
+  recomeça (bem mais fácil a cada tentativa e, à segunda, segue-se em frente).
 - O **cansaço** dos turnos faz disparar mais devagar; os cafés que caem recuperam energia e
   as caixas de equipamento de proteção criam uma barreira temporária.
 - Os vírus dourados largam corações, que é preciso apanhar.
@@ -258,6 +281,24 @@ Depois do casamento há um nível bónus (`js/scenes/birth.js`, textos em
 O chão é todo almofadado: se o bebé cair, ressalta e há nova oportunidade (à terceira, é a
 parteira que o apanha). Apanhar à primeira vale 3 corações, depois de um ressalto 2, e
 depois de dois 1. No fim aparece o ecrã "Família completa!".
+
+### Dificuldade
+
+O objetivo é ser desafiante mas nunca impedir ninguém de chegar ao fim:
+
+- **Nenhum nível se perde.** Os corações contam para a pontuação (e para o «Perfeito!»),
+  mas não são precisos para desbloquear o nível seguinte.
+- Nas plataformas não há vidas: quem cai volta ao último ponto de passagem. Os carros de
+  cesto e o trenó andam a 125 px/s, e há pontos de passagem antes da ponte da levada e a
+  meio do trenó da Noruega.
+- Na pandemia, se o hospital chegar ao limite, a vaga recomeça 40% mais lenta; à segunda
+  vez, segue-se em frente.
+- Os minijogos repetem as tentativas falhadas sem castigo (a anestesia, os pratos do date,
+  as aves que voltam, o bebé que ressalta no chão almofadado).
+
+As constantes principais: `SLED_SPEED` em `js/scenes/play.js`, a velocidade e a zona verde
+de cada osso em `js/levels/01-encontro.js`, `hot` em `js/levels/02-date.js`, a pressão e
+as falhas em `js/scenes/covid.js`, `DAY` em `js/scenes/prep.js`.
 
 ### Como se desenha um nível de plataformas
 
