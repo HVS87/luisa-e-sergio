@@ -18,6 +18,9 @@ export const input = {
   action: false,        // ação dos minijogos (salto, Enter, ou tocar/clicar no ecrã) mantida premida
   actionPressed: false, // ação premida neste instante
   pointerX: -1,         // posição horizontal do dedo/rato enquanto toca no jogo (0 a 1), ou -1
+  pointerY: -1,         // idem, na vertical
+  up: false,            // cima/baixo: só para os níveis vistos de cima
+  down: false,
   touch: false,         // true quando o jogador está a usar o ecrã tátil
 
   init(options) {
@@ -36,6 +39,7 @@ export const input = {
     kb.left = kb.right = kb.jump = kb.action = false;
     tc.left = tc.right = tc.jump = tc.action = false;
     this.jumpPressed = this.actionPressed = false;
+    this.up = this.down = false;
     sync();
   },
 };
@@ -59,6 +63,12 @@ function bindKeyboard() {
     const playing = document.body.classList.contains('playing');
     if (e.code === 'Escape') { if (opts.onEscape) opts.onEscape(); e.preventDefault(); return; }
     if (e.code === 'KeyP') { if (opts.onPause) opts.onPause(); return; }
+    if (e.code === 'ArrowUp' || e.code === 'KeyW') input.up = true;
+    if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+      input.down = true;
+      if (playing) { e.preventDefault(); setTouch(false); }
+      return;
+    }
     const k = KEYS[e.code];
     if (!k) return;
     if (playing) { e.preventDefault(); setTouch(false); }
@@ -70,6 +80,8 @@ function bindKeyboard() {
     sync();
   });
   window.addEventListener('keyup', (e) => {
+    if (e.code === 'ArrowUp' || e.code === 'KeyW') input.up = false;
+    if (e.code === 'ArrowDown' || e.code === 'KeyS') input.down = false;
     const k = KEYS[e.code];
     if (!k) return;
     kb[k] = false;
@@ -134,8 +146,12 @@ function bindTouch() {
   // Tocar ou clicar em qualquer ponto do jogo: botão de ação dos minijogos
   const canvas = document.getElementById('game');
   const taps = new Set();
-  const tapSync = () => { tc.action = taps.size > 0; if (!tc.action) input.pointerX = -1; sync(); };
-  const tapMove = (e) => { if (taps.has(e.pointerId)) input.pointerX = e.clientX / Math.max(1, window.innerWidth); };
+  const tapSync = () => { tc.action = taps.size > 0; if (!tc.action) input.pointerX = input.pointerY = -1; sync(); };
+  const tapMove = (e) => {
+    if (!taps.has(e.pointerId)) return;
+    input.pointerX = e.clientX / Math.max(1, window.innerWidth);
+    input.pointerY = e.clientY / Math.max(1, window.innerHeight);
+  };
   canvas.addEventListener('pointerdown', (e) => {
     if (!document.body.classList.contains('playing')) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
@@ -143,6 +159,7 @@ function bindTouch() {
     try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* sem captura */ }
     taps.add(e.pointerId);
     input.actionPressed = true;
+    setTouch(e.pointerType === 'touch' || input.touch);
     tapMove(e);
     tapSync();
   });

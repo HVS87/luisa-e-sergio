@@ -56,11 +56,12 @@ tools/                servidor local e gerador de ícones
 | 2 | `02-date.js` | O Primeiro Date | microjogos num restaurante |
 | 3 | `03-madeira.js` | Na Madeira | plataformas: Funchal, levada, carro de cesto, Santana |
 | 4 | `04-ciclismo.js` | De Bicicleta | viagem de bicicleta: serra, planície e costa |
-| 5 | `05-casamento.js` | O Casamento (final) | festa de casamento |
+| 5 | `05-solar.js` | O Solar da Família | visita vista de cima: interior do solar e jardim de buxo |
+| 6 | `06-casamento.js` | O Casamento (final) | festa de casamento |
 | B1 | `b1-xavier.js` | Bem-vindo, Xavier! | quarto azul |
 | B2 | `b2-luisa.js` | Bem-vinda, pequena Luísa! | quarto rosa |
 
-Os níveis 1 a 4 estão feitos. Os restantes são esqueletos jogáveis, montados com troços genéricos,
+Os níveis 1 a 5 estão feitos. Os restantes são esqueletos jogáveis, montados com troços genéricos,
 com textos provisórios; vão ser desenhados ao pormenor um a um.
 
 ### Nível 1 — minijogo "Operação"
@@ -73,7 +74,7 @@ e largar dentro da zona verde. Cada osso retirado sem falhas vale um coração.
 
 Os ossos, a velocidade do marcador e a largura da zona verde definem-se em
 `js/levels/01-encontro.js`; a lógica e o cenário estão em `js/scenes/operation.js`.
-Um nível escolhe o tipo de jogo com `type` (`operation`, `date`, `bike`; por omissão, plataformas).
+Um nível escolhe o tipo de jogo com `type` (`operation`, `date`, `bike`, `tour`; por omissão, plataformas).
 
 ### Nível 2 — "O Primeiro Date"
 
@@ -127,6 +128,19 @@ Pelo caminho há bidões (energia), um furo (toques rápidos para encher o pneu)
 sagrada no café. Se a energia de quem puxa chega a zero, "bate o homem da marreta" e a
 velocidade cai até trocarem. O percurso define-se troço a troço em `route`, no ficheiro
 `js/levels/04-ciclismo.js`; a lógica e o desenho estão em `js/scenes/bike.js`.
+
+### Nível 5 — "O Solar da Família"
+
+A Luísa mostra ao Sérgio o Solar dos Soares de Albergaria, em Oliveira do Conde. É uma
+visita guiada vista de cima, em dois mapas ligados por uma porta: o interior da casa
+(cozinha velha, capela, salão dos retratos, biblioteca) e o jardim histórico de buxo, com
+sebes em anéis à volta da fonte. O jogador conduz a Luísa (setas, ou tocar no sítio para
+onde quer ir) e o Sérgio segue-a; em cada ponto a brilhar ela conta-lhe qualquer coisa.
+No jardim o Sérgio perde-se nos buxos e é preciso ir buscá-lo, e há regadores que só
+deixam passar quando param. A visita acaba na fonte, depois de mostrados todos os pontos.
+
+Os mapas (em texto) e as frases de cada ponto estão em `js/levels/05-solar.js`; o motor
+está em `js/scenes/tour.js`.
 
 ### Como se desenha um nível de plataformas
 
