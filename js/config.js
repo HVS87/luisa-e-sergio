@@ -20,3 +20,5 @@ export const PHYS = {
 
 export const SAVE_KEY = 'luisa-sergio-v1';
 export const ANOS_CASADOS = 4;
+export const WEDDING_DATE = '08-10-22';            // mostrada no ecrã final
+export const WEDDING_DAY = '8 de outubro de 2022'; // usada na animação do casamento

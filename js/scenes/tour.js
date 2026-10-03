@@ -238,7 +238,8 @@ export class TourScene {
     const len = Math.hypot(dx, dy);
     p.moving = len > 0;
     if (p.moving) {
-      const sx = (dx / len) * SPEED * dt, sy = (dy / len) * SPEED * dt;
+      const speed = SPEED * (this.speedMul || 1);
+      const sx = (dx / len) * speed * dt, sy = (dy / len) * speed * dt;
       this.wet = false;
       this.moo = false;
       const ox = p.x, oy = p.y;
@@ -307,6 +308,7 @@ export class TourScene {
     }
     // Portas entre mapas
     for (const d of m.doors) {
+      if (!m.def.door) break;             // porta só decorativa
       if (Math.floor(p.x / T) === d.x && Math.floor((p.y - 3) / T) === d.y) {
         this.game.audio.play('click');
         this.enterMap(m.def.door, d);
@@ -355,6 +357,7 @@ export class TourScene {
     for (const cow of m.cows) ents.push({ y: cow.y, draw: () => { ctx.fillStyle = 'rgba(0,0,0,0.22)'; ctx.fillRect(Math.round(cow.x - camX) - 8, Math.round(cow.y - camY) - 1, 17, 3); ctx.drawImage(this.cowImg[cow.dir > 0 ? 'r' : 'l'], Math.round(cow.x - camX) - 10, Math.round(cow.y - camY) - 10 - (cow.wait > 0 ? 0 : Math.floor(t * 6) % 2)); } });
     for (const h of m.hearts) if (!h.got) ents.push({ y: h.y + 4, draw: () => ctx.drawImage(this.spr.heart, Math.round(h.x - camX) - 4, Math.round(h.y - camY) - 6 + Math.round(Math.sin(t * 4 + h.x) * 1.5)) });
     for (const poi of m.pois) if (!poi.done) ents.push({ y: poi.y, draw: () => this.drawSpark(R, poi, t) });
+    if (this.extraEnts) this.extraEnts(ents, ctx, R, t);
     ents.sort((a, b) => a.y - b.y);
     let ei = 0;
     for (let y = y0; y <= y1; y++) {
@@ -364,7 +367,9 @@ export class TourScene {
     }
     while (ei < ents.length) ents[ei++].draw();
 
+    if (this.overlay) this.overlay(ctx, v, R, camX, camY, t);
     this.fx.draw(ctx, camX, camY);
+    if (this.overlay) return;
 
     // Progresso da visita: um ponto por sítio a mostrar
     const n = this.pois.length, px = Math.round((v.w - n * 7) / 2);

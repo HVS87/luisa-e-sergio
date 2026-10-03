@@ -61,11 +61,11 @@ tools/                servidor local e gerador de ícones
 | 7 | `07-covid.js` | Na Linha da Frente | arcada por vagas numa enfermaria, durante a pandemia |
 | 8 | `08-noruega.js` | Aurora Boreal | cidade nevada, trenó de huskies e a aurora |
 | 9 | `09-pedido.js` | O Pedido | Natal: jogo de memória com os presentes e o pedido de casamento |
-| 10 | `10-casamento.js` | O Casamento (final) | festa de casamento |
+| 10 | `10-preparativos.js` | Os Preparativos (final) | a azáfama da véspera do casamento, no solar |
 | B1 | `b1-xavier.js` | Bem-vindo, Xavier! | quarto azul |
 | B2 | `b2-luisa.js` | Bem-vinda, pequena Luísa! | quarto rosa |
 
-Os níveis 1 a 9 estão feitos. Os restantes são esqueletos jogáveis, montados com troços genéricos,
+Os dez níveis da história estão feitos. Os restantes são esqueletos jogáveis, montados com troços genéricos,
 com textos provisórios; vão ser desenhados ao pormenor um a um.
 
 ### Nível 1 — minijogo "Operação"
@@ -78,7 +78,7 @@ e largar dentro da zona verde. Cada osso retirado sem falhas vale um coração.
 
 Os ossos, a velocidade do marcador e a largura da zona verde definem-se em
 `js/levels/01-encontro.js`; a lógica e o cenário estão em `js/scenes/operation.js`.
-Um nível escolhe o tipo de jogo com `type` (`operation`, `date`, `bike`, `tour`, `covid`, `proposal`; por omissão, plataformas).
+Um nível escolhe o tipo de jogo com `type` (`operation`, `date`, `bike`, `tour`, `covid`, `proposal`, `prep`; por omissão, plataformas).
 
 ### Nível 2 — "O Primeiro Date"
 
@@ -204,6 +204,28 @@ vezes sem conta vale um coração. Quando o tapete fica vazio, há uma caixinha 
 
 As recordações e as frases estão em `js/levels/09-pedido.js`; o jogo em
 `js/scenes/proposal.js`.
+
+### Nível 10 — "Os Preparativos"
+
+A véspera do casamento, no relvado do solar. É um corre-corre visto de cima
+(`js/scenes/prep.js`, que estende o motor das visitas):
+
+1. **Montar a tenda**: ir a cada um dos quatro postes para os levantar.
+2. **Pôr as mesas**: em cada mesa, primeiro a toalha e os pratos (da carrinha), depois as
+   flores (do canteiro). Leva-se uma coisa de cada vez.
+3. **Pendurar as luzes** nos dois ganchos da tenda.
+4. **Levar o bolo**: anda-se mais devagar, e há regadores no caminho.
+
+Uma seta indica sempre onde ir a seguir. O dia vai passando (a luz fica dourada e depois
+azul); cada tarefa acabada antes do pôr do sol vale um coração, e depois disso continua-se
+à luz das lanternas, mas sem corações.
+
+### O final do jogo
+
+Concluído o nível 10, corre a animação do casamento (`js/scenes/victory.js`): a cerimónia
+na igreja, a festa no solar até de madrugada e, por fim, a imagem sobe até ao céu, onde
+rebenta o fogo de artifício à volta de "Parabéns! pelos 4 anos de Casados" e da data
+08-10-22. Um toque salta a animação. A data e o número de anos estão em `js/config.js`.
 
 ### Como se desenha um nível de plataformas
 

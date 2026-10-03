@@ -1,5 +1,5 @@
 // Interface (menus, HUD e painéis) feita em HTML por cima do canvas.
-import { ANOS_CASADOS } from './config.js';
+import { ANOS_CASADOS, WEDDING_DATE } from './config.js';
 import { LEVELS, levelLabel } from './levels/index.js';
 import { PEOPLE, partnerOf } from './sprites.js';
 
@@ -134,8 +134,21 @@ export class UI {
     this.show('complete');
   }
 
+  // Animação final: o ecrã de vitória fica só com a legenda até a animação acabar.
+  startCutscene(text) {
+    document.querySelector('[data-screen="victory"]').classList.add('cutscene');
+    this.setCaption(text);
+    this.setLevelMode(false, false);
+    this.show('victory');
+  }
+
+  setCaption(text) { $('#v-caption').textContent = text || ''; }
+
   showVictory(variant) {
     const family = variant === 'family';
+    document.querySelector('[data-screen="victory"]').classList.remove('cutscene');
+    this.setCaption('');
+    $('#v-date').textContent = family ? '' : WEDDING_DATE;
     $('#v-title').textContent = family ? 'Família completa!' : 'Parabéns!';
     $('#v-line').textContent = family
       ? 'Luísa, Sérgio, Xavier e a pequena Luísa'

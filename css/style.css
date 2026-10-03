@@ -309,6 +309,15 @@ body.minigame #touch { display: none !important; }
   visibility: hidden;   /* os botões só aparecem passados uns segundos (ver ui.js) */
 }
 .victory-actions.ready { visibility: visible; }
+.v-date { margin-top: 0.6em; font-size: 1.25em; letter-spacing: 0.12em; color: var(--pink); text-shadow: 0.12em 0.12em 0 var(--ink); }
+.v-date:empty { display: none; }
+/* Durante a animação final só se vê a legenda */
+.v-caption, .v-skip { display: none; }
+.cutscene .victory-text, .cutscene .victory-actions { display: none; }
+.cutscene .v-caption { display: block; max-width: calc(100% - 1.6em); padding: 0.6em 0.9em; font-size: 0.62em; line-height: 1.6; text-align: center; background: rgba(26, 20, 51, 0.88); }
+.cutscene .v-caption:empty { display: none; }
+.cutscene .v-skip { display: block; position: absolute; right: calc(var(--sar) + 1em); bottom: calc(var(--sab) + 1em); font-size: 0.45em; opacity: 0.7; text-shadow: 0.15em 0.15em 0 var(--ink); }
+[data-screen="victory"].cutscene { padding-top: calc(var(--sat) + 0.9em); }
 .victory-actions .btn { font-size: 0.68em; }
 @media (orientation: landscape) {
   [data-screen="victory"] { padding-top: calc(var(--sat) + 7vh); }

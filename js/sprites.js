@@ -155,6 +155,8 @@ LOOKS.pai = { def: SERGIO, base: { h: '#8a8794', d: '#d9b08c' }, outfits: { casu
 // As tias do Sérgio, em Pretarouca (nível 6): uma de cabelo grisalho, outra de lenço na cabeça.
 LOOKS.tia1 = { def: LUISA, base: { h: '#b8b4c0', H: '#d8d4e0', v: '#b8b4c0', e: '#2b1d2e' }, outfits: { casual: { t: '#4a5a8a', T: '#ffffff', b: '#2b1d2e' } } };
 LOOKS.tia2 = { def: LUISA, base: { h: '#5a4030', H: '#5a4030', v: '#5a4030', e: '#2b1d2e' }, outfits: { casual: { t: '#7a3a4a', T: '#ffffff', b: '#2b1d2e', q: '#3a3550', Q: '#55507a', cap: true } } };
+// Figurante: o padre, na animação do casamento.
+LOOKS.padre = { def: SERGIO, base: { h: '#8a8794', d: '#f6c9a0' }, outfits: { casual: { t: '#1c1c28', k: '#ffffff', p: '#1c1c28', b: '#111122' } } };
 // Figurante: o guia dos trenós de huskies, na Noruega (nível 8).
 LOOKS.guia = { def: SERGIO, base: { h: '#d8b25a', d: '#f6c9a0' }, outfits: { casual: { t: '#ff8a4b', k: '#ff8a4b', p: '#2b2b3a', b: '#2b1d2e', q: '#2b2b3a', Q: '#ff8a4b', cap: true } } };
 // Figurante: o carreiro do carro de cesto, de branco e chapéu de palha.
