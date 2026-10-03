@@ -90,8 +90,8 @@ export class ProposalScene {
 
   cardAt(L, px, py) {
     const c = Math.floor((px - L.gx + 2) / (L.cs + 4)), r = Math.floor((py - L.gy + 2) / (L.cs + 4));
-    if (c < 0 || r < 0 || c >= L.cols || r >= L.rows) return -1;
-    return r * L.cols + c;
+    const i = r * L.cols + c;
+    return c < 0 || r < 0 || c >= L.cols || r >= L.rows || i >= this.cards.length ? -1 : i;
   }
 
   // ---------- Lógica ----------

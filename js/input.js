@@ -2,11 +2,12 @@
 const KEYS = {
   ArrowLeft: 'left', KeyA: 'left',
   ArrowRight: 'right', KeyD: 'right',
-  Space: 'jump', ArrowUp: 'jump', KeyW: 'jump', KeyZ: 'jump', KeyX: 'jump',
-  Enter: 'action',
+  Space: 'jump', KeyZ: 'jump', KeyX: 'jump',
+  ArrowUp: 'hop', KeyW: 'hop',     // ↑/W: saltam nas plataformas, mas não são «ação» (nos níveis vistos
+  Enter: 'action',                 // de cima servem para andar/mover o cursor)
 };
 
-const kb = { left: false, right: false, jump: false, action: false };
+const kb = { left: false, right: false, jump: false, hop: false, action: false };
 const tc = { left: false, right: false, jump: false, action: false };
 let opts = {};
 
@@ -39,7 +40,7 @@ export const input = {
   setTouch(on) { setTouch(!!on); },
 
   reset() {
-    kb.left = kb.right = kb.jump = kb.action = false;
+    kb.left = kb.right = kb.jump = kb.hop = kb.action = false;
     tc.left = tc.right = tc.jump = tc.action = false;
     this.jumpPressed = this.actionPressed = false;
     this.up = this.down = false;
@@ -50,8 +51,8 @@ export const input = {
 function sync() {
   input.left = kb.left || tc.left;
   input.right = kb.right || tc.right;
-  input.jump = kb.jump || tc.jump;
-  input.action = input.jump || kb.action || tc.action;
+  input.jump = kb.jump || kb.hop || tc.jump;
+  input.action = kb.jump || tc.jump || kb.action || tc.action;
 }
 
 function setTouch(on) {
@@ -65,6 +66,8 @@ function bindKeyboard() {
     const playing = document.body.classList.contains('playing');
     if (e.code === 'Escape') { if (opts.onEscape) opts.onEscape(); e.preventDefault(); return; }
     if (e.code === 'KeyP') { if (opts.onPause) opts.onPause(); return; }
+    // tecla já tratada pelos menus (ex.: Enter que carrega em «Continuar»): não chega ao jogo
+    if (e.defaultPrevented) return;
     if (e.code === 'ArrowUp' || e.code === 'KeyW') input.up = true;
     if (e.code === 'ArrowDown' || e.code === 'KeyS') {
       input.down = true;
@@ -74,9 +77,9 @@ function bindKeyboard() {
     const k = KEYS[e.code];
     if (!k) return;
     if (playing) { e.preventDefault(); setTouch(false); }
-    if ((k === 'jump' || k === 'action') && !e.repeat && !kb[k]) {
-      if (k === 'jump') input.jumpPressed = true;
-      input.actionPressed = true;
+    if (playing && !e.repeat && !kb[k]) {
+      if (k === 'jump' || k === 'hop') input.jumpPressed = true;
+      if (k === 'jump' || k === 'action') input.actionPressed = true;
     }
     kb[k] = true;
     sync();

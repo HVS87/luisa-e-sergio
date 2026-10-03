@@ -147,6 +147,8 @@ window.addEventListener('orientationchange', settle);
 if (screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener('change', settle);
 window.addEventListener('pageshow', settle);
 if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
+// mudar de janela (clicar noutra app, uma notificação) também faz pausa
+window.addEventListener('blur', () => { if (game.scene && game.scene.autoPause) game.scene.autoPause(); });
 document.addEventListener('visibilitychange', () => {
   audio.visibility(document.hidden);
   if (document.hidden && game.scene && game.scene.autoPause) game.scene.autoPause();

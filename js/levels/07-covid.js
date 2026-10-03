@@ -18,7 +18,7 @@ export default {
   //   before momento mostrado antes da vaga (ver `moments`) · vaccine: tiros de vacina
   waves: [
     { name: '1.ª vaga', when: 'março de 2020', tip: 'Não deixes os vírus chegar às camas!', n: 18, every: 1.05, mix: { n: 1 }, hearts: 3 },
-    { name: '2.ª vaga', when: 'outono de 2020', tip: 'Os vermelhos são mais rápidos.', n: 26, every: 0.85, mix: { n: 3, fast: 1 }, hearts: 3, before: 'palmas' },
+    { name: '2.ª vaga', when: 'outono de 2020', tip: 'Os cor de laranja são mais rápidos.', n: 26, every: 0.85, mix: { n: 3, fast: 1 }, hearts: 3, before: 'palmas' },
     { name: '3.ª vaga', when: 'janeiro de 2021', tip: 'A mais dura de todas. As variantes roxas aguentam três golpes.', n: 34, every: 0.68, mix: { n: 3, fast: 2, big: 1 }, hearts: 4, before: 'video' },
     { name: 'A vacinação', when: '2021', tip: 'Agora sim: cada vacina atravessa tudo o que apanha!', n: 36, every: 0.36, mix: { n: 2, fast: 1, big: 1 }, hearts: 4, before: 'vacina', vaccine: true },
   ],

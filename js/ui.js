@@ -69,7 +69,12 @@ export class UI {
   }
 
   // Linha de instruções por baixo do HUD (usada pelos minijogos).
-  setHint(text) { $('#hint').textContent = text || ''; }
+  setHint(text) {
+    text = text || '';
+    // a jogar com teclado, «Toca para...» passa a «Carrega em Espaço para...»
+    if (!this.game.input.touch) text = text.replace(/\b([Tt])oca para\b/g, (m, t) => (t === 'T' ? 'Carrega' : 'carrega') + ' em Espaço para').replace(/\bToca-lhe!/g, 'Carrega em Espaço!');
+    $('#hint').textContent = text;
+  }
 
   // Substitui {eu}, {par}, {ao_par}... pelos nomes certos conforme a personagem escolhida.
   fmt(text) {
@@ -85,7 +90,7 @@ export class UI {
 
   refreshMenu() {
     const d = this.game.save.data;
-    const started = Object.keys(d.done).length > 0;
+    const started = LEVELS.some((L) => this.game.save.isDone(L.id));
     $('#btn-play').textContent = started ? 'Continuar' : 'Jogar';
     $('#btn-character').textContent = 'Jogar com: ' + PEOPLE[d.character].nome;
     const sons = 'Sons: ' + (d.muted ? 'Não' : 'Sim'), musica = 'Música: ' + (d.musicMuted ? 'Não' : 'Sim');
@@ -114,7 +119,7 @@ export class UI {
       name.textContent = open ? L.title : '???';
       const score = document.createElement('span');
       score.className = 'lv-score';
-      if (rec) score.innerHTML = HEART + ' ' + rec.hearts + '/' + rec.total;
+      if (rec) score.innerHTML = HEART + ' ' + Math.min(rec.hearts, rec.total) + '/' + rec.total;
       b.append(num, name, score);
       box.append(b);
     });
@@ -154,6 +159,9 @@ export class UI {
 
   // Animação final: o ecrã de vitória fica só com a legenda até a animação acabar.
   startCutscene(text) {
+    clearTimeout(this.victoryTimer);
+    $('.victory-actions').classList.remove('ready');
+    $('.v-skip').textContent = this.game.input.touch ? 'Toca para avançar' : 'Espaço para avançar';
     document.querySelector('[data-screen="victory"]').classList.add('cutscene');
     this.setCaption(text);
     this.setLevelMode(false, false);
@@ -237,6 +245,8 @@ export class UI {
     this.game.audio.unlock();
     if (e.code === 'KeyM' && !e.repeat) { this.act('music'); return; }
     if (document.body.classList.contains('playing') || !this.current) return;
+    // Enter/Espaço mantidos (vindos do jogo) não podem ir carregando nos botões dos ecrãs seguintes
+    if (e.repeat && (e.code === 'Enter' || e.code === 'Space')) { e.preventDefault(); return; }
     const list = this.buttons();
     if (!list.length) return;
     const i = list.indexOf(document.activeElement);

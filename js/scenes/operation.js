@@ -88,9 +88,9 @@ export class OperationScene {
     const b = this.bones[this.i];
     const x0 = 120 - b.size / 2, x1 = 120 + b.size / 2;
     const w = Math.min(b.band, x1 - x0);
-    let c;
+    let c, tries = 0;
     do { c = x0 + w / 2 + Math.random() * (x1 - x0 - w); }
-    while (this.band && x1 - x0 - w > 30 && Math.abs(c - (this.band[0] + this.band[1] / 2)) < 16);
+    while (this.band && x1 - x0 - w > 30 && Math.abs(c - (this.band[0] + this.band[1] / 2)) < 16 && ++tries < 20);
     this.band = [Math.round(c - w / 2), w];
   }
 

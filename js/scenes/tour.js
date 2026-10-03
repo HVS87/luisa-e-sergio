@@ -118,10 +118,13 @@ export class TourScene {
     this.p = { x: pos.x, y: pos.y, facing: 1, moving: false, dist: 0 };
     this.c = { x: pos.x - 12, y: pos.y, facing: 1, moving: false, dist: 0 };
     this.trail = [];
+    // se continua perdido e se volta ao mapa onde ele está, ele continua lá à espera
+    if (this.sergioLost && id === this.lostMap) { this.c.x = m.lost.x; this.c.y = m.lost.y; }
     // No jardim, o Sérgio perde-se no meio dos buxos até a Luísa o ir buscar.
     if (m.lost && !this.lostSeen) {
       this.lostSeen = true;
       this.sergioLost = true;
+      this.lostMap = id;
       this.c.x = m.lost.x;
       this.c.y = m.lost.y;
       if (this.state === 'walk') this.hint(this.level.lostText, 6);
@@ -272,7 +275,7 @@ export class TourScene {
       this.game.ui.setHud(this.got, this.totalHearts, this.level.title);
     }
     // O Sérgio perdido nos buxos
-    if (this.sergioLost && Math.hypot(c.x - p.x, c.y - p.y) < 18) {
+    if (this.sergioLost && m.id === this.lostMap && Math.hypot(c.x - p.x, c.y - p.y) < 18) {
       this.sergioLost = false;
       this.trail = [];
       this.game.audio.play('win');
@@ -341,10 +344,9 @@ export class TourScene {
     for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) this.drawFloor(R, m, x, y);
 
     // 2) Objetos altos e personagens, linha a linha (os de baixo tapam os de cima)
-    const ents = [
-      { y: this.c.y, draw: () => this.drawPerson(ctx, this.follow, this.c, camX, camY, this.sergioLost) },
-      { y: this.p.y + 0.1, draw: () => this.drawPerson(ctx, this.lead, this.p, camX, camY, false) },
-    ];
+    const ents = [{ y: this.p.y + 0.1, draw: () => this.drawPerson(ctx, this.lead, this.p, camX, camY, false) }];
+    // o par: a seguir o jogador, ou perdido noutro mapa (e então não se desenha aqui)
+    if (!this.sergioLost || m.id === this.lostMap) ents.push({ y: this.c.y, draw: () => this.drawPerson(ctx, this.follow, this.c, camX, camY, this.sergioLost) });
     for (const n of m.npcs) ents.push({ y: n.y, draw: () => this.drawPerson(ctx, n.frames, { x: n.x, y: n.y, facing: this.p.x < n.x ? -1 : 1, moving: false, dist: 0 }, camX, camY, false) });
     for (const cow of m.cows) ents.push({ y: cow.y, draw: () => { ctx.fillStyle = 'rgba(0,0,0,0.22)'; ctx.fillRect(Math.round(cow.x - camX) - 8, Math.round(cow.y - camY) - 1, 17, 3); ctx.drawImage(this.cowImg[cow.dir > 0 ? 'r' : 'l'], Math.round(cow.x - camX) - 10, Math.round(cow.y - camY) - 10 - (cow.wait > 0 ? 0 : Math.floor(t * 6) % 2)); } });
     for (const h of m.hearts) if (!h.got) ents.push({ y: h.y + 4, draw: () => ctx.drawImage(this.spr.heart, Math.round(h.x - camX) - 4, Math.round(h.y - camY) - 6 + Math.round(Math.sin(t * 4 + h.x) * 1.5)) });

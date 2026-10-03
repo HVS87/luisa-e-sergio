@@ -194,7 +194,9 @@ export class CovidScene {
         this.fx.heart(L.fx0 + Math.random() * L.FW, this.game.view.h * (0.35 + Math.random() * 0.45), Math.random() < 0.3 ? GOLD : PINK);
       }
       const min = this.phases[this.pi].last ? 4.5 : 3;
-      if ((this.timer > min && I.actionPressed) || this.timer > 11) this.nextPhase();
+      // nas palmas, tocar é para bater palmas: o momento acaba sozinho
+      const clap = this.inter === 'palmas';
+      if ((!clap && this.timer > min && I.actionPressed) || this.timer > (clap ? 7 : 11)) this.nextPhase();
     }
   }
 

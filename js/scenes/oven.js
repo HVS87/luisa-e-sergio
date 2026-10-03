@@ -72,6 +72,8 @@ export class OvenScene {
     this.game.ui.setHud(this.got, this.total, this.level.title);
     this.game.ui.setLevelMode(true, true);
     this.setBase('Sérgio: racha a lenha! Toca quando a força estiver no máximo, na zona verde.');
+    // primeiro a frase das tias (um toque passa à frente); só depois a lenha começa a contar
+    this.intro = !!this.level.ovenIntro;
     this.say(this.level.ovenIntro, 5);
   }
 
@@ -122,7 +124,9 @@ export class OvenScene {
     if (this.squish > 0) this.squish -= dt;
     const pressed = I.actionPressed && this.lock <= 0;
 
-    if (this.state === 'lenha') this.chop(dt, pressed);
+    if (this.intro) {
+      if (pressed || this.sayT <= 0) { this.intro = false; this.sayT = 0; this.lock = 0.3; this.game.ui.setHint(this.baseHint); }
+    } else if (this.state === 'lenha') this.chop(dt, pressed);
     else if (this.state === 'amassar') this.knead(dt, I);
     else if (this.state === 'cozer') this.bake(dt, I, pressed);
     else if (this.state === 'prova') {

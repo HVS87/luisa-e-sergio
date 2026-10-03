@@ -20,6 +20,9 @@ export const save = {
     } catch (err) { /* modo privado, armazenamento bloqueado ou gravação estragada */ }
     if (this.data.character !== 'sergio') this.data.character = 'luisa';
     if (!this.data.done || typeof this.data.done !== 'object') this.data.done = {};
+    for (const [id, r] of Object.entries(this.data.done)) {
+      if (!r || !Number.isFinite(r.hearts) || !Number.isFinite(r.total)) delete this.data.done[id];
+    }
   },
 
   write() {
@@ -29,7 +32,7 @@ export const save = {
   // Regista um nível concluído, mantendo o melhor resultado de corações.
   complete(id, hearts, total) {
     const prev = this.data.done[id];
-    this.data.done[id] = { hearts: Math.max(hearts, prev ? prev.hearts : 0), total };
+    this.data.done[id] = { hearts: Math.min(total, Math.max(hearts, prev ? prev.hearts : 0)), total };
     this.write();
   },
 

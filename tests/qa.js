@@ -718,6 +718,45 @@ async function testInteractions() {
   game.ui.act('start');
   game.goMenu();
   check('voltar ao menu a meio de um nível limpa o estado do ecrã', cls() === '', cls());
+  // --- teclado: casos que já deram problemas ---
+  I.setTouch(false);
+  game.startLevel(LEVELS.findIndex((L) => L.type === 'proposal'));
+  game.ui.act('start');
+  step(30);
+  key('keydown', 'ArrowUp');
+  check('↑ a jogar: move/salta mas não é «ação» (não abre presentes)', I.up && I.jumpPressed && !I.actionPressed);
+  key('keyup', 'ArrowUp');
+  step(1);
+  // pausa com o rato e retoma com Enter (sem nenhum botão focado): o Enter não chega ao jogo
+  pauseBtn.click();
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  game.ui.kb = false;
+  document.dispatchEvent(new KeyboardEvent('keydown', { code: 'Enter', bubbles: true, cancelable: true }));
+  check('Enter para retomar a pausa: retoma sem fazer uma ação no jogo', !game.scene.paused && !I.actionPressed && !I.action, `paused=${game.scene.paused} action=${I.actionPressed}`);
+  document.dispatchEvent(new KeyboardEvent('keyup', { code: 'Enter', bubbles: true }));
+  window.dispatchEvent(new KeyboardEvent('keyup', { code: 'Enter', bubbles: true }));
+  // Enter mantido (repetição automática) não vai carregando nos botões do ecrã seguinte
+  game.startLevel(0);
+  game.ui.kb = true;
+  game.ui.showComplete(0, 3, 5);
+  const before = game.ui.current;
+  document.dispatchEvent(new KeyboardEvent('keydown', { code: 'Enter', repeat: true, bubbles: true, cancelable: true }));
+  check('Enter mantido não «clica» pelos ecrãs fora', before === 'complete' && game.ui.current === 'complete');
+  game.ui.kb = false;
+  // instruções «Toca para...» adaptam-se ao teclado
+  game.ui.setHint('Toca para continuar.');
+  check('teclado: «Toca para...» passa a «Carrega em Espaço para...»', $('#hint').textContent === 'Carrega em Espaço para continuar.');
+  I.setTouch(true);
+  game.ui.setHint('Toca para continuar.');
+  check('toque: a instrução fica «Toca para...»', $('#hint').textContent === 'Toca para continuar.');
+  game.ui.setHint('');
+  // a gravação nunca guarda mais corações do que o total
+  const keepSave = JSON.stringify(game.save.data);
+  game.save.complete('qa-teste', 99, 5);
+  check('gravação: corações limitados ao total', game.save.data.done['qa-teste'].hearts === 5);
+  game.save.data = JSON.parse(keepSave);
+  game.save.write();
+
   // um toque num menu só muda para modo tátil depois de o toque acabar (a disposição não
   // pode mudar debaixo do dedo)
   game.goMenu();
@@ -771,6 +810,70 @@ function testMenus() {
   game.ui.act('back');
   check('ids usados pela interface existem', ['#btn-play', '#btn-music', '#btn-sound', '#btn-music-pause', '#btn-sound-pause', '#btn-install', '#btn-fullscreen', '#pad', '#jump', '#hint', '#hud-hearts', '#v-bonus'].every((s) => $(s)));
   game.ui.kb = false;
+}
+
+// Teste aleatório ("monkey"): em cada cena, entradas ao acaso (teclas, toques e arrastos em
+// qualquer sítio), pausas, recomeços e mudanças de tamanho do ecrã a meio, durante muito tempo.
+// Procura exceções e estados incoerentes (corações acima do total, HUD estragado, NaN).
+// Usa números aleatórios com semente, para que uma falha se possa repetir.
+async function testMonkey() {
+  log('— Teste aleatório (monkey) —');
+  const realRandom = Math.random;
+  let seed = Number(new URLSearchParams(location.search).get('seed')) || 20221008;   // ?seed=n para outra sequência
+  const rnd = () => { seed |= 0; seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const views = [
+    { w: 320, h: 180, k: 4, portrait: false }, { w: 251, h: 431, k: 3, portrait: true },
+    { w: 310, h: 195, k: 2, portrait: false }, { w: 256, h: 274, k: 6, portrait: true },
+    { w: 188, h: 406, k: 2, portrait: true }, { w: 640, h: 180, k: 6, portrait: false },
+  ];
+  const keep = { ...game.view };
+  const hudOk = () => { const m = /^(\d+)\/(\d+)$/.exec(hud()); return m && +m[1] <= +m[2] && +m[2] > 0; };
+  const targets = [...LEVELS.map((L, i) => ({ name: L.id, start: () => { game.startLevel(i); game.ui.act('start'); } })),
+    { name: 'casamento', start: () => game.showVictory('wedding') }, { name: 'família', start: () => game.showVictory('family') }];
+  Math.random = rnd;
+  try {
+    for (const tg of targets) {
+      const problems = [];
+      tg.start();
+      let held = {}, tapT = 0, px = -1, py = -1;
+      for (let n = 0; n < 60 * 45; n++) {
+        // de vez em quando: pausa, recomeçar, mudar o tamanho do ecrã
+        if (n % 150 === 0 && n) {
+          const r = rnd();
+          if (r < 0.2 && game.scene.togglePause) { game.ui.act('pause'); if (game.scene.paused) { frames(20, null); game.ui.act('resume'); } }
+          else if (r < 0.3 && game.scene.restart && game.ui.current === null && document.body.classList.contains('in-level')) { game.ui.act('pause'); if (game.ui.current === 'pause') game.ui.act('restart'); }
+          else if (r < 0.5) { Object.assign(game.view, views[Math.floor(rnd() * views.length)]); if (game.scene.onResize) game.scene.onResize(); }
+        }
+        if (n % 12 === 0) held = { left: rnd() < 0.3, right: rnd() < 0.5, up: rnd() < 0.2, down: rnd() < 0.2, jump: rnd() < 0.2, action: rnd() < 0.25 };
+        if (tapT <= 0 && rnd() < 0.05) { px = rnd(); py = rnd(); tapT = Math.floor(rnd() * 40); }
+        const s = game.scene;
+        try {
+          clearInput();
+          Object.assign(I, held);
+          if (held.jump && rnd() < 0.2) I.jumpPressed = true;
+          if (held.action && rnd() < 0.2) I.actionPressed = true;
+          if (tapT > 0) { tapT--; I.pointerX = px; I.pointerY = py; I.action = true; if (rnd() < 0.1) I.actionPressed = true; px = Math.min(1, Math.max(0, px + (rnd() - 0.5) * 0.05)); }
+          s.update(STEP);
+          I.endFrame();
+          if (n % 10 === 0) s.draw(game.ctx2d, game.view);
+        } catch (err) { problems.push(`${s.constructor.name} (${n} passos): ${err.message}`); break; }
+        if (game.ui.current === 'complete') {
+          const shown = $('#complete-hearts').textContent, m = /^(\d+)\/(\d+)$/.exec(shown);
+          if (!m || +m[1] > +m[2]) problems.push('fim com corações inválidos: ' + shown);
+          break;
+        }
+        if (n % 60 === 0 && document.body.classList.contains('in-level') && !hudOk()) { problems.push('HUD inválido: ' + hud()); break; }
+        if (game.ui.current === 'victory' && game.scene.constructor.name === 'VictoryScene' && !$('[data-screen=victory]').classList.contains('cutscene') && tg.name !== 'casamento' && tg.name !== 'família') break;
+      }
+      clearInput();
+      check(`monkey: ${tg.name} aguenta 45 s de entradas ao acaso, pausas, recomeços e tamanhos`, !problems.length, problems.join('; '));
+      await tick();
+    }
+  } finally {
+    Math.random = realRandom;
+    Object.assign(game.view, keep);
+    game.goMenu();
+  }
 }
 
 // Cada cena aguenta vários tamanhos de ecrã (telemóvel, tablet, computador) sem erros.
@@ -923,8 +1026,10 @@ export async function run(g) {
   if (new URLSearchParams(location.search).has('touch')) I.setTouch(true);
   log('QA — Luísa & Sérgio (' + new Date().toLocaleString('pt-PT') + ')');
   const t0 = performance.now();
-  const steps = [testData, testReachable, testLayout, testInteractions, testOffline, testMenus, testSettings, testAudio, testFullGame, testRestart, testViewports];
-  for (const fn of steps) {
+  const steps = [testData, testReachable, testLayout, testInteractions, testOffline, testMenus, testSettings, testAudio, testFullGame, testRestart, testViewports, testMonkey];
+  // ?qa&only=monkey corre só os testes cujo nome contém essa palavra (ex.: monkey, layout)
+  const only = new URLSearchParams(location.search).get('only');
+  for (const fn of steps.filter((x) => !only || x.name.toLowerCase().includes(only.toLowerCase()))) {
     try { await fn(); } catch (err) { check(`${fn.name} terminou sem exceções`, false, err.stack || err.message); }
     await tick();
   }

@@ -147,7 +147,7 @@ export class PlayScene {
 
   // Chamado quando a janela perde o foco.
   autoPause() {
-    if (!this.paused && this.state === 'play') this.togglePause();
+    if (!this.paused && (this.state === 'play' || this.state === 'hurt')) this.togglePause();
   }
 
   // Mostra uma frase no topo do ecrã durante uns segundos.

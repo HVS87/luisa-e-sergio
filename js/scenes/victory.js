@@ -46,6 +46,7 @@ export class VictoryScene {
     this.skip = (e) => {
       if (e.type === 'keydown' && e.code !== 'Space' && e.code !== 'Enter') return;
       if (this.t > 1.5 && this.t < T_PARTY) this.t = T_PARTY;
+      else if (this.t >= T_PARTY && this.t < T_RISE) this.t = T_RISE;
     };
     window.addEventListener('pointerdown', this.skip);
     window.addEventListener('keydown', this.skip);

@@ -131,6 +131,7 @@ export class BikeScene {
     this.inWind = false;
     this.hintT = 0;
     this.prevLeft = false;
+    this.prevRight = false;
     this.camH = 0;
     this.fx = new Particles();
   }
@@ -312,7 +313,6 @@ export class BikeScene {
       this.state = ev.kind;
       this.timer = 0;
       this.taps = 0;
-      this.game.input.reset();
       if (ev.kind === 'furo') { this.game.audio.play('buzz'); this.hint('Furo! Toca depressa (▲ ou ▶) para encher o pneu!', 30); }
       else { this.game.audio.play('check'); this.hint('Paragem para o café e um pastel de nata. É sagrada!', 4); }
     }

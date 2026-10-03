@@ -39,6 +39,13 @@ guardado nesse browser.** Verifica, entre outras coisas:
   de ecrã), computador sempre em horizontal, toques medidos em relação à área de jogo e todos
   os botões dos menus à vista no ecrã em que a suite corre.
 
+- interações reais (toques, cliques e teclas como os do browser) e o modo offline;
+- um teste aleatório («monkey»): em cada cena, 45 s de toques e teclas ao acaso, pausas,
+  recomeços e mudanças de tamanho do ecrã, à procura de exceções e estados incoerentes.
+
+Opções: `?qa&only=monkey` corre só os testes com essa palavra no nome e `&seed=7` muda a
+sequência aleatória do monkey.
+
 Para rever as disposições à vista, `sheet()` desenha todas as cenas lado a lado num dado
 tamanho: na consola, `(await import('/tests/qa.js')).sheet(__game, { w: 422, h: 195, portrait: false })`.
 
