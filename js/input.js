@@ -17,6 +17,7 @@ export const input = {
   jumpPressed: false,   // salto premido neste instante
   action: false,        // ação dos minijogos (salto, Enter, ou tocar/clicar no ecrã) mantida premida
   actionPressed: false, // ação premida neste instante
+  pointerX: -1,         // posição horizontal do dedo/rato enquanto toca no jogo (0 a 1), ou -1
   touch: false,         // true quando o jogador está a usar o ecrã tátil
 
   init(options) {
@@ -133,7 +134,8 @@ function bindTouch() {
   // Tocar ou clicar em qualquer ponto do jogo: botão de ação dos minijogos
   const canvas = document.getElementById('game');
   const taps = new Set();
-  const tapSync = () => { tc.action = taps.size > 0; sync(); };
+  const tapSync = () => { tc.action = taps.size > 0; if (!tc.action) input.pointerX = -1; sync(); };
+  const tapMove = (e) => { if (taps.has(e.pointerId)) input.pointerX = e.clientX / Math.max(1, window.innerWidth); };
   canvas.addEventListener('pointerdown', (e) => {
     if (!document.body.classList.contains('playing')) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
@@ -141,8 +143,10 @@ function bindTouch() {
     try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* sem captura */ }
     taps.add(e.pointerId);
     input.actionPressed = true;
+    tapMove(e);
     tapSync();
   });
+  canvas.addEventListener('pointermove', tapMove);
   const tapEnd = (e) => { if (taps.delete(e.pointerId)) tapSync(); };
   canvas.addEventListener('pointerup', tapEnd);
   canvas.addEventListener('pointercancel', tapEnd);

@@ -8,6 +8,7 @@ import { LEVELS } from './levels/index.js';
 import { MenuScene } from './scenes/menu.js';
 import { PlayScene } from './scenes/play.js';
 import { OperationScene } from './scenes/operation.js';
+import { DateScene } from './scenes/date.js';
 import { VictoryScene } from './scenes/victory.js';
 
 const canvas = document.getElementById('game');
@@ -18,7 +19,7 @@ const ctx = canvas.getContext('2d', { alpha: false });
 const view = { w: 320, h: 180, k: 1, pad: 0, portrait: false };
 
 // Tipos de nível: plataformas (por omissão) e minijogos.
-const SCENES = { platform: PlayScene, operation: OperationScene };
+const SCENES = { platform: PlayScene, operation: OperationScene, date: DateScene };
 
 const game = {
   view, input, audio, save,

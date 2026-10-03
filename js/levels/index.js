@@ -2,7 +2,7 @@
 // nesta pasta e junta-o aqui, na posição certa da história.
 import { LEVEL_ROWS } from '../config.js';
 import encontro from './01-encontro.js';
-import trabalho from './02-trabalho.js';
+import date from './02-date.js';
 import ferias from './03-ferias.js';
 import pedido from './04-pedido.js';
 import casamento from './05-casamento.js';
@@ -10,7 +10,7 @@ import xavier from './b1-xavier.js';
 import luisinha from './b2-luisa.js';
 
 // Os níveis da história vêm primeiro (o último tem `final: true`), seguidos dos bónus.
-export const LEVELS = [encontro, trabalho, ferias, pedido, casamento, xavier, luisinha];
+export const LEVELS = [encontro, date, ferias, pedido, casamento, xavier, luisinha];
 
 // Etiqueta de cada nível: "Nível 3", "Bónus 1", ...
 export function levelLabel(index) {

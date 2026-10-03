@@ -126,9 +126,9 @@ export class UI {
     this.show('story');
   }
 
-  showComplete(index, got, total) {
+  showComplete(index, got, total, text) {
     const L = LEVELS[index];
-    $('#complete-title').textContent = this.fmt(L.outro || L.title);
+    $('#complete-title').textContent = this.fmt(text || L.outro || L.title);
     $('#complete-hearts').textContent = got + '/' + total;
     $('#complete-perfect').hidden = !(total > 0 && got === total);
     this.show('complete');

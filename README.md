@@ -53,14 +53,14 @@ tools/                servidor local e gerador de ícones
 | # | Ficheiro | Capítulo | Ambiente |
 |---|----------|----------|----------|
 | 1 | `01-encontro.js` | Como se Conheceram | minijogo "Operação" no bloco operatório |
-| 2 | `02-trabalho.js` | Dias de Trabalho | cidade |
+| 2 | `02-date.js` | O Primeiro Date | microjogos num restaurante |
 | 3 | `03-ferias.js` | Férias a Dois | praia |
 | 4 | `04-pedido.js` | O Pedido | noite estrelada |
 | 5 | `05-casamento.js` | O Casamento (final) | festa de casamento |
 | B1 | `b1-xavier.js` | Bem-vindo, Xavier! | quarto azul |
 | B2 | `b2-luisa.js` | Bem-vinda, pequena Luísa! | quarto rosa |
 
-O nível 1 está feito. Os restantes são esqueletos jogáveis, montados com troços genéricos,
+Os níveis 1 e 2 estão feitos. Os restantes são esqueletos jogáveis, montados com troços genéricos,
 com textos provisórios; vão ser desenhados ao pormenor um a um.
 
 ### Nível 1 — minijogo "Operação"
@@ -73,7 +73,29 @@ e largar dentro da zona verde. Cada osso retirado sem falhas vale um coração.
 
 Os ossos, a velocidade do marcador e a largura da zona verde definem-se em
 `js/levels/01-encontro.js`; a lógica e o cenário estão em `js/scenes/operation.js`.
-Um nível escolhe o tipo de jogo com `type` (`operation`; por omissão, plataformas).
+Um nível escolhe o tipo de jogo com `type` (`operation`, `date`; por omissão, plataformas).
+
+### Nível 2 — "O Primeiro Date"
+
+Um jantar em oito momentos, cada um um microjogo de poucos segundos, sempre com o mesmo
+botão (tocar no ecrã / Espaço):
+
+| Momento | Como se joga |
+|---------|--------------|
+| Troca de olhares | manter premido só quando o par espreita por cima da ementa; olhar demais faz corar |
+| Servir o vinho | manter premido e largar entre as marcas; entornar deixa a conversa seguinte "tonta" |
+| Conversa de médicos | tocar para dizer os bons temas e deixar passar os maus |
+| Roubar batatas fritas | tocar só quando o par olha para o lado |
+| Esparguete a dois | toques a ritmo certo para manter a agulha no verde |
+| Pezinho debaixo da mesa | arrastar o pé até ao do par, recuando quando passa o empregado |
+| A guerra da conta | toques puxam a conta; mantê-la ao centro até ao fim dá "dividimos?" |
+| O primeiro beijo | tocar quando os dois corações se encontram |
+
+Pelo meio, o telefone do hospital toca duas vezes e é preciso silenciá-lo depressa.
+Cada momento perfeito vale um coração e enche o medidor de Química; com Química igual ou
+superior a `hot` (75) o nível acaba com o final alternativo "E depois do jantar...".
+A ordem dos momentos define-se em `js/levels/02-date.js`; os microjogos estão em
+`js/scenes/date.js`. O jogador controla a personagem escolhida no menu.
 
 ### Como se desenha um nível de plataformas
 

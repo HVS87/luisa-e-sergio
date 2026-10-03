@@ -31,6 +31,9 @@ const SOUNDS = {
   buzz: () => { tone(110, 0, 0.5, 'sawtooth', 0.08); tone(116, 0, 0.5, 'square', 0.04); },
   inject: () => tone(300, 0, 0.5, 'sine', 0.06, 700),
   pop: () => { tone(500, 0, 0.1, 'square', 0.05, 1200); tone(1319, 0.1, 0.16, 'square', 0.05); },
+  slurp: () => tone(520, 0, 0.09, 'sine', 0.07, 300),
+  ring: () => { tone(1400, 0, 0.09, 'square', 0.05); tone(1750, 0.1, 0.09, 'square', 0.05); },
+  kiss: () => { tone(900, 0, 0.08, 'sine', 0.08, 1600); tone(1319, 0.12, 0.3, 'triangle', 0.08); },
   fanfare: () => [392, 523, 659, 784, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.16, 0.24, 'square', 0.05)),
 };
 

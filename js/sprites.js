@@ -133,6 +133,13 @@ const LOOKS = {
   },
 };
 
+// Figurante: o empregado de mesa do restaurante.
+LOOKS.waiter = {
+  def: SERGIO,
+  base: { h: '#d8b25a', d: '#f6c9a0' },
+  outfits: { casual: { t: '#2b2b3a', k: '#ffffff', p: '#2b2b3a', b: '#111122' } },
+};
+
 const cache = new Map();
 
 // Devolve os fotogramas { stand, a, b } de uma personagem, cada um com versão direita (r) e esquerda (l).
