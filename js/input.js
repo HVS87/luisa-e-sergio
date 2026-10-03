@@ -35,6 +35,9 @@ export const input = {
 
   endFrame() { this.jumpPressed = false; this.actionPressed = false; },
 
+  // Força o modo tátil ou de teclado (usado pela suite de testes).
+  setTouch(on) { setTouch(!!on); },
+
   reset() {
     kb.left = kb.right = kb.jump = kb.action = false;
     tc.left = tc.right = tc.jump = tc.action = false;
@@ -54,7 +57,6 @@ function sync() {
 function setTouch(on) {
   if (input.touch === on) return;
   input.touch = on;
-  document.body.classList.toggle('is-touch', on);
   if (opts.onModeChange) opts.onModeChange();
 }
 
@@ -90,7 +92,13 @@ function bindKeyboard() {
 }
 
 function bindTouch() {
-  window.addEventListener('touchstart', () => setTouch(true), { passive: true, capture: true });
+  // A meio do jogo passa logo a modo tátil; num menu, só depois do toque acabar (senão a
+  // disposição mudava debaixo do dedo e o toque caía noutro sítio).
+  window.addEventListener('touchstart', () => {
+    if (input.touch) return;
+    if (document.body.classList.contains('playing')) setTouch(true);
+    else setTimeout(() => setTouch(true), 400);
+  }, { passive: true, capture: true });
 
   // Direcional: um único elemento dividido em duas metades, para o polegar poder deslizar.
   const pad = document.getElementById('pad');

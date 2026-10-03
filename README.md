@@ -27,14 +27,14 @@ Com `?qa&touch` simula um ecrã tátil, para correr num telemóvel. **A suite ap
 guardado nesse browser.** Verifica, entre outras coisas:
 
 - os dados dos níveis (ids, etiquetas, textos sem marcadores por substituir, sem formas do
-  português do Brasil, nenhuma menção à mãe do Sérgio) e os cruzamentos entre níveis (uma
+  português do Brasil, nenhum tema proibido) e os cruzamentos entre níveis (uma
   recordação do pedido por cada nível anterior, as aves, as rondas da maternidade);
 - que todos os corações e pontos de interesse das visitas são alcançáveis;
 - o jogo completo, com robôs que jogam cada nível: introdução, pausa, fim do nível, gravação,
   desbloqueio, casamento, nível bónus e final da família;
 - recomeçar e repetir, opções (personagem, música, sons, tecla M), gravações antigas ou
   estragadas, navegação por teclado, a API de som e o desenho de todas as cenas em nove
-  tamanhos de ecrã (de uma janela estreita a um ecrã largo);
+  tamanhos de ecrã (de um telemóvel muito estreito a um ecrã largo);
 - a disposição do ecrã: botões táteis sempre fora da área de jogo (em centenas de tamanhos
   de ecrã), computador sempre em horizontal, toques medidos em relação à área de jogo e todos
   os botões dos menus à vista no ecrã em que a suite corre.
@@ -48,7 +48,7 @@ tamanho: na consola, `(await import('/tests/qa.js')).sheet(__game, { w: 422, h: 
 |---------|-------------------------|-----------------------------|
 | Andar   | ← → ou A D              | Botões ◀ ▶ (à esquerda, fora da área de jogo) |
 | Saltar  | Espaço, ↑ ou W          | Botão ▲ (à direita, fora da área de jogo)     |
-| Ação (minijogos) | Espaço ou Enter | Tocar em qualquer ponto do ecrã |
+| Ação (minijogos) | Espaço ou Enter | Tocar em qualquer ponto da área de jogo |
 | Pausa   | P ou Esc                | Botão de pausa (em cima, à direita) |
 | Ligar/desligar a música | M       | Botão «Música» no menu ou na pausa |
 | Menus   | Setas + Enter           | Toque                       |
@@ -58,11 +58,13 @@ menu principal e na pausa); a escolha fica guardada.
 
 ## Telemóvel, tablet e instalar como app
 
-- **Ecrã**: o jogo ocupa o ecrã inteiro (respeitando o entalhe e a barra do iPhone) e
-  adapta-se a qualquer tamanho, sempre com píxeis nítidos. No Safari do iOS, depois de rodar
+- **Ecrã**: o jogo ocupa o ecrã inteiro (menos o espaço dos botões táteis, nos níveis que
+  os usam), respeita o entalhe e a barra do iPhone e adapta-se a qualquer tamanho, sempre com
+  píxeis nítidos. No Safari do iOS, depois de rodar
   o telemóvel, as medidas são recalculadas várias vezes (o Safari demora a acertá-las).
-- **Orientação**: detetada automaticamente. O jogo joga-se ao alto ou deitado, em telemóvel
-  e em tablet, e todas as cenas têm uma disposição para cada posição (`view.portrait`).
+- **Orientação**: detetada automaticamente. Joga-se ao alto ou deitado, em telemóvel
+  e em tablet: os minijogos têm uma disposição para cada posição (`view.portrait`) e os
+  níveis de plataformas e de bicicleta seguem o jogador numa área de qualquer formato.
   Rodar o aparelho a meio de um nível rearruma tudo na hora.
 - **Botões táteis fora do jogo** (`js/layout.js`): nos níveis jogados com ◀ ▶ ▲ (plataformas
   e bicicleta), os botões nunca ficam por cima da área de jogo. Ao alto, ficam numa barra por
@@ -70,8 +72,9 @@ menu principal e na pausa); a escolha fica guardada.
   direita), com os corações e a pausa por cima das faixas; num tablet deitado, que é quase
   quadrado, ficam numa barra por baixo. Os minijogos, que se jogam a tocar e a arrastar,
   ocupam o ecrã todo.
-- **Computador**: usa sempre a versão horizontal. Numa janela mais alta do que larga, o jogo
-  aparece numa moldura 16:9 centrada; num ecrã ultralargo fica limitado a 2,4:1.
+- **Computador**: usa-se sempre a versão horizontal (pensada para 16:9). Entre 4:3 e 2,4:1 o
+  jogo ocupa a janela toda; numa janela mais estreita aparece numa moldura 4:3 centrada e num
+  ecrã ultralargo fica limitado a 2,4:1.
 - Para experimentar num computador: `?device=mobile` (ou `?device=pc`) no endereço força o
   tipo de dispositivo.
 - **Instalar como app**: o botão «Instalar app» no menu abre o pedido de instalação no
@@ -223,7 +226,7 @@ quem guia com `leader`. Mapa, frases e figurantes estão em `js/levels/06-pretar
 
 A pandemia de COVID-19 vivida por dois médicos. É um jogo de arcada por vagas: a Luísa e
 o Sérgio, de bata, touca e máscara, andam lado a lado pela enfermaria (arrastar o dedo ou
-◀ ▶) e o desinfetante dispara sozinho contra os vírus que descem em direção às camas.
+setas) e o desinfetante dispara sozinho contra os vírus que descem em direção às camas.
 
 - Cada vírus que passa aumenta a **pressão sobre o hospital**; se chegar ao máximo, a vaga
   recomeça (bem mais fácil a cada tentativa e, à segunda, segue-se em frente).

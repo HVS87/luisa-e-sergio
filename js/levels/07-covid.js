@@ -8,7 +8,7 @@ export default {
   music: 'calm',
   title: 'Na Linha da Frente',
   story: 'Março de 2020. Uma pandemia fecha o mundo em casa, mas não quem trabalha num hospital. Para a Luísa e o Sérgio começam os turnos sem fim, de máscara e viseira, lado a lado.',
-  help: 'Arrasta o dedo (ou usa ◀ ▶) para mover os dois pela enfermaria. O desinfetante dispara sozinho: não deixes os vírus chegar às camas! Apanha os cafés para aguentar o cansaço e os corações que caem.',
+  help: 'Arrasta o dedo (ou usa as setas) para mover os dois pela enfermaria. O desinfetante dispara sozinho: não deixes os vírus chegar às camas! Apanha os cafés para aguentar o cansaço e os corações que caem.',
   outro: 'Foram tempos duros, vividos lado a lado. E ficou tudo bem.',
 
   // Vagas, por ordem:

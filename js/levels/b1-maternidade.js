@@ -9,7 +9,7 @@ export default {
   bonus: true,
   title: 'Na Maternidade',
   story: 'Um ano depois do casamento, a Luísa e o Sérgio voltam ao hospital... mas desta vez não é para trabalhar! Vem aí o Xavier — e vem com pressa.',
-  help: 'Arrasta o dedo (ou usa as setas ◀ ▶) para pôr o Sérgio debaixo do bebé: a sombra no chão mostra onde ele vai cair. Apanha à primeira para ganhares mais corações!',
+  help: 'Arrasta o dedo (ou usa as setas) para pôr o Sérgio debaixo do bebé: a sombra no chão mostra onde ele vai cair. Apanha à primeira para ganhares mais corações!',
   outro: 'A família está completa!',
   ending: 'Luísa, Sérgio, Xavier e a pequena Luísa: a família está completa!',
 

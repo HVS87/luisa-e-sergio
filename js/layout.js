@@ -1,13 +1,14 @@
 // Onde fica a área de jogo no ecrã e onde ficam os botões táteis.
 //
-// - Telemóvel/tablet, nos níveis jogados com os botões ◀ ▶ ▲ (plataformas e bicicleta): os
-//   botões ficam sempre FORA da área de jogo, no espaço que sobra do ecrã:
+// - Ecrã tátil (telemóvel, tablet ou portátil tátil), nos níveis jogados com os botões ◀ ▶ ▲
+//   (plataformas e bicicleta): os botões ficam sempre FORA da área de jogo, no espaço que sobra:
 //     · ao alto: numa barra por baixo do jogo;
 //     · deitado: em duas faixas laterais (◀ ▶ à esquerda, ▲ à direita), se o ecrã for largo
 //       que chegue (telemóveis); senão (tablets, quase quadrados), numa barra por baixo.
 // - Telemóvel/tablet, nos minijogos (sem botões): o jogo ocupa o ecrã todo, em qualquer posição.
-// - Computador: sempre a versão horizontal. Uma janela mais alta do que larga mostra o jogo
-//   numa moldura 16:9, com faixas escuras por cima e por baixo.
+// - Computador: sempre a versão horizontal (pensada para 16:9). Entre 4:3 e 2,4:1 o jogo ocupa a
+//   janela toda; numa janela mais estreita fica numa moldura 4:3 (faixas escuras por cima e por
+//   baixo) e num ecrã ultralargo numa moldura 2,4:1.
 //
 // Tudo em píxeis CSS. Função pura, para poder ser testada com qualquer tamanho de ecrã.
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -44,7 +45,7 @@ export function computeLayout({ W, H, mobile, controls, safe = { t: 0, r: 0, b: 
   if (!mobile) {
     const a = W / H;
     if (a < PC_MIN_ASPECT) {
-      const h = Math.round((W * 9) / 16);
+      const h = Math.round(W / PC_MIN_ASPECT);
       return { ...full, y: Math.round((H - h) / 2), h };
     }
     if (a > PC_MAX_ASPECT) {

@@ -437,20 +437,19 @@ export class PlayScene {
 
   updateCamera(dt, snap) {
     const v = this.game.view, p = this.player;
-    const visH = v.h;
     const k = snap ? 1 : Math.min(1, dt * 6);
     const maxX = this.W - v.w;
     const ahead = p.sled ? 56 : p.facing * 12;
     const tx = maxX <= 0 ? maxX / 2 : clamp(p.x + PW / 2 - v.w / 2 + ahead, 0, maxX);
     this.camX += (tx - this.camX) * k;
     // Níveis mais baixos que o ecrã ficam encostados ao fundo; os mais altos seguem o jogador.
-    const maxY = this.H - visH;
-    const ty = maxY <= 0 ? maxY : clamp(p.y + PH / 2 - visH * 0.6, 0, maxY);
+    const maxY = this.H - v.h;
+    const ty = maxY <= 0 ? maxY : clamp(p.y + PH / 2 - v.h * 0.6, 0, maxY);
     this.camY += (ty - this.camY) * k;
   }
 
   // ---------- Desenho ----------
-  drawBackdrop(ctx, v, visH, camY) {
+  drawBackdrop(ctx, v, camY) {
     const camX = Math.max(0, this.camX);
     if (!this.zoned) {
       drawBackground(this.theme, ctx, v.w, v.h, camX, this.H - 2 * T - camY, this.t);
@@ -458,10 +457,10 @@ export class PlayScene {
     }
     // Com zonas a alturas diferentes: quando o jogador está no chão da zona (à altura `base`),
     // o horizonte do cenário coincide com esse chão; quando sobe ou desce, acompanha só em parte.
-    const maxY = this.H - visH;
+    const maxY = this.H - v.h;
     const gyOf = (z) => {
       const surface = this.H - (2 + z.base) * T;
-      const cam0 = maxY <= 0 ? maxY : clamp(surface - PH / 2 - visH * 0.6, 0, maxY);
+      const cam0 = maxY <= 0 ? maxY : clamp(surface - PH / 2 - v.h * 0.6, 0, maxY);
       const s0 = surface - cam0;
       return Math.round(s0 + (surface - camY - s0) * 0.3);
     };
@@ -481,13 +480,12 @@ export class PlayScene {
   }
 
   draw(ctx, v) {
-    const visH = v.h;
     const camX = Math.round(this.camX), camY = Math.round(this.camY);
-    this.drawBackdrop(ctx, v, visH, camY);
+    this.drawBackdrop(ctx, v, camY);
 
     // Blocos visíveis
     const x0 = Math.max(0, Math.floor(camX / T)), x1 = Math.min(this.cols - 1, Math.floor((camX + v.w) / T));
-    const y0 = Math.max(0, Math.floor(camY / T)), y1 = Math.min(this.rows - 1, Math.floor((camY + visH) / T));
+    const y0 = Math.max(0, Math.floor(camY / T)), y1 = Math.min(this.rows - 1, Math.floor((camY + v.h) / T));
     for (let y = y0; y <= y1; y++) {
       for (let x = x0; x <= x1; x++) {
         const ch = this.grid[y][x];

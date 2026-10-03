@@ -2,7 +2,7 @@
 export const TILE = 16;          // tamanho de um bloco, em píxeis de jogo
 export const LEVEL_ROWS = 11;    // altura normal de um nível, em blocos
 
-// Altura (paisagem) / largura (retrato) aproximada do ecrã em píxeis de jogo.
+// Altura (deitado) / largura (ao alto) aproximada da área de jogo, em píxeis de jogo.
 export const VIEW_LANDSCAPE_H = 180;
 export const VIEW_LANDSCAPE_MIN_W = 300;   // largura mínima, deitado, nos ecrãs quase quadrados
 export const VIEW_PORTRAIT_W = 250;

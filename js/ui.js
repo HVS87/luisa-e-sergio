@@ -260,6 +260,8 @@ export class UI {
       if (scene.togglePause) scene.togglePause();
       return;
     }
+    // na animação final, o Esc não salta o "Parabéns" (os botões só aparecem no fim)
+    if (this.current === 'victory' && !$('.victory-actions').classList.contains('ready')) return;
     const s = this.active();
     const back = s && s.querySelector('[data-back]');
     if (back && !back.hidden) back.click();

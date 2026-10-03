@@ -80,8 +80,8 @@
 
         <h3>Ecrã tátil</h3>
         <ul class="controls">
-          <li><span class="keys"><span class="mini-btn"><i class="tri tri-l"></i></span><span class="mini-btn"><i class="tri tri-r"></i></span></span><span>Andar (à esquerda do jogo)</span></li>
-          <li><span class="keys"><span class="mini-btn"><i class="tri tri-u"></i></span></span><span>Saltar (à direita do jogo)</span></li>
+          <li><span class="keys"><span class="mini-btn"><i class="tri tri-l"></i></span><span class="mini-btn"><i class="tri tri-r"></i></span></span><span>Andar (à esquerda, fora da área de jogo)</span></li>
+          <li><span class="keys"><span class="mini-btn"><i class="tri tri-u"></i></span></span><span>Saltar (à direita, fora da área de jogo)</span></li>
           <li><span class="keys"><span class="mini-btn"><span class="ico-pause"></span></span></span><span>Pausa (em cima, à direita)</span></li>
           <li><span class="keys">Tocar no ecrã</span><span>Ação nos minijogos; nos níveis vistos de cima, andar até onde se toca</span></li>
         </ul>
@@ -163,7 +163,7 @@
       <h2 id="complete-title"></h2>
       <p class="complete-hearts"><svg class="ico-heart"><use href="#heart"/></svg><span id="complete-hearts">0/0</span><span class="perfect" id="complete-perfect" hidden>Perfeito!</span></p>
       <div class="btn-row">
-        <button class="btn" data-action="menu">Menu</button>
+        <button class="btn" data-action="menu" data-back>Menu</button>
         <button class="btn" data-action="retry">Repetir</button>
         <button class="btn btn-primary" data-action="next">Continuar</button>
       </div>
@@ -182,7 +182,7 @@
     <p class="v-skip">Toca para avançar</p>
     <div class="victory-actions">
       <button class="btn" data-action="menu" data-back>Menu</button>
-      <button class="btn btn-primary" data-action="bonus" id="v-bonus">Nível Bónus</button>
+      <button class="btn btn-primary" data-action="bonus" id="v-bonus">Nível bónus</button>
     </div>
   </section>
 

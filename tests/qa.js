@@ -299,7 +299,7 @@ function testData() {
   }
   game.save.data.character = keep;
   const html = document.body.innerText + ' ' + all.map(([, t]) => t).join(' ');
-  check('nenhuma menção à mãe do Sérgio', !/\bm[ãa]e\b|\bmam[ãa]\b/i.test(html));
+  check('nenhum tema proibido', !/\bm[ãa]e\b|\bmam[ãa]\b/i.test(html));
   // (o \b do JavaScript não conhece letras acentuadas: "Vocês" é PT-PT correto)
   const BR = /(^|[^\wÀ-ú])(tela|celular|você|ônibus|registrar|contato|bônus|aterrissa\w*|time de|banheiro|geladeira)(?![\wÀ-ú])/gi;
   check('sem formas do português do Brasil comuns', !BR.test(html), (html.match(BR) || []).join(', '));
@@ -367,7 +367,10 @@ function testLayout() {
   a = L(1920, 1080, false, false);
   check('computador 16:9: ecrã todo, versão horizontal', a.x === 0 && a.y === 0 && a.w === 1920 && a.h === 1080);
   a = L(600, 900, false, false);
-  check('computador com janela alta: moldura 16:9 horizontal, centrada', a.w === 600 && Math.abs(a.w / a.h - 16 / 9) < 0.01 && Math.abs(a.y - (900 - a.h) / 2) <= 1, JSON.stringify(a));
+  check('computador com janela alta: moldura horizontal 4:3, centrada', a.w === 600 && Math.abs(a.w / a.h - 4 / 3) < 0.01 && Math.abs(a.y - (900 - a.h) / 2) <= 1, JSON.stringify(a));
+  // sem saltos de tamanho ao passar pelos 4:3
+  const b1 = L(1000, 750, false, false), b2 = L(1000, 751, false, false);
+  check('computador: a moldura não salta de tamanho aos 4:3', Math.abs(b1.h - b2.h) <= 2, JSON.stringify([b1, b2]));
   a = L(3440, 1000, false, false);
   check('computador ultralargo: limitado a 2,4:1 e centrado', Math.abs(a.w / a.h - 2.4) < 0.01 && Math.abs(a.x - (3440 - a.w) / 2) <= 1, JSON.stringify(a));
   // varrimento de tamanhos: tudo dentro do ecrã, botões nunca por cima do jogo, PC sempre horizontal
@@ -386,7 +389,7 @@ function testLayout() {
 
   // neste ecrã, a sério: num nível com botões, em modo tátil, os botões não tapam o jogo
   const wasTouch = I.touch;
-  window.dispatchEvent(new Event('touchstart'));
+  I.setTouch(true);
   const rect = (el) => el.getBoundingClientRect();
   const hit = (p, q) => p.left < q.right - 1 && q.left < p.right - 1 && p.top < q.bottom - 1 && q.top < p.bottom - 1;
   const inView = (el) => { const b = rect(el); return b.width > 0 && b.top >= -1 && b.left >= -1 && b.bottom <= innerHeight + 1 && b.right <= innerWidth + 1; };
@@ -420,12 +423,7 @@ function testLayout() {
   if (![...document.querySelectorAll('[data-screen=menu] .btn')].filter((b) => !b.hidden).every(inView)) out.push('menu');
   for (const sc of ['howto', 'levels']) { game.ui.act(sc); if (!inView($(`[data-screen=${sc}] [data-action=back]`))) out.push(sc); game.ui.act('back'); }
   check(`todos os botões dos menus e painéis cabem neste ecrã (${innerWidth}x${innerHeight})`, !out.length, out.join(', '));
-  if (!wasTouch) {
-    // repõe o modo teclado
-    game.startLevel(0); game.ui.act('start');
-    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'ArrowRight' }));
-    window.dispatchEvent(new KeyboardEvent('keyup', { code: 'ArrowRight' }));
-  }
+  I.setTouch(wasTouch);
   game.goMenu();
 }
 
@@ -573,6 +571,182 @@ function testSettings() {
   }
 }
 
+// Interações a sério: eventos de toque, rato e teclado como os do browser (e não mexendo
+// diretamente no estado da entrada), e o que se vê por cima de cada sítio do ecrã.
+async function testInteractions() {
+  log('— Interações reais (toque, rato, teclado) —');
+  const ptr = (el, type, x, y, id = 7, kind = 'touch') => el.dispatchEvent(new PointerEvent(type, { clientX: x, clientY: y, pointerId: id, pointerType: kind, isPrimary: true, bubbles: true, cancelable: true, button: 0 }));
+  const key = (type, code) => window.dispatchEvent(new KeyboardEvent(type, { code, bubbles: true, cancelable: true }));
+  const center = (el) => { const b = el.getBoundingClientRect(); return [b.left + b.width / 2, b.top + b.height / 2]; };
+  // (o painel desta suite fica por cima do jogo: esconde-se enquanto se vê o que está em cada sítio)
+  const topAt = (el) => {
+    const [x, y] = center(el);
+    if (panel) panel.style.display = 'none';
+    const t = document.elementFromPoint(x, y);
+    if (panel) panel.style.display = '';
+    return !!t && (t === el || el.contains(t));
+  };
+  const step = (n = 1) => { for (let k = 0; k < n; k++) { game.scene.update(STEP); I.endFrame(); } };
+  const wasTouch = I.touch;
+
+  // --- botões táteis num nível de plataformas ---
+  I.setTouch(true);
+  const mi = LEVELS.findIndex((L) => L.id === 'madeira');
+  game.startLevel(mi);
+  game.ui.act('start');
+  const pad = $('#pad'), jump = $('#jump'), tl = pad.querySelector('.tl'), tr = pad.querySelector('.tr');
+  check('botões ◀ ▶ ▲ por cima de tudo (nada os tapa)', topAt(tl) && topAt(tr) && topAt(jump));
+  const pauseBtn = $('#hud [data-action=pause]');
+  check('botão de pausa visível e por cima de tudo', topAt(pauseBtn));
+  const p = game.scene.player, x0 = p.x;
+  ptr(pad, 'pointerdown', ...center(tr));
+  check('toque em ▶: anda para a direita', I.right && !I.left);
+  step(40);
+  check('▶ mantido: o jogador avança', game.scene.player.x > x0 + 20, `${x0} → ${game.scene.player.x}`);
+  ptr(pad, 'pointermove', ...center(tl));
+  check('deslizar o polegar para ◀: muda de direção', I.left && !I.right);
+  ptr(pad, 'pointerup', ...center(tl));
+  check('largar o polegar: para', !I.left && !I.right);
+  step(30);
+  const y0 = game.scene.player.y;
+  ptr(jump, 'pointerdown', ...center(jump), 8);
+  check('toque em ▲: salto', I.jump && I.jumpPressed);
+  step(12);
+  check('▲ mantido: o jogador sobe', game.scene.player.y < y0 - 10, `${y0} → ${game.scene.player.y}`);
+  ptr(jump, 'pointerup', ...center(jump), 8);
+  check('largar ▲', !I.jump);
+  // dois dedos ao mesmo tempo: andar e saltar
+  ptr(pad, 'pointerdown', ...center(tr), 21);
+  ptr(jump, 'pointerdown', ...center(jump), 22);
+  check('dois dedos: andar e saltar ao mesmo tempo', I.right && I.jump);
+  ptr(pad, 'pointerup', ...center(tr), 21);
+  ptr(jump, 'pointerup', ...center(jump), 22);
+  // pausa pelo botão do HUD (um clique a sério)
+  pauseBtn.click();
+  check('clique no botão de pausa: pausa', game.scene.paused && game.ui.current === 'pause');
+  check('em pausa, os botões táteis escondem-se', getComputedStyle($('#touch')).display === 'none');
+  $('[data-screen=pause] [data-action=resume]').click();
+  check('«Continuar»: volta ao jogo', !game.scene.paused && game.ui.current === null && getComputedStyle($('#touch')).display !== 'none');
+  // teclado a meio: passa para modo teclado, os botões somem e o jogo ocupa o ecrã todo
+  key('keydown', 'ArrowRight');
+  check('tecla → depois de tocar: modo teclado', !I.touch && I.right && game.layout.mode === 'none');
+  check('modo teclado: sem botões táteis', getComputedStyle($('#touch')).display === 'none');
+  key('keyup', 'ArrowRight');
+  check('largar →', !I.right);
+  key('keydown', 'Space');
+  check('Espaço: salto', I.jumpPressed && I.jump);
+  key('keyup', 'Space');
+  step(1);
+  key('keydown', 'KeyP');
+  check('tecla P: pausa', game.scene.paused);
+  key('keydown', 'Escape');
+  check('Esc na pausa: retoma', !game.scene.paused);
+  key('keydown', 'Escape');
+  check('Esc a jogar: pausa', game.scene.paused);
+  key('keydown', 'Escape');
+  // perder o foco da janela larga tudo
+  key('keydown', 'ArrowLeft');
+  window.dispatchEvent(new Event('blur'));
+  check('janela perde o foco: larga as teclas', !I.left);
+  // esconder a página (mudar de app) faz pausa
+  Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+  document.dispatchEvent(new Event('visibilitychange'));
+  delete document.hidden;
+  check('mudar de app: pausa automática', game.scene.paused && game.ui.current === 'pause');
+  document.dispatchEvent(new Event('visibilitychange'));
+  game.ui.act('resume');
+
+  // --- toque no ecrã nos minijogos ---
+  I.setTouch(true);
+  game.startLevel(LEVELS.findIndex((L) => L.type === 'birth'));
+  game.ui.act('start');
+  const cv = $('#game'), [cx, cy] = center(cv);
+  ptr(cv, 'pointerdown', cx, cy, 31);
+  check('minijogo: tocar no jogo dá ação e posição', I.actionPressed && I.action && Math.abs(I.pointerX - 0.5) < 0.02);
+  ptr(cv, 'pointermove', cv.getBoundingClientRect().left + 5, cy, 31);
+  check('minijogo: arrastar atualiza a posição', I.pointerX < 0.05);
+  ptr(cv, 'pointerup', cx, cy, 31);
+  check('minijogo: levantar o dedo larga', !I.action && I.pointerX === -1);
+  ptr(cv, 'pointerdown', cx, cy, 32, 'mouse');
+  ptr(cv, 'pointerup', cx, cy, 32, 'mouse');
+  game.ui.act('pause');
+  ptr(cv, 'pointerdown', cx, cy, 33);
+  check('em pausa, tocar no jogo não faz nada', !I.actionPressed);
+  ptr(cv, 'pointerup', cx, cy, 33);
+  game.ui.act('resume');
+
+  // --- menus com cliques a sério ---
+  game.goMenu();
+  $('#btn-play').click();
+  check('clique em «Jogar»/«Continuar»: abre um nível', game.ui.current === 'story' || game.ui.current === 'levels');
+  game.goMenu();
+  for (const [sel, screen] of [['[data-screen=menu] [data-action=howto]', 'howto'], ['[data-screen=menu] [data-action=levels]', 'levels']]) {
+    $(sel).click();
+    const ok = game.ui.current === screen;
+    $(`[data-screen=${screen}] [data-action=back]`).click();
+    check(`clique: «${screen}» abre e «Voltar» regressa`, ok && game.ui.current === 'menu');
+  }
+  $('[data-screen=menu] [data-action=levels]').click();
+  const lv = [...document.querySelectorAll('.level-btn')].find((b) => !b.disabled);
+  lv.click();
+  check('clique num nível da lista: abre a introdução', game.ui.current === 'story');
+  $('[data-screen=story] [data-action=menu]').click();
+  check('«Menu» na introdução: volta ao menu', game.ui.current === 'menu' && !document.body.classList.contains('in-level'));
+  const actions = [...document.querySelectorAll('[data-action]')].map((b) => b.dataset.action);
+  const known = ['play', 'levels', 'howto', 'back', 'level', 'character', 'sound', 'music', 'fullscreen', 'install', 'start', 'pause', 'resume', 'restart', 'retry', 'next', 'bonus', 'menu'];
+  check('todos os botões têm uma ação conhecida', actions.every((a) => known.includes(a)), actions.filter((a) => !known.includes(a)).join(','));
+
+  // --- animação do casamento: tocar salta para a festa ---
+  game.showVictory('wedding');
+  game.scene.t = 3;
+  window.dispatchEvent(new PointerEvent('pointerdown', { clientX: 10, clientY: 10, bubbles: true }));
+  check('casamento: tocar no ecrã salta para a festa', game.scene.t >= 20);
+  key('keydown', 'Escape');
+  check('casamento: o Esc não sai a meio da animação', game.scene.constructor.name === 'VictoryScene' && game.ui.current === 'victory');
+  game.startLevel(0);
+  game.ui.showComplete(0, 1, 5);
+  key('keydown', 'Escape');
+  check('nível concluído: o Esc volta ao menu', game.ui.current === 'menu');
+  game.showVictory('wedding');
+  game.scene.t = 3;
+  game.goMenu();
+  check('ao sair da animação, deixa de ouvir os toques', (() => { const t = game.scene.t; window.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); return game.scene.t === t && game.scene.constructor.name === 'MenuScene'; })());
+
+  // classes do body coerentes ao saltar entre ecrãs
+  const cls = () => ['in-level', 'playing', 'caption'].filter((c) => document.body.classList.contains(c)).join(',');
+  game.startLevel(LEVELS.findIndex((L) => L.type === 'birth'));
+  game.ui.act('start');
+  game.goMenu();
+  check('voltar ao menu a meio de um nível limpa o estado do ecrã', cls() === '', cls());
+  // um toque num menu só muda para modo tátil depois de o toque acabar (a disposição não
+  // pode mudar debaixo do dedo)
+  game.goMenu();
+  I.setTouch(false);
+  window.dispatchEvent(new Event('touchstart'));
+  const now = I.touch;
+  await new Promise((r) => setTimeout(r, 450));
+  check('toque num menu: passa a modo tátil só depois do toque', !now && I.touch);
+  I.setTouch(wasTouch);
+  game.goMenu();
+}
+
+// Modo offline: o service worker tem de guardar, logo na instalação, todos os módulos que o jogo
+// carrega (senão a app instalada não abre sem rede antes de uma segunda visita).
+async function testOffline() {
+  log('— Modo offline (sw.js) —');
+  const src = await (await fetch('sw.js', { cache: 'no-store' })).text();
+  const m = src.match(/const CORE = \[([\s\S]*?)\];/);
+  const core = m ? [...m[1].matchAll(/'([^']+)'/g)].map((x) => x[1]) : [];
+  const base = new URL('.', location.href).pathname;
+  const loaded = [...new Set(performance.getEntriesByType('resource').map((e) => new URL(e.name).pathname)
+    .filter((p) => p.startsWith(base + 'js/') && p.endsWith('.js')).map((p) => p.slice(base.length)))];
+  const missing = loaded.filter((p) => !core.includes(p));
+  check(`service worker guarda todos os ${loaded.length} módulos do jogo`, loaded.length > 20 && !missing.length, missing.join(', '));
+  const bad = [];
+  for (const f of core) { const r = await fetch(f, { cache: 'no-store' }); if (!r.ok) bad.push(f + ' ' + r.status); }
+  check(`todos os ${core.length} ficheiros da lista do service worker existem`, !bad.length, bad.join(', '));
+}
+
 function testMenus() {
   log('— Menus e teclado —');
   game.goMenu();
@@ -603,12 +777,12 @@ function testMenus() {
 async function testViewports() {
   log('— Tamanhos de ecrã —');
   const views = [
-    { name: 'telemóvel vertical', w: 251, h: 542, k: 3, portrait: true },
+    { name: 'telemóvel ao alto', w: 251, h: 542, k: 3, portrait: true },
     { name: 'telemóvel deitado', w: 361, h: 167, k: 3, portrait: false },
     { name: 'telemóvel estreito', w: 220, h: 476, k: 2, portrait: true },
     { name: 'iPhone', w: 281, h: 609, k: 4, portrait: true },
-    { name: 'janela estreita', w: 188, h: 406, k: 2, portrait: true },
-    { name: 'tablet vertical', w: 256, h: 342, k: 4, portrait: true },
+    { name: 'telemóvel muito estreito', w: 188, h: 406, k: 2, portrait: true },
+    { name: 'tablet ao alto', w: 256, h: 342, k: 4, portrait: true },
     { name: 'tablet deitado', w: 342, h: 256, k: 4, portrait: false },
     { name: 'computador', w: 427, h: 240, k: 4, portrait: false },
     { name: 'ecrã largo', w: 640, h: 180, k: 6, portrait: false },
@@ -746,10 +920,10 @@ export async function run(g) {
   game.ctx2d = document.getElementById('game').getContext('2d');
   window.addEventListener('error', (e) => errors.push('window: ' + e.message));
   // ?qa&touch: simula um ecrã tátil (para correr a suite num telemóvel ou com o ecrã emulado)
-  if (new URLSearchParams(location.search).has('touch')) window.dispatchEvent(new Event('touchstart'));
+  if (new URLSearchParams(location.search).has('touch')) I.setTouch(true);
   log('QA — Luísa & Sérgio (' + new Date().toLocaleString('pt-PT') + ')');
   const t0 = performance.now();
-  const steps = [testData, testReachable, testLayout, testMenus, testSettings, testAudio, testFullGame, testRestart, testViewports];
+  const steps = [testData, testReachable, testLayout, testInteractions, testOffline, testMenus, testSettings, testAudio, testFullGame, testRestart, testViewports];
   for (const fn of steps) {
     try { await fn(); } catch (err) { check(`${fn.name} terminou sem exceções`, false, err.stack || err.message); }
     await tick();

@@ -144,8 +144,6 @@ window.addEventListener('resize', resize);
 // Depois de rodar, o Safari do iOS demora um pouco a dar as medidas certas: medir várias vezes.
 const settle = () => [60, 200, 450, 900].forEach((ms) => setTimeout(resize, ms));
 window.addEventListener('orientationchange', settle);
-const mqPortrait = window.matchMedia && matchMedia('(orientation: portrait)');
-if (mqPortrait && mqPortrait.addEventListener) mqPortrait.addEventListener('change', settle);
 if (screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener('change', settle);
 window.addEventListener('pageshow', settle);
 if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);

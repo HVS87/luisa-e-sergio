@@ -30,7 +30,7 @@ const TOPICS = {
     { icon: 'sun', txt: 'Planos para as férias' },
   ],
   bad: [
-    { icon: 'broken', txt: 'Falar da ex...' },
+    { icon: 'broken', txt: 'Falar de ex-namorados...' },
     { icon: 'bone', txt: 'Uma fratura exposta em detalhe' },
     { icon: 'zzz', txt: 'Escalas e relatórios do hospital' },
   ],

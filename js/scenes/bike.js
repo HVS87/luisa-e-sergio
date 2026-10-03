@@ -366,14 +366,13 @@ export class BikeScene {
 
   // ---------- Desenho ----------
   draw(ctx, v) {
-    const visH = v.h;
     const camX = Math.round(this.bx - v.w * 0.32);
-    const base = Math.round(visH * 0.7);    // linha do chão no ecrã, junto à bicicleta
+    const base = Math.round(v.h * 0.7);    // linha do chão no ecrã, junto à bicicleta
     const sy = (wx) => base + Math.round(this.H(wx) - this.camH);  // y no ecrã da estrada em wx
     const t = this.t;
 
     // Fundo: muda com a zona; o horizonte desce um pouco quando se sobe
-    const gy = clamp(base + 8 - Math.round(this.camH * 0.12), base - 30, visH - 4);
+    const gy = clamp(base + 8 - Math.round(this.camH * 0.12), base - 30, v.h - 4);
     const cx = this.bx;
     let zi = 0;
     while (zi + 1 < this.zones.length && cx >= this.zones[zi + 1].x) zi++;
@@ -472,7 +471,7 @@ export class BikeScene {
     this.fx.draw(ctx, camX, this.camH - base);
 
     // Percurso: barra de progresso em baixo
-    const pw = Math.min(120, v.w - 120), px = Math.round((v.w - pw) / 2), py = visH - 7;
+    const pw = Math.min(120, v.w - 120), px = Math.round((v.w - pw) / 2), py = v.h - 7;
     ctx.fillStyle = INK;
     ctx.fillRect(px - 1, py - 1, pw + 2, 4);
     ctx.fillStyle = '#fff6e6';

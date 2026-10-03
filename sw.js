@@ -1,8 +1,52 @@
 // Service worker do jogo: permite instalá-lo como app e jogar sem rede.
 // Estratégia "rede primeiro": com rede, recebe-se sempre a versão mais recente (e guarda-se
 // uma cópia); sem rede, usa-se a cópia guardada. As fontes do Google ficam em cache.
-const CACHE = 'luisa-sergio-v1';
-const CORE = ['./', 'index.html', 'css/style.css', 'js/main.js', 'manifest.webmanifest', 'assets/icon-192.png', 'assets/icon-512.png', 'assets/icon-180.png'];
+// Ao mudar a lista de ficheiros, mudar também o nome da cache (a suite ?qa verifica que todos
+// os módulos do jogo estão aqui).
+const CACHE = 'luisa-sergio-v2';
+const CORE = [
+  './', 'index.html', 'css/style.css', 'manifest.webmanifest',
+  'assets/icon-192.png', 'assets/icon-512.png', 'assets/icon-180.png',
+  'js/main.js',
+  'js/audio.js',
+  'js/config.js',
+  'js/device.js',
+  'js/fx.js',
+  'js/input.js',
+  'js/layout.js',
+  'js/save.js',
+  'js/sprites.js',
+  'js/themes.js',
+  'js/ui.js',
+  'js/scenes/aurora.js',
+  'js/scenes/bike.js',
+  'js/scenes/birds.js',
+  'js/scenes/birth.js',
+  'js/scenes/covid.js',
+  'js/scenes/date.js',
+  'js/scenes/menu.js',
+  'js/scenes/operation.js',
+  'js/scenes/oven.js',
+  'js/scenes/play.js',
+  'js/scenes/prep.js',
+  'js/scenes/proposal.js',
+  'js/scenes/tour.js',
+  'js/scenes/victory.js',
+  'js/levels/01-encontro.js',
+  'js/levels/02-date.js',
+  'js/levels/03-madeira.js',
+  'js/levels/04-ciclismo.js',
+  'js/levels/05-solar.js',
+  'js/levels/06-pretarouca.js',
+  'js/levels/07-covid.js',
+  'js/levels/08-aves.js',
+  'js/levels/09-noruega.js',
+  'js/levels/10-pedido.js',
+  'js/levels/11-preparativos.js',
+  'js/levels/b1-maternidade.js',
+  'js/levels/chunks.js',
+  'js/levels/index.js',
+];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));

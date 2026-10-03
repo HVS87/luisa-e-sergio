@@ -14,7 +14,6 @@
   --sar: env(safe-area-inset-right, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
   --sal: env(safe-area-inset-left, 0px);
-  --tb: clamp(56px, min(21vw, 21vh), 96px);
   /* área de jogo e zona dos botões, calculadas em js/main.js */
   --gx: 0px;
   --gy: 0px;
@@ -140,6 +139,9 @@ ul { list-style: none; }
   z-index: 10;
 }
 .screen.active { display: flex; }
+/* com os botões táteis, a área de jogo já fica dentro das margens seguras do ecrã */
+body.ctl-side .screen { padding-left: 1em; padding-right: 1em; }
+body.ctl-bar .screen { padding-bottom: 0.9em; }
 
 .panel {
   display: flex;
@@ -258,7 +260,6 @@ body.wide [data-screen="menu"] .btn-row .btn { margin: var(--b); padding: 0.8em 
 .story-help { color: var(--mint); }
 /* deitado há pouca altura: painel mais largo, para o texto ocupar menos linhas */
 body.wide [data-screen="story"] .panel { width: min(46em, 100%); gap: 0.7em; padding-top: 0.9em; padding-bottom: 1em; }
-.story-help[hidden] { display: none; }
 .complete-hearts { font-size: 0.9em !important; display: flex; align-items: center; gap: 0.6em; }
 .perfect { color: var(--gold); animation: beat 0.8s steps(2, end) infinite; }
 
