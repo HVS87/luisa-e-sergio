@@ -102,11 +102,12 @@ A ordem dos momentos define-se em `js/levels/02-date.js`; os microjogos estão e
 O Sérgio apresenta a Luísa à família. É um nível de plataformas em quatro zonas, cada uma
 com o seu cenário: o Funchal (mercado, teleférico, calçada portuguesa), uma levada na serra
 (cascatas e nevoeiro), a descida do Monte de carro de cesto (o carro anda sozinho, só se
-salta) e Santana (socalcos, hortênsias e a casa típica onde a avó espera).
+salta) e Santana (socalcos, hortênsias e a casa típica onde o pai do Sérgio espera).
 
-Pelo caminho encontram-se familiares, que cumprimentam e servem de ponto de passagem, e há
+Pelo caminho aparece a Beatriz, a irmã mais nova do Sérgio, que cumprimenta e serve de
+ponto de passagem (o carreiro do carro de cesto é um figurante), e há
 quatro iguarias para apanhar (banana, bolo do caco, poncha e espetada). Tudo isto se define
-em `js/levels/03-madeira.js`: `npcs` (família), `host` (quem recebe em casa), `items`
+em `js/levels/03-madeira.js`: `npcs` (quem se encontra), `host` (quem recebe em casa), `items`
 (iguarias) e marcadores `{ zone, base }` na lista de troços para mudar de cenário.
 `lift(troço, n)` sobe um troço n blocos, para construir encostas.
 

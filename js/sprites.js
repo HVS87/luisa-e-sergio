@@ -140,12 +140,12 @@ LOOKS.waiter = {
   outfits: { casual: { t: '#2b2b3a', k: '#ffffff', p: '#2b2b3a', b: '#111122' } },
 };
 
-// Família da Madeira (figurantes do nível 3). Nomes e aspeto são fáceis de ajustar aqui.
-LOOKS.tia = { def: LUISA, base: { h: '#3b2a20', H: '#3b2a20', v: '#3b2a20' }, outfits: { casual: { t: '#d43d51', T: '#ffd166', b: '#2b1d2e' } } };
-LOOKS.avo = { def: LUISA, base: { h: '#d8d8e0', H: '#f2f2f7', v: '#d8d8e0' }, outfits: { casual: { t: '#5a4a8a', T: '#463a6e', b: '#2b1d2e' } } };
-LOOKS.primo = { def: SERGIO, base: { h: '#6b4a2e', d: '#f6c9a0' }, outfits: { casual: { t: '#f08a4b', k: '#f08a4b', p: '#4a5a3a', b: '#5a3a22', q: '#3d8fe0', Q: '#2f6fb5', cap: true } } };
-// o tio é carreiro: roupa branca e chapéu de palha
-LOOKS.tio = { def: SERGIO, base: { h: '#3b2a20', s: '#e8b088', d: '#b98f72' }, outfits: { casual: { t: '#ffffff', k: '#ffffff', p: '#f2f2f2', b: '#5a3a22', q: '#e8c878', Q: '#2b1d2e', cap: true } } };
+// Família do Sérgio na Madeira (nível 3): a irmã mais nova, Beatriz, e o pai.
+// O aspeto é fácil de ajustar aqui (cabelo: h/H/v · roupa: t/T · calças: p).
+LOOKS.beatriz = { def: LUISA, base: { h: '#3b2a20', H: '#5a4030', v: '#3b2a20', e: '#2b1d2e' }, outfits: { casual: { t: '#ffd166', T: '#f0a93e', b: '#3d8fe0' } } };
+LOOKS.pai = { def: SERGIO, base: { h: '#8a8794', d: '#d9b08c' }, outfits: { casual: { t: '#5a7fb5', k: '#5a7fb5', p: '#4a4458', b: '#2b1d2e' } } };
+// Figurante: o carreiro do carro de cesto, de branco e chapéu de palha.
+LOOKS.carreiro = { def: SERGIO, base: { h: '#3b2a20', s: '#e8b088', d: '#b98f72' }, outfits: { casual: { t: '#ffffff', k: '#ffffff', p: '#f2f2f2', b: '#5a3a22', q: '#e8c878', Q: '#2b1d2e', cap: true } } };
 
 const cache = new Map();
 

@@ -89,9 +89,11 @@ export class PlayScene {
     // Família pelo caminho: pela ordem em que aparece no nível
     this.npcs.sort((a, b) => a.x - b.x);
     this.npcs.forEach((n, i) => {
-      n.def = (L.npcs || [])[i] || { look: 'tia', line: '' };
+      n.def = (L.npcs || [])[i] || { look: 'carreiro', line: '' };
       n.frames = getCharacter(n.def.look);
     });
+    // Quem aparece à porta de casa no final: só a família, cada pessoa uma vez
+    this.family = this.npcs.filter((n, i) => n.def.family && this.npcs.findIndex((m) => m.def.look === n.def.look) === i);
     this.host = L.host ? getCharacter(L.host.look) : null;
     this.total = this.hearts.length + this.items.length;
 
@@ -328,7 +330,7 @@ export class PlayScene {
       this.game.audio.play('check');
     }
 
-    // Família: quem se encontra pelo caminho cumprimenta (e serve de ponto de passagem)
+    // Quem se encontra pelo caminho cumprimenta (e serve de ponto de passagem)
     for (const n of this.npcs) {
       if (n.met || cx < n.x - 18) continue;
       n.met = true;
@@ -571,7 +573,7 @@ export class PlayScene {
       if (this.host) ctx.drawImage(this.host.stand[this.player.x < g.x ? 'l' : 'r'], x + 2, y - 24 - hop);
       // quando o casal chega, a família toda junta-se à porta
       if (won) {
-        this.npcs.forEach((n, i) => {
+        this.family.forEach((n, i) => {
           const h2 = Math.round(Math.abs(Math.sin(this.t * 7 + i * 1.3)) * 3);
           ctx.drawImage(n.frames.stand.l, x + 58 + i * 17, y - 24 - h2);
         });
