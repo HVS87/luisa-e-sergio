@@ -30,7 +30,7 @@ const TOPICS = {
     { icon: 'sun', txt: 'Planos para as férias' },
   ],
   bad: [
-    { icon: 'broken', txt: 'Falar de ex-namorados...' },
+    { icon: 'germ', txt: 'A última gastroenterite, ao pormenor...' },
     { icon: 'bone', txt: 'Uma fratura exposta em detalhe' },
     { icon: 'zzz', txt: 'Escalas e relatórios do hospital' },
   ],
@@ -774,7 +774,7 @@ export class DateScene {
     else if (kind === 'note') { R(x + 5, y, 1, 7, '#6f5bd6'); R(x + 5, y, 4, 2, '#6f5bd6'); R(x + 2, y + 5, 4, 3, '#6f5bd6'); }
     else if (kind === 'plane') { R(x, y + 3, 9, 2, '#3d8fe0'); R(x + 3, y, 2, 8, '#3d8fe0'); R(x, y + 1, 2, 2, '#3d8fe0'); R(x + 8, y + 3, 1, 1, '#ffffff'); }
     else if (kind === 'sun') { R(x + 2, y + 2, 5, 5, '#f0a93e'); R(x + 4, y, 1, 1, '#f0a93e'); R(x + 4, y + 8, 1, 1, '#f0a93e'); R(x, y + 4, 1, 1, '#f0a93e'); R(x + 8, y + 4, 1, 1, '#f0a93e'); R(x + 1, y + 1, 1, 1, '#f0a93e'); R(x + 7, y + 1, 1, 1, '#f0a93e'); R(x + 1, y + 7, 1, 1, '#f0a93e'); R(x + 7, y + 7, 1, 1, '#f0a93e'); }
-    else if (kind === 'broken') { this.img(this.spr.heartOff, x, y); R(x + 4, y + 1, 1, 2, '#ffffff'); R(x + 3, y + 3, 1, 2, '#ffffff'); R(x + 4, y + 5, 1, 2, '#ffffff'); }
+    else if (kind === 'germ') { R(x + 2, y + 2, 5, 5, '#5fae4a'); R(x + 3, y + 1, 3, 7, '#5fae4a'); R(x + 1, y + 3, 7, 3, '#5fae4a'); R(x + 4, y, 1, 1, '#3f7f32'); R(x + 4, y + 8, 1, 1, '#3f7f32'); R(x, y + 4, 1, 1, '#3f7f32'); R(x + 8, y + 4, 1, 1, '#3f7f32'); R(x + 3, y + 3, 1, 1, INK); R(x + 5, y + 3, 1, 1, INK); R(x + 3, y + 5, 3, 1, INK); }
     else if (kind === 'bone') { R(x + 1, y + 3, 7, 2, '#b9a67e'); R(x, y + 2, 2, 4, '#b9a67e'); R(x + 7, y + 2, 2, 4, '#b9a67e'); R(x + 4, y + 1, 1, 6, RED); R(x + 4, y + 8, 1, 1, RED); }
     else if (kind === 'zzz') { R(x + 1, y + 1, 7, 1, '#6a6f80'); R(x + 1, y + 7, 7, 1, '#6a6f80'); for (let k = 1; k < 6; k++) R(x + 7 - k, y + 1 + k, 1, 1, '#6a6f80'); }
   }
