@@ -25,6 +25,7 @@ Acrescentar `?debug` ao endereço desbloqueia todos os níveis (útil para testa
 |---------|-------------------------|-----------------------------|
 | Andar   | ← → ou A D              | Botões ◀ ▶ (em baixo, à esquerda) |
 | Saltar  | Espaço, ↑ ou W          | Botão ▲ (em baixo, à direita)     |
+| Ação (minijogos) | Espaço ou Enter | Tocar em qualquer ponto do ecrã |
 | Pausa   | P ou Esc                | Botão de pausa (em cima, à direita) |
 | Menus   | Setas + Enter           | Toque                       |
 
@@ -42,7 +43,7 @@ js/sprites.js         personagens e objetos em pixel art (definidos em texto)
 js/themes.js          cenários de cada ambiente (parque, cidade, praia, noite, casamento, quartos de bebé)
 js/fx.js              partículas e fogo de artifício
 js/ui.js              lógica dos menus e painéis
-js/scenes/            menu, nível de jogo e ecrã de vitória
+js/scenes/            menu, nível de plataformas, minijogos (operation.js) e ecrã de vitória
 js/levels/            um ficheiro por nível + troços reutilizáveis (chunks.js)
 tools/                servidor local e gerador de ícones
 ```
@@ -51,7 +52,7 @@ tools/                servidor local e gerador de ícones
 
 | # | Ficheiro | Capítulo | Ambiente |
 |---|----------|----------|----------|
-| 1 | `01-encontro.js` | O Primeiro Encontro | parque ao pôr do sol |
+| 1 | `01-encontro.js` | Como se Conheceram | minijogo "Operação" no bloco operatório |
 | 2 | `02-trabalho.js` | Dias de Trabalho | cidade |
 | 3 | `03-ferias.js` | Férias a Dois | praia |
 | 4 | `04-pedido.js` | O Pedido | noite estrelada |
@@ -59,10 +60,22 @@ tools/                servidor local e gerador de ícones
 | B1 | `b1-xavier.js` | Bem-vindo, Xavier! | quarto azul |
 | B2 | `b2-luisa.js` | Bem-vinda, pequena Luísa! | quarto rosa |
 
-Os níveis atuais são esqueletos jogáveis, montados com troços genéricos; os textos da
-história são provisórios. Cada nível vai ser desenhado ao pormenor a seguir.
+O nível 1 está feito. Os restantes são esqueletos jogáveis, montados com troços genéricos,
+com textos provisórios; vão ser desenhados ao pormenor um a um.
 
-### Como se desenha um nível
+### Nível 1 — minijogo "Operação"
+
+A Luísa (anestesista) e o Sérgio (cirurgião ortopédico) conheceram-se a trabalhar juntos.
+O Sérgio retira cinco ossos ao doente, com serrote ou martelo: é preciso carregar quando o
+marcador passa na zona verde do osso, três vezes por osso. Se falhar, o doente acorda a
+espernear e passa a ser a vez da Luísa: manter premido para empurrar o êmbolo da seringa
+e largar dentro da zona verde. Cada osso retirado sem falhas vale um coração.
+
+Os ossos, a velocidade do marcador e a largura da zona verde definem-se em
+`js/levels/01-encontro.js`; a lógica e o cenário estão em `js/scenes/operation.js`.
+Um nível escolhe o tipo de jogo com `type` (`operation`; por omissão, plataformas).
+
+### Como se desenha um nível de plataformas
 
 Um nível é uma lista de troços colados da esquerda para a direita. Cada troço é um
 pequeno mapa em texto (ver `js/levels/chunks.js`):

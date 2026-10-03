@@ -7,6 +7,7 @@ import { UI } from './ui.js';
 import { LEVELS } from './levels/index.js';
 import { MenuScene } from './scenes/menu.js';
 import { PlayScene } from './scenes/play.js';
+import { OperationScene } from './scenes/operation.js';
 import { VictoryScene } from './scenes/victory.js';
 
 const canvas = document.getElementById('game');
@@ -15,6 +16,9 @@ const ctx = canvas.getContext('2d', { alpha: false });
 // w, h: tamanho do ecrã em píxeis de jogo · k: píxeis reais por píxel de jogo
 // pad: faixa inferior reservada aos botões táteis (só em retrato, durante um nível)
 const view = { w: 320, h: 180, k: 1, pad: 0, portrait: false };
+
+// Tipos de nível: plataformas (por omissão) e minijogos.
+const SCENES = { platform: PlayScene, operation: OperationScene };
 
 const game = {
   view, input, audio, save,
@@ -39,7 +43,8 @@ const game = {
 
   startLevel(index) {
     if (index < 0 || index >= LEVELS.length) return this.goMenu();
-    this.setScene(new PlayScene(this, index));
+    const Scene = SCENES[LEVELS[index].type] || PlayScene;
+    this.setScene(new Scene(this, index));
   },
 
   showVictory(variant) { this.setScene(new VictoryScene(this, variant)); },

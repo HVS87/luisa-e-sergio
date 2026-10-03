@@ -26,6 +26,11 @@ const SOUNDS = {
   check: () => { tone(523, 0, 0.08, 'triangle', 0.08); tone(784, 0.08, 0.12, 'triangle', 0.08); },
   win: () => [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, i * 0.11, 0.16, 'square', 0.05)),
   boom: () => { tone(160, 0, 0.35, 'triangle', 0.09, 45); tone(900 + Math.random() * 600, 0.02, 0.2, 'square', 0.012, 200); },
+  saw: () => [0, 0.09, 0.18, 0.27].forEach((d, i) => tone(i % 2 ? 150 : 190, d, 0.08, 'sawtooth', 0.05)),
+  toc: () => { tone(520, 0, 0.07, 'triangle', 0.14, 180); tone(140, 0, 0.1, 'square', 0.05, 70); },
+  buzz: () => { tone(110, 0, 0.5, 'sawtooth', 0.08); tone(116, 0, 0.5, 'square', 0.04); },
+  inject: () => tone(300, 0, 0.5, 'sine', 0.06, 700),
+  pop: () => { tone(500, 0, 0.1, 'square', 0.05, 1200); tone(1319, 0.1, 0.16, 'square', 0.05); },
   fanfare: () => [392, 523, 659, 784, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.16, 0.24, 'square', 0.05)),
 };
 

@@ -3,10 +3,11 @@ const KEYS = {
   ArrowLeft: 'left', KeyA: 'left',
   ArrowRight: 'right', KeyD: 'right',
   Space: 'jump', ArrowUp: 'jump', KeyW: 'jump', KeyZ: 'jump', KeyX: 'jump',
+  Enter: 'action',
 };
 
-const kb = { left: false, right: false, jump: false };
-const tc = { left: false, right: false, jump: false };
+const kb = { left: false, right: false, jump: false, action: false };
+const tc = { left: false, right: false, jump: false, action: false };
 let opts = {};
 
 export const input = {
@@ -14,6 +15,8 @@ export const input = {
   right: false,
   jump: false,          // salto mantido premido
   jumpPressed: false,   // salto premido neste instante
+  action: false,        // ação dos minijogos (salto, Enter, ou tocar/clicar no ecrã) mantida premida
+  actionPressed: false, // ação premida neste instante
   touch: false,         // true quando o jogador está a usar o ecrã tátil
 
   init(options) {
@@ -26,11 +29,12 @@ export const input = {
     document.addEventListener('visibilitychange', reset);
   },
 
-  endFrame() { this.jumpPressed = false; },
+  endFrame() { this.jumpPressed = false; this.actionPressed = false; },
 
   reset() {
-    kb.left = kb.right = kb.jump = false;
-    tc.left = tc.right = tc.jump = false;
+    kb.left = kb.right = kb.jump = kb.action = false;
+    tc.left = tc.right = tc.jump = tc.action = false;
+    this.jumpPressed = this.actionPressed = false;
     sync();
   },
 };
@@ -39,6 +43,7 @@ function sync() {
   input.left = kb.left || tc.left;
   input.right = kb.right || tc.right;
   input.jump = kb.jump || tc.jump;
+  input.action = input.jump || kb.action || tc.action;
 }
 
 function setTouch(on) {
@@ -56,7 +61,10 @@ function bindKeyboard() {
     const k = KEYS[e.code];
     if (!k) return;
     if (playing) { e.preventDefault(); setTouch(false); }
-    if (k === 'jump' && !e.repeat && !kb.jump) input.jumpPressed = true;
+    if ((k === 'jump' || k === 'action') && !e.repeat && !kb[k]) {
+      if (k === 'jump') input.jumpPressed = true;
+      input.actionPressed = true;
+    }
     kb[k] = true;
     sync();
   });
@@ -114,6 +122,7 @@ function bindTouch() {
     try { jump.setPointerCapture(e.pointerId); } catch (err) { /* sem captura */ }
     jumpers.add(e.pointerId);
     input.jumpPressed = true;
+    input.actionPressed = true;
     jumpSync();
   });
   const jumpEnd = (e) => { if (jumpers.delete(e.pointerId)) jumpSync(); };
@@ -121,8 +130,26 @@ function bindTouch() {
   jump.addEventListener('pointercancel', jumpEnd);
   jump.addEventListener('lostpointercapture', jumpEnd);
 
+  // Tocar ou clicar em qualquer ponto do jogo: botão de ação dos minijogos
+  const canvas = document.getElementById('game');
+  const taps = new Set();
+  const tapSync = () => { tc.action = taps.size > 0; sync(); };
+  canvas.addEventListener('pointerdown', (e) => {
+    if (!document.body.classList.contains('playing')) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    e.preventDefault();
+    try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* sem captura */ }
+    taps.add(e.pointerId);
+    input.actionPressed = true;
+    tapSync();
+  });
+  const tapEnd = (e) => { if (taps.delete(e.pointerId)) tapSync(); };
+  canvas.addEventListener('pointerup', tapEnd);
+  canvas.addEventListener('pointercancel', tapEnd);
+  canvas.addEventListener('lostpointercapture', tapEnd);
+
   // Quando a janela perde o foco, larga tudo.
-  const clear = () => { pointers.clear(); jumpers.clear(); update(); jumpSync(); };
+  const clear = () => { pointers.clear(); jumpers.clear(); taps.clear(); update(); jumpSync(); tapSync(); };
   window.addEventListener('blur', clear);
   document.addEventListener('visibilitychange', clear);
 

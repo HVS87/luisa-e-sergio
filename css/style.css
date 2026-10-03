@@ -237,6 +237,8 @@ kbd {
 
 /* ---------- Introdução / fim de nível ---------- */
 .story-text { max-width: 30em; }
+.story-help { max-width: 30em; color: var(--mint); }
+.story-help[hidden] { display: none; }
 .complete-hearts { font-size: 0.9em !important; display: flex; align-items: center; gap: 0.6em; }
 .perfect { color: var(--gold); animation: beat 0.8s steps(2, end) infinite; }
 
@@ -260,6 +262,27 @@ body.in-level .hud { display: flex; }
 .hud-hearts .ico-heart { filter: drop-shadow(0.12em 0.12em 0 var(--ink)); }
 .hud-title { font-size: 0.55em; opacity: 0.95; text-align: center; flex: 1 1 auto; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .hud .btn { font-size: 0.7em; text-shadow: none; }
+
+/* Linha de instruções dos minijogos */
+.hint {
+  position: absolute;
+  top: calc(var(--sat) + 0.6em + 50px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  width: max-content;
+  max-width: calc(100% - 1.6em);
+  padding: 0.6em 0.9em;
+  font-size: 0.55em;
+  line-height: 1.6;
+  text-align: center;
+  color: var(--paper);
+  background: rgba(26, 20, 51, 0.88);
+  pointer-events: none;
+  z-index: 6;
+}
+body.in-level .hint:not(:empty) { display: block; }
+body.minigame #touch { display: none !important; }
 
 /* ---------- Vitória ---------- */
 [data-screen="victory"] { justify-content: flex-start; padding-top: calc(var(--sat) + 12vh); }

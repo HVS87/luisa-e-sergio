@@ -55,6 +55,7 @@ export class UI {
 
   // inLevel: mostra o HUD · playing: mostra os controlos táteis e capta as teclas de jogo
   setLevelMode(inLevel, playing) {
+    if (!inLevel) this.setHint('');
     document.body.classList.toggle('in-level', inLevel);
     document.body.classList.toggle('playing', playing);
   }
@@ -63,6 +64,9 @@ export class UI {
     $('#hud-hearts').textContent = got + '/' + total;
     $('#hud-title').textContent = title;
   }
+
+  // Linha de instruções por baixo do HUD (usada pelos minijogos).
+  setHint(text) { $('#hint').textContent = text || ''; }
 
   // Substitui {eu}, {par}, {ao_par}... pelos nomes certos conforme a personagem escolhida.
   fmt(text) {
@@ -116,6 +120,8 @@ export class UI {
     $('#story-kicker').textContent = levelLabel(index);
     $('#story-title').textContent = L.title;
     $('#story-text').textContent = this.fmt(L.story || '');
+    $('#story-help').textContent = this.fmt(L.help || '');
+    $('#story-help').hidden = !L.help;
     this.setLevelMode(false, false);
     this.show('story');
   }

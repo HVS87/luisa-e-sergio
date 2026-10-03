@@ -35,6 +35,8 @@
     <button class="btn btn-icon" data-action="pause" aria-label="Pausa"><span class="ico-pause"></span></button>
   </div>
 
+  <div class="hint" id="hint" aria-live="polite"></div>
+
   <!-- Menu principal -->
   <section class="screen" data-screen="menu">
     <header class="title-block">
@@ -60,13 +62,14 @@
       <div class="scroll">
         <h3>A história</h3>
         <p>Acompanha a Luísa e o Sérgio desde o primeiro encontro até ao dia do casamento! Cada nível é um capítulo da vida a dois: conhecerem-se, trabalhar, as férias juntos, o pedido e, por fim, o grande dia.</p>
-        <p>Apanha os corações pelo caminho e chega ao fim de cada nível para desbloquear o seguinte. Depois do casamento esperam-te dois níveis bónus muito especiais...</p>
+        <p>Apanha os corações pelo caminho e chega ao fim de cada nível para desbloquear o seguinte. Alguns níveis são minijogos com regras próprias, explicadas antes de começar. Depois do casamento esperam-te dois níveis bónus muito especiais...</p>
 
         <h3>Teclado</h3>
         <ul class="controls">
           <li><span class="keys"><kbd>&larr;</kbd><kbd>&rarr;</kbd> ou <kbd>A</kbd><kbd>D</kbd></span><span>Andar</span></li>
           <li><span class="keys"><kbd>Espaço</kbd> <kbd>&uarr;</kbd> ou <kbd>W</kbd></span><span>Saltar</span></li>
           <li><span class="keys"><kbd>P</kbd> ou <kbd>Esc</kbd></span><span>Pausa</span></li>
+          <li><span class="keys"><kbd>Espaço</kbd> ou <kbd>Enter</kbd></span><span>Ação nos minijogos</span></li>
           <li><span class="keys"><kbd>Enter</kbd></span><span>Confirmar nos menus</span></li>
         </ul>
 
@@ -75,6 +78,7 @@
           <li><span class="keys"><span class="mini-btn"><i class="tri tri-l"></i></span><span class="mini-btn"><i class="tri tri-r"></i></span></span><span>Andar (em baixo, à esquerda)</span></li>
           <li><span class="keys"><span class="mini-btn"><i class="tri tri-u"></i></span></span><span>Saltar (em baixo, à direita)</span></li>
           <li><span class="keys"><span class="mini-btn"><span class="ico-pause"></span></span></span><span>Pausa (em cima, à direita)</span></li>
+          <li><span class="keys">Tocar no ecrã</span><span>Ação nos minijogos</span></li>
         </ul>
 
         <h3>Dicas</h3>
@@ -104,6 +108,7 @@
       <p class="kicker" id="story-kicker">Nível 1</p>
       <h2 id="story-title"></h2>
       <p class="story-text" id="story-text"></p>
+      <p class="story-help" id="story-help" hidden></p>
       <div class="btn-row">
         <button class="btn" data-action="menu" data-back>Menu</button>
         <button class="btn btn-primary" data-action="start">Começar</button>

@@ -39,7 +39,7 @@ export const partnerOf = (name) => (name === 'luisa' ? 'sergio' : 'luisa');
 
 // 16x24 píxeis, virados para a direita. Legenda:
 // o contorno · h cabelo · H madeixa · v véu (cabelo, exceto no casamento) · s pele · d barba · c corado
-// e olhos · m boca · t roupa · T sombra da roupa · k camisa/gravata · p calças · b sapatos
+// e olhos · m boca · q/Q touca · t roupa · T sombra da roupa · k camisa/gravata · p calças · b sapatos
 const LUISA = {
   upper: [
     '................',
@@ -64,6 +64,8 @@ const LUISA = {
     '..otttttttttto..',
     '..oTTTTTTTTTTo..',
   ],
+  // touca cirúrgica (substitui estas linhas do cabelo quando a roupa tem `cap`)
+  cap: { 4: '...oqqqqqqqqo...', 5: '..oqqqqqqqqqqo..', 6: '..oQQQQQQQQQQo..' },
   legs: {
     stand: ['..ooossoossooo..', '....obboobbo....', '....oooooooo....'],
     a: ['..ooossoossooo..', '...obbo.obbbo...', '...oooo.ooooo...'],
@@ -92,6 +94,7 @@ const SERGIO = {
     '....otttttto....',
     '....oppppppo....',
   ],
+  cap: { 2: '...oqqqqqqqqo...', 3: '..oqqqqqqqqqqo..', 4: '..oQQQQQQQQQQo..' },
   legs: {
     stand: ['....oppppppo....', '....oppooppo....', '....oppooppo....', '....oppooppo....', '....obboobbo....', '....oooooooo....'],
     a: ['....oppppppo....', '...oppo.oppo....', '..oppo...oppo...', '..obbo...obbo...', '..oooo...obbbo..', '.........ooooo..'],
@@ -113,6 +116,7 @@ const LOOKS = {
       beach: { t: '#ffd166', T: '#f0a93e', b: '#f08a4b' },
       night: { t: '#d43d51', T: '#a82a43', b: '#2b1d2e' },
       wedding: { t: '#ffffff', T: '#dfe6f5', b: '#f2f2f2', v: '#f4f7ff' },
+      scrubs: { t: '#4f9be0', T: '#3a78b8', b: '#ffffff', q: '#4f9be0', Q: '#3a78b8', cap: true },
     },
   },
   sergio: {
@@ -124,6 +128,7 @@ const LOOKS = {
       beach: { t: '#ff8a4b', k: '#ff8a4b', p: '#2aa5c9', b: '#f6c9a0' },
       night: { t: '#5a6aa8', k: '#5a6aa8', p: '#2a2f4a', b: '#2b1d2e' },
       wedding: { t: '#2a3358', k: '#ffffff', p: '#2a3358', b: '#111122' },
+      scrubs: { t: '#3fae8a', k: '#3fae8a', p: '#3fae8a', b: '#ffffff', q: '#3fae8a', Q: '#2f8a6c', cap: true },
     },
   },
 };
@@ -135,10 +140,12 @@ export function getCharacter(name, outfit = 'casual') {
   const key = name + ':' + outfit;
   if (cache.has(key)) return cache.get(key);
   const look = LOOKS[name] || LOOKS.luisa;
-  const pal = { ...BASE, ...look.base, ...(look.outfits[outfit] || look.outfits.casual) };
+  const { cap, ...clothes } = look.outfits[outfit] || look.outfits.casual;
+  const pal = { ...BASE, ...look.base, ...clothes };
+  const upper = cap ? look.def.upper.map((row, i) => look.def.cap[i] || row) : look.def.upper;
   const frames = {};
   for (const leg of ['stand', 'a', 'b']) {
-    const img = makeSprite([...look.def.upper, ...look.def.legs[leg]], pal);
+    const img = makeSprite([...upper, ...look.def.legs[leg]], pal);
     frames[leg] = { r: img, l: flip(img) };
   }
   cache.set(key, frames);
