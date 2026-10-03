@@ -1,4 +1,4 @@
-// Nível 9 — o pedido de casamento, no Natal (ver js/scenes/proposal.js).
+// Nível 10 — o pedido de casamento, no Natal (ver js/scenes/proposal.js).
 // O Sérgio escondeu o colar na árvore de Natal, junto dos presentes. A Luísa abre os
 // presentes (jogo de memória em que cada par é uma recordação dos níveis anteriores),
 // encontra a caixinha na árvore, e o Sérgio ajoelha-se e faz o pedido. Ela diz que sim.

@@ -122,6 +122,7 @@ const LOOKS = {
       ppe: { t: '#cfe6f5', T: '#a8cfe6', b: '#ffffff', q: '#7fb8e0', Q: '#5a9ad0', cap: true },
       winter: { t: '#d43d51', T: '#a82a43', b: '#5a3a22', q: '#fff6e6', Q: '#d43d51', cap: true },
       xmas: { t: '#c2384a', T: '#ffffff', b: '#7a2e4a' },
+      campo: { t: '#9aa86a', T: '#7d8a52', b: '#5a3a22', q: '#e8d8a8', Q: '#c9b57a', cap: true },   // colete caqui e chapéu
     },
   },
   sergio: {
@@ -137,6 +138,7 @@ const LOOKS = {
       ppe: { t: '#cfe6f5', k: '#cfe6f5', p: '#a8cfe6', b: '#ffffff', q: '#7fb8e0', Q: '#5a9ad0', cap: true },
       winter: { t: '#3d5aa8', k: '#ffd166', p: '#2b2b3a', b: '#5a3a22', q: '#3fae8a', Q: '#2f8a6c', cap: true },
       xmas: { t: '#2f7a45', k: '#c2384a', p: '#3b4a7a', b: '#2b1d2e' },
+      campo: { t: '#7d8a52', k: '#e8d8a8', p: '#6b5a3e', b: '#5a3a22', q: '#e8d8a8', Q: '#c9b57a', cap: true },
     },
   },
 };
@@ -157,7 +159,7 @@ LOOKS.tia1 = { def: LUISA, base: { h: '#b8b4c0', H: '#d8d4e0', v: '#b8b4c0', e: 
 LOOKS.tia2 = { def: LUISA, base: { h: '#5a4030', H: '#5a4030', v: '#5a4030', e: '#2b1d2e' }, outfits: { casual: { t: '#7a3a4a', T: '#ffffff', b: '#2b1d2e', q: '#3a3550', Q: '#55507a', cap: true } } };
 // Figurante: o padre, na animação do casamento.
 LOOKS.padre = { def: SERGIO, base: { h: '#8a8794', d: '#f6c9a0' }, outfits: { casual: { t: '#1c1c28', k: '#ffffff', p: '#1c1c28', b: '#111122' } } };
-// Figurante: o guia dos trenós de huskies, na Noruega (nível 8).
+// Figurante: o guia dos trenós de huskies, na Noruega (nível 9).
 LOOKS.guia = { def: SERGIO, base: { h: '#d8b25a', d: '#f6c9a0' }, outfits: { casual: { t: '#ff8a4b', k: '#ff8a4b', p: '#2b2b3a', b: '#2b1d2e', q: '#2b2b3a', Q: '#ff8a4b', cap: true } } };
 // Figurante: o carreiro do carro de cesto, de branco e chapéu de palha.
 // Nível bónus, na maternidade: a parteira (figurante) e o Xavier já a andar (desenhado a metade do tamanho dos pais).

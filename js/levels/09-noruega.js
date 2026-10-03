@@ -1,4 +1,4 @@
-// Nível 8 — Noruega: a viagem para ver a aurora boreal.
+// Nível 9 — Noruega: a viagem para ver a aurora boreal.
 // Primeiro um percurso de plataformas (js/scenes/play.js): a cidade nevada e, depois,
 // um trenó puxado por huskies até a um acampamento longe das luzes. No acampamento
 // começa a segunda parte (js/scenes/aurora.js): seguir a luz para fazer dançar a aurora.

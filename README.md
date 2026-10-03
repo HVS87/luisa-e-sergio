@@ -59,13 +59,13 @@ tools/                servidor local e gerador de ícones
 | 5 | `05-solar.js` | O Solar da Família | visita vista de cima: interior do solar e jardim de buxo |
 | 6 | `06-pretarouca.js` | Pretarouca | passeio pela aldeia de granito + forno de lenha |
 | 7 | `07-covid.js` | Na Linha da Frente | arcada por vagas numa enfermaria, durante a pandemia |
-| 8 | `08-noruega.js` | Aurora Boreal | cidade nevada, trenó de huskies e a aurora |
-| 9 | `09-pedido.js` | O Pedido | Natal: jogo de memória com os presentes e o pedido de casamento |
-| 10 | `10-preparativos.js` | Os Preparativos (final) | a azáfama da véspera do casamento, no solar |
+| 8 | `08-aves.js` | Birdwatching | binóculos e caderno de campo num observatório de aves |
+| 9 | `09-noruega.js` | Aurora Boreal | cidade nevada, trenó de huskies e a aurora |
+| 10 | `10-pedido.js` | O Pedido | Natal: jogo de memória com os presentes e o pedido de casamento |
+| 11 | `11-preparativos.js` | Os Preparativos (final) | a azáfama da véspera do casamento, no solar |
 | Bónus | `b1-maternidade.js` | Na Maternidade | o Sérgio apanha o Xavier e, 2 anos depois, a Luisinha |
 
-Os dez níveis da história estão feitos. Os restantes são esqueletos jogáveis, montados com troços genéricos,
-com textos provisórios; vão ser desenhados ao pormenor um a um.
+Os onze níveis da história e o nível bónus estão feitos.
 
 ### Nível 1 — minijogo "Operação"
 
@@ -178,7 +178,25 @@ o Sérgio, de bata, touca e máscara, andam lado a lado pela enfermaria (arrasta
 As vagas e os textos definem-se em `js/levels/07-covid.js`; o jogo está em
 `js/scenes/covid.js`.
 
-### Nível 8 — "Aurora Boreal"
+### Nível 8 — "Birdwatching"
+
+Uma manhã num observatório de aves (`js/scenes/birds.js`). O Sérgio aponta os binóculos
+(arrastar o dedo ou setas) e a Luísa identifica as aves no guia de campo.
+
+- Ao longe as aves são só **silhuetas**; dentro dos binóculos, que ampliam para o dobro,
+  vêem-se as cores. Mantendo uma ave na mira durante um instante, fica identificada e
+  entra no **caderno de campo**, com uma curiosidade. Cada espécie vale um coração.
+- São dez espécies que se vêem em Portugal: cegonha-branca (sempre no ninho), flamingo,
+  garça-real, poupa, pernilongo, guarda-rios (que mergulha), abelharuco, colhereiro,
+  águia-pesqueira (atravessa o céu: é preciso segui-la) e mocho-galego (espreita de um
+  buraco na árvore). As notas de música denunciam onde está cada uma.
+- As aves chegam uma a uma e vão-se embora ao fim de algum tempo; as que escaparem voltam
+  uma segunda vez. De vez em quando aparece um pardal, que não conta.
+
+Os nomes, pistas, curiosidades e a ordem de chegada estão em `js/levels/08-aves.js`; os
+desenhos e o comportamento de cada ave, em `js/scenes/birds.js`.
+
+### Nível 9 — "Aurora Boreal"
 
 A viagem à Noruega para ver a aurora boreal, em duas partes:
 
@@ -192,7 +210,7 @@ A viagem à Noruega para ver a aurora boreal, em duas partes:
 Um nível de plataformas passa para uma segunda cena com `then` (aqui, `then: 'aurora'`);
 `sledStyle: 'husky'` troca o carro de cesto pelo trenó de cães.
 
-### Nível 9 — "O Pedido"
+### Nível 10 — "O Pedido"
 
 É Natal e o Sérgio escondeu um colar na árvore, junto dos presentes. A Luísa abre os
 presentes num jogo de memória: são oito pares e cada par é uma recordação de um nível
@@ -201,10 +219,10 @@ Pretarouca, a pandemia e a aurora). Um par encontrado sem andar a virar os mesmo
 vezes sem conta vale um coração. Quando o tapete fica vazio, há uma caixinha a brilhar na
 árvore: é o colar. O Sérgio ajoelha-se, faz o pedido, e toca-se para a Luísa dizer que sim.
 
-As recordações e as frases estão em `js/levels/09-pedido.js`; o jogo em
+As recordações e as frases estão em `js/levels/10-pedido.js`; o jogo em
 `js/scenes/proposal.js`.
 
-### Nível 10 — "Os Preparativos"
+### Nível 11 — "Os Preparativos"
 
 A véspera do casamento, no relvado do solar. É um corre-corre visto de cima
 (`js/scenes/prep.js`, que estende o motor das visitas):
@@ -221,7 +239,7 @@ azul); cada tarefa acabada antes do pôr do sol vale um coração, e depois diss
 
 ### O final do jogo
 
-Concluído o nível 10, corre a animação do casamento (`js/scenes/victory.js`): a cerimónia
+Concluído o nível 11, corre a animação do casamento (`js/scenes/victory.js`): a cerimónia
 na igreja, a festa no solar até de madrugada e, por fim, a imagem sobe até ao céu, onde
 rebenta o fogo de artifício à volta de "Parabéns! pelos 4 anos de Casados" e da data
 08-10-22. Um toque salta a animação. A data e o número de anos estão em `js/config.js`.

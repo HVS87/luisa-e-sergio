@@ -8,13 +8,14 @@ import ciclismo from './04-ciclismo.js';
 import solar from './05-solar.js';
 import pretarouca from './06-pretarouca.js';
 import covid from './07-covid.js';
-import noruega from './08-noruega.js';
-import pedido from './09-pedido.js';
-import preparativos from './10-preparativos.js';
+import aves from './08-aves.js';
+import noruega from './09-noruega.js';
+import pedido from './10-pedido.js';
+import preparativos from './11-preparativos.js';
 import maternidade from './b1-maternidade.js';
 
 // Os níveis da história vêm primeiro (o último tem `final: true`), seguidos do bónus.
-export const LEVELS = [encontro, date, madeira, ciclismo, solar, pretarouca, covid, noruega, pedido, preparativos, maternidade];
+export const LEVELS = [encontro, date, madeira, ciclismo, solar, pretarouca, covid, aves, noruega, pedido, preparativos, maternidade];
 
 // Etiqueta de cada nível: "Nível 3", "Bónus", ...
 export function levelLabel(index) {

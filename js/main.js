@@ -15,6 +15,7 @@ import { CovidScene } from './scenes/covid.js';
 import { ProposalScene } from './scenes/proposal.js';
 import { PrepScene } from './scenes/prep.js';
 import { BirthScene } from './scenes/birth.js';
+import { BirdsScene } from './scenes/birds.js';
 import { VictoryScene } from './scenes/victory.js';
 
 const canvas = document.getElementById('game');
@@ -25,7 +26,7 @@ const ctx = canvas.getContext('2d', { alpha: false });
 const view = { w: 320, h: 180, k: 1, pad: 0, portrait: false };
 
 // Tipos de nível: plataformas (por omissão) e minijogos.
-const SCENES = { platform: PlayScene, operation: OperationScene, date: DateScene, bike: BikeScene, tour: TourScene, covid: CovidScene, proposal: ProposalScene, prep: PrepScene, birth: BirthScene };
+const SCENES = { platform: PlayScene, operation: OperationScene, date: DateScene, bike: BikeScene, tour: TourScene, covid: CovidScene, proposal: ProposalScene, prep: PrepScene, birth: BirthScene, birds: BirdsScene };
 
 const game = {
   view, input, audio, save,
