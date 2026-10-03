@@ -44,7 +44,6 @@ export class ProposalScene {
   enter() { this.game.ui.showStory(this.index); }
 
   exit() {
-    document.body.classList.remove('minigame');
     this.game.ui.setLevelMode(false, false);
   }
 
@@ -53,7 +52,6 @@ export class ProposalScene {
     this.timer = 0;
     this.paused = false;
     this.game.input.reset();
-    document.body.classList.add('minigame');
     this.game.ui.setHud(this.got, this.total, this.level.title);
     this.game.ui.setLevelMode(true, true);
     this.base(this.level.memoryHint);
@@ -204,7 +202,6 @@ export class ProposalScene {
   finish() {
     this.state = 'done';
     this.game.save.complete(this.level.id, this.got, this.total);
-    document.body.classList.remove('minigame');
     this.game.ui.setLevelMode(false, false);
     this.game.ui.showComplete(this.index, this.got, this.total);
   }

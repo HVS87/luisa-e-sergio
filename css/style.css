@@ -15,7 +15,14 @@
   --sab: env(safe-area-inset-bottom, 0px);
   --sal: env(safe-area-inset-left, 0px);
   --tb: clamp(56px, min(21vw, 21vh), 96px);
-  --pad-h: 40vh;
+  /* área de jogo e zona dos botões, calculadas em js/main.js */
+  --gx: 0px;
+  --gy: 0px;
+  --gw: 100vw;
+  --gh: 100vh;
+  --hud-l: 0px;
+  --hud-r: 0px;
+  --bar-h: 0px;
 }
 
 * { box-sizing: border-box; }
@@ -116,7 +123,10 @@ ul { list-style: none; }
 /* ---------- Ecrãs ---------- */
 .screen {
   position: absolute;
-  inset: 0;
+  left: var(--gx);
+  top: var(--gy);
+  width: var(--gw);
+  height: var(--gh);
   display: none;
   flex-direction: column;
   align-items: center;
@@ -211,28 +221,26 @@ kbd {
   color: var(--gold);
   text-shadow: 0.15em 0.15em 0 var(--ink);
 }
-[data-screen="menu"] { justify-content: flex-start; gap: 1.6em; padding-top: calc(var(--sat) + 9vh); }
+[data-screen="menu"] { justify-content: flex-start; gap: 1.6em; padding-top: calc(var(--sat) + var(--gh) * 0.09); }
 [data-screen="menu"] .menu-buttons { width: min(17em, 100%); }
 
-@media (orientation: landscape) {
-  [data-screen="menu"].active {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr;
-    align-items: center;
-    justify-items: center;
-    gap: 0.6em;
-    padding-top: calc(var(--sat) + 1.4em);
-  }
-  [data-screen="menu"] .title-block { grid-column: 1 / span 2; }
-  [data-screen="menu"] .menu-buttons { grid-column: 2; gap: 0.55em; }
-  /* telemóvel deitado: pouca altura, botões mais compactos e os pequenos em duas colunas */
-  [data-screen="menu"] .menu-buttons { width: min(24em, 100%); }
-  [data-screen="menu"] .menu-buttons > .btn { padding: 0.7em 1em; }
-  [data-screen="menu"] .btn-row .btn { white-space: nowrap; }
-  [data-screen="menu"] .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45em; }
-  [data-screen="menu"] .btn-row .btn { margin: var(--b); padding: 0.8em 0.6em; }
+/* body.wide: a área de jogo é mais larga do que alta (posta em js/main.js; num computador é
+   sempre assim, mesmo que a janela seja alta) */
+body.wide [data-screen="menu"].active {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr;
+  align-items: center;
+  justify-items: center;
+  gap: 0.6em;
+  padding-top: calc(var(--sat) + 1.4em);
 }
+body.wide [data-screen="menu"] .title-block { grid-column: 1 / span 2; }
+/* pouca altura: botões mais compactos e os pequenos em duas colunas */
+body.wide [data-screen="menu"] .menu-buttons { grid-column: 2; gap: 0.55em; width: min(24em, 100%); }
+body.wide [data-screen="menu"] .menu-buttons > .btn { padding: 0.7em 1em; }
+body.wide [data-screen="menu"] .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45em; }
+body.wide [data-screen="menu"] .btn-row .btn { margin: var(--b); padding: 0.8em 0.6em; white-space: nowrap; }
 
 /* ---------- Lista de níveis ---------- */
 .level-list { display: flex; flex-direction: column; gap: 0.75em; padding: 0.4em 0.6em 0.5em; }
@@ -244,8 +252,12 @@ kbd {
 .level-btn.locked .lv-name { letter-spacing: 0.2em; }
 
 /* ---------- Introdução / fim de nível ---------- */
-.story-text { max-width: 30em; }
-.story-help { max-width: 30em; color: var(--mint); }
+/* o texto encolhe e ganha scroll se não couber: os botões ficam sempre à vista */
+.story-scroll { text-align: center; padding: 0 0.3em; }
+.story-scroll p + p { margin-top: 0.9em; }
+.story-help { color: var(--mint); }
+/* deitado há pouca altura: painel mais largo, para o texto ocupar menos linhas */
+body.wide [data-screen="story"] .panel { width: min(46em, 100%); gap: 0.7em; padding-top: 0.9em; padding-bottom: 1em; }
 .story-help[hidden] { display: none; }
 .complete-hearts { font-size: 0.9em !important; display: flex; align-items: center; gap: 0.6em; }
 .perfect { color: var(--gold); animation: beat 0.8s steps(2, end) infinite; }
@@ -253,9 +265,9 @@ kbd {
 /* ---------- HUD ---------- */
 .hud {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: var(--gy);
+  left: var(--hud-l);
+  right: var(--hud-r);
   display: none;
   align-items: center;
   justify-content: space-between;
@@ -274,12 +286,12 @@ body.in-level .hud { display: flex; }
 /* Linha de instruções dos minijogos */
 .hint {
   position: absolute;
-  top: calc(var(--sat) + 0.6em + 50px);
-  left: 50%;
+  top: calc(var(--gy) + var(--sat) + 0.6em + 50px);
+  left: calc(var(--gx) + var(--gw) / 2);
   transform: translateX(-50%);
   display: none;
   width: max-content;
-  max-width: calc(100% - 1.6em);
+  max-width: calc(var(--gw) - 1.6em);
   padding: 0.6em 0.9em;
   font-size: 0.55em;
   line-height: 1.6;
@@ -290,12 +302,11 @@ body.in-level .hud { display: flex; }
   z-index: 6;
 }
 body.in-level .hint:not(:empty) { display: block; }
-body.minigame #touch { display: none !important; }
 /* legenda grande ao centro, sobre o ecrã a negro ("1 ano depois...") */
-body.caption .hint { top: 42%; font-size: 1em; background: none; color: var(--gold); }
+body.caption .hint { top: calc(var(--gy) + var(--gh) * 0.42); font-size: 1em; background: none; color: var(--gold); }
 
 /* ---------- Vitória ---------- */
-[data-screen="victory"] { justify-content: flex-start; padding-top: calc(var(--sat) + 12vh); }
+[data-screen="victory"] { justify-content: flex-start; padding-top: calc(var(--sat) + var(--gh) * 0.12); }
 .victory-text { text-align: center; }
 .v-kicker { font-size: 0.8em; color: var(--paper); text-shadow: 0.15em 0.15em 0 var(--ink); }
 .v-title {
@@ -329,29 +340,35 @@ body.caption .hint { top: 42%; font-size: 1em; background: none; color: var(--go
 .cutscene .v-skip { display: block; position: absolute; right: calc(var(--sar) + 1em); bottom: calc(var(--sab) + 1em); font-size: 0.45em; opacity: 0.7; text-shadow: 0.15em 0.15em 0 var(--ink); }
 [data-screen="victory"].cutscene { padding-top: calc(var(--sat) + 0.9em); }
 .victory-actions .btn { font-size: 0.68em; }
-@media (orientation: landscape) {
-  [data-screen="victory"] { padding-top: calc(var(--sat) + 7vh); }
-  .v-title { font-size: 2em; margin: 0.35em 0 0.3em; }
-}
+body.wide [data-screen="victory"] { padding-top: calc(var(--sat) + var(--gh) * 0.07); }
+body.wide .v-title { font-size: 2em; margin: 0.35em 0 0.3em; }
 
-/* ---------- Controlos táteis ---------- */
+/* ---------- Controlos táteis ----------
+   Os botões ficam sempre fora da área de jogo (ver js/layout.js): numa barra por baixo
+   (body.ctl-bar) ou em duas faixas laterais (body.ctl-side). */
 #touch {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: var(--pad-h);
   display: none;
   align-items: center;
   justify-content: space-between;
-  padding: 0 calc(var(--sar) + 4vw) calc(var(--sab) * 0.6) calc(var(--sal) + 4vw);
   pointer-events: none;
   z-index: 5;
 }
-body.is-touch.playing #touch { display: flex; }
-@media (orientation: landscape) {
-  #touch { align-items: flex-end; padding-bottom: calc(var(--sab) + 4vh); }
+body.ctl-bar #touch {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--bar-h);
+  padding: 0 calc(var(--sar) + 5vw) var(--sab) calc(var(--sal) + 5vw);
 }
+body.ctl-side #touch {
+  inset: 0;
+  align-items: flex-end;
+  padding: 0 calc(var(--sar) + 10px) calc(var(--sab) + var(--gh) * 0.15) calc(var(--sal) + 10px);
+}
+body.playing.ctl-bar #touch, body.playing.ctl-side #touch { display: flex; }
+/* um friso a separar o jogo da zona dos botões, como numa consola portátil */
+body.ctl-bar #game, body.ctl-side #game { box-shadow: 0 0 0 var(--b) var(--ink-soft); }
 #pad { display: flex; gap: calc(var(--tb) * 0.14); padding: calc(var(--tb) * 0.2); margin: calc(var(--tb) * -0.2); pointer-events: auto; touch-action: none; }
 #jump { pointer-events: auto; touch-action: none; }
 .tbtn {
@@ -361,14 +378,14 @@ body.is-touch.playing #touch { display: flex; }
   align-items: center;
   justify-content: center;
   color: var(--paper);
-  background: rgba(26, 20, 51, 0.35);
+  background: rgba(255, 246, 230, 0.12);
   box-shadow:
     0 -4px 0 0 rgba(255, 246, 230, 0.7),
     0 4px 0 0 rgba(255, 246, 230, 0.7),
     -4px 0 0 0 rgba(255, 246, 230, 0.7),
     4px 0 0 0 rgba(255, 246, 230, 0.7);
 }
-#jump { background: rgba(255, 93, 143, 0.45); }
+#jump { background: rgba(255, 93, 143, 0.5); }
 #pad[data-dir="left"] .tl, #pad[data-dir="right"] .tr, #jump.on { background: rgba(255, 246, 230, 0.55); transform: translateY(3px); }
 
 .tri { --t: calc(var(--tb) * 0.2); display: block; width: 0; height: 0; border: var(--t) solid transparent; }
@@ -377,36 +394,9 @@ body.is-touch.playing #touch { display: flex; }
 .tri-u { border-bottom-color: currentColor; border-top-width: 0; }
 
 /* ---------- Instalar como app ---------- */
-.install-lead { color: var(--mint); }
+.install-lead { color: var(--mint); margin-bottom: 0.9em; }
 .install-steps { margin: 0; padding: 0; list-style: none; counter-reset: passo; text-align: left; width: 100%; }
 .install-steps li { position: relative; padding-left: 2.4em; margin-bottom: 0.9em; counter-increment: passo; }
 .install-steps li::before { content: counter(passo); position: absolute; left: 0; top: -0.1em; width: 1.7em; height: 1.7em; line-height: 1.75em; text-align: center; color: #fff; background: var(--pink); }
-
-/* ---------- Aviso de orientação ---------- */
-#rotate {
-  position: absolute;
-  inset: 0;
-  z-index: 30;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1.1em;
-  padding: calc(var(--sat) + 1em) calc(var(--sar) + 1.4em) calc(var(--sab) + 1em) calc(var(--sal) + 1.4em);
-  text-align: center;
-  background: rgba(26, 20, 51, 0.96);
-}
-#rotate[hidden] { display: none; }
-.rotate-title { font-size: 1.05em; color: var(--gold); }
-.rotate-text { font-size: 0.62em; line-height: 1.9; max-width: 20em; }
-.rotate-phone {
-  position: relative;
-  width: 3.2em;
-  height: 5.4em;
-  border: 0.32em solid var(--paper);
-  animation: rodar 2.4s steps(1, end) infinite;
-}
-.rotate-phone i { position: absolute; left: 50%; bottom: 0.25em; width: 0.6em; height: 0.3em; margin-left: -0.3em; background: var(--paper); }
-@keyframes rodar { 0%, 45% { transform: rotate(0deg); } 50%, 95% { transform: rotate(-90deg); } }
 
 noscript { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 2em; text-align: center; }

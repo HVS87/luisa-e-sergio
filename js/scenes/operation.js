@@ -50,7 +50,6 @@ export class OperationScene {
   }
 
   exit() {
-    document.body.classList.remove('minigame');
     this.game.ui.setLevelMode(false, false);
   }
 
@@ -100,7 +99,6 @@ export class OperationScene {
     this.paused = false;
     this.lock = 0.3;
     this.game.input.reset();
-    document.body.classList.add('minigame');
     this.game.ui.setHud(this.got, this.bones.length, this.level.title);
     this.game.ui.setLevelMode(true, true);
     this.hintBone();
@@ -278,7 +276,6 @@ export class OperationScene {
   finish() {
     this.state = 'done';
     this.game.save.complete(this.level.id, this.got, this.bones.length);
-    document.body.classList.remove('minigame');
     this.game.ui.setLevelMode(false, false);
     this.game.ui.showComplete(this.index, this.got, this.bones.length);
   }

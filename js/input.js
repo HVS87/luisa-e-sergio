@@ -17,7 +17,7 @@ export const input = {
   jumpPressed: false,   // salto premido neste instante
   action: false,        // ação dos minijogos (salto, Enter, ou tocar/clicar no ecrã) mantida premida
   actionPressed: false, // ação premida neste instante
-  pointerX: -1,         // posição horizontal do dedo/rato enquanto toca no jogo (0 a 1), ou -1
+  pointerX: -1,         // posição horizontal do dedo/rato na área de jogo enquanto toca nela (0 a 1), ou -1
   pointerY: -1,         // idem, na vertical
   up: false,            // cima/baixo: só para os níveis vistos de cima
   down: false,
@@ -149,8 +149,9 @@ function bindTouch() {
   const tapSync = () => { tc.action = taps.size > 0; if (!tc.action) input.pointerX = input.pointerY = -1; sync(); };
   const tapMove = (e) => {
     if (!taps.has(e.pointerId)) return;
-    input.pointerX = e.clientX / Math.max(1, window.innerWidth);
-    input.pointerY = e.clientY / Math.max(1, window.innerHeight);
+    const r = canvas.getBoundingClientRect();
+    input.pointerX = Math.max(0, Math.min(1, (e.clientX - r.left) / Math.max(1, r.width)));
+    input.pointerY = Math.max(0, Math.min(1, (e.clientY - r.top) / Math.max(1, r.height)));
   };
   canvas.addEventListener('pointerdown', (e) => {
     if (!document.body.classList.contains('playing')) return;

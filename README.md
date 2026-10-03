@@ -34,14 +34,20 @@ guardado nesse browser.** Verifica, entre outras coisas:
   desbloqueio, casamento, nível bónus e final da família;
 - recomeçar e repetir, opções (personagem, música, sons, tecla M), gravações antigas ou
   estragadas, navegação por teclado, a API de som e o desenho de todas as cenas em nove
-  tamanhos de ecrã (de uma janela estreita a um ecrã largo).
+  tamanhos de ecrã (de uma janela estreita a um ecrã largo);
+- a disposição do ecrã: botões táteis sempre fora da área de jogo (em centenas de tamanhos
+  de ecrã), computador sempre em horizontal, toques medidos em relação à área de jogo e todos
+  os botões dos menus à vista no ecrã em que a suite corre.
+
+Para rever as disposições à vista, `sheet()` desenha todas as cenas lado a lado num dado
+tamanho: na consola, `(await import('/tests/qa.js')).sheet(__game, { w: 422, h: 195, portrait: false })`.
 
 ## Controlos
 
 | Ação    | Teclado                 | Ecrã tátil                  |
 |---------|-------------------------|-----------------------------|
-| Andar   | ← → ou A D              | Botões ◀ ▶ (em baixo, à esquerda) |
-| Saltar  | Espaço, ↑ ou W          | Botão ▲ (em baixo, à direita)     |
+| Andar   | ← → ou A D              | Botões ◀ ▶ (à esquerda, fora da área de jogo) |
+| Saltar  | Espaço, ↑ ou W          | Botão ▲ (à direita, fora da área de jogo)     |
 | Ação (minijogos) | Espaço ou Enter | Tocar em qualquer ponto do ecrã |
 | Pausa   | P ou Esc                | Botão de pausa (em cima, à direita) |
 | Ligar/desligar a música | M       | Botão «Música» no menu ou na pausa |
@@ -55,10 +61,19 @@ menu principal e na pausa); a escolha fica guardada.
 - **Ecrã**: o jogo ocupa o ecrã inteiro (respeitando o entalhe e a barra do iPhone) e
   adapta-se a qualquer tamanho, sempre com píxeis nítidos. No Safari do iOS, depois de rodar
   o telemóvel, as medidas são recalculadas várias vezes (o Safari demora a acertá-las).
-- **Orientação**: os níveis de plataformas e de bicicleta jogam-se melhor com o telemóvel
-  deitado. Se estiver na vertical, aparece o aviso «Roda o telemóvel» (e, a meio do nível, o
-  jogo faz pausa); dá para continuar na vertical com «Jogar na vertical». Nos tablets e nos
-  minijogos não há aviso. Instalado no Android, o jogo tenta mesmo fixar a orientação.
+- **Orientação**: detetada automaticamente. O jogo joga-se ao alto ou deitado, em telemóvel
+  e em tablet, e todas as cenas têm uma disposição para cada posição (`view.portrait`).
+  Rodar o aparelho a meio de um nível rearruma tudo na hora.
+- **Botões táteis fora do jogo** (`js/layout.js`): nos níveis jogados com ◀ ▶ ▲ (plataformas
+  e bicicleta), os botões nunca ficam por cima da área de jogo. Ao alto, ficam numa barra por
+  baixo do jogo; com o telemóvel deitado, em duas faixas laterais (◀ ▶ à esquerda, ▲ à
+  direita), com os corações e a pausa por cima das faixas; num tablet deitado, que é quase
+  quadrado, ficam numa barra por baixo. Os minijogos, que se jogam a tocar e a arrastar,
+  ocupam o ecrã todo.
+- **Computador**: usa sempre a versão horizontal. Numa janela mais alta do que larga, o jogo
+  aparece numa moldura 16:9 centrada; num ecrã ultralargo fica limitado a 2,4:1.
+- Para experimentar num computador: `?device=mobile` (ou `?device=pc`) no endereço força o
+  tipo de dispositivo.
 - **Instalar como app**: o botão «Instalar app» no menu abre o pedido de instalação no
   Android e no Chrome/Edge; no iPhone e no iPad mostra os passos (Partilhar → «Adicionar ao
   ecrã principal»). Instalado, abre em ecrã inteiro, com ícone próprio, e funciona sem rede
@@ -76,7 +91,8 @@ js/main.js            arranque, ecrã adaptável e ciclo principal
 js/config.js          constantes (física do salto, tamanho dos blocos, anos de casados)
 js/input.js           teclado + ecrã tátil
 js/audio.js           música e efeitos sonoros gerados por código (melodias originais)
-js/device.js          aviso de orientação, instalar como app, ecrã inteiro, service worker
+js/device.js          tipo de dispositivo, margens seguras, instalar como app, ecrã inteiro, service worker
+js/layout.js          onde fica a área de jogo e onde ficam os botões táteis, em cada tipo de ecrã
 js/save.js            progresso guardado no dispositivo
 js/sprites.js         personagens e objetos em pixel art (definidos em texto)
 js/themes.js          cenários dos níveis de plataformas (parque, Funchal, levada, Santana, Tromsø, Ártico, ...)

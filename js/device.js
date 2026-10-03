@@ -1,5 +1,5 @@
-// Integração com o dispositivo: aviso de orientação, instalar como app (PWA),
-// ecrã inteiro e service worker (para o jogo abrir mesmo sem rede).
+// Integração com o dispositivo: tipo de dispositivo e margens seguras do ecrã, instalar como
+// app (PWA), ecrã inteiro e service worker (para o jogo abrir mesmo sem rede).
 
 const ua = navigator.userAgent || '';
 // O iPad com iPadOS identifica-se como um Mac, mas tem ecrã tátil.
@@ -13,10 +13,25 @@ export function isStandalone() {
     (window.matchMedia && (matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches)));
 }
 
-// Telemóvel (e não tablet): o lado mais curto do ecrã tem menos de 600 px.
-export function isPhone() {
-  const touch = navigator.maxTouchPoints > 0 || (window.matchMedia && matchMedia('(pointer: coarse)').matches);
-  return touch && Math.min(screen.width, screen.height) < 600;
+// Telemóvel ou tablet (ecrã tátil como entrada principal)? Um portátil com ecrã tátil conta
+// como computador. Para testar: ?device=mobile ou ?device=pc no endereço.
+export function isMobile() {
+  const q = new URLSearchParams(location.search).get('device');
+  if (q === 'mobile' || q === 'pc') return q === 'mobile';
+  return isIOS || isAndroid || !!(window.matchMedia && matchMedia('(pointer: coarse)').matches);
+}
+
+// Margens seguras do ecrã (entalhe, cantos redondos, barra do sistema), em píxeis CSS.
+let probe = null;
+export function safeInsets() {
+  if (!probe) {
+    probe = document.createElement('div');
+    probe.style.cssText = 'position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;' +
+      'padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)';
+    document.body.append(probe);
+  }
+  const cs = getComputedStyle(probe), n = (v) => parseFloat(v) || 0;
+  return { t: n(cs.paddingTop), r: n(cs.paddingRight), b: n(cs.paddingBottom), l: n(cs.paddingLeft) };
 }
 
 // ---------- Ecrã inteiro (com os prefixos do Safari) ----------
@@ -32,49 +47,6 @@ export const fullscreen = {
     }
   },
 };
-
-// ---------- Orientação ----------
-// Os níveis jogados com os botões ◀ ▶ ▲ (plataformas e bicicleta) ficam muito melhores com o
-// telemóvel deitado: nesses, se estiver na vertical, aparece um aviso e o jogo faz pausa.
-export class Orientation {
-  constructor(game) {
-    this.game = game;
-    this.el = document.getElementById('rotate');
-    this.dismissed = false;     // o jogador escolheu jogar na vertical (até fechar o jogo)
-    this.shown = false;
-    document.getElementById('rotate-ok').addEventListener('click', () => {
-      this.dismissed = true;
-      this.check();
-    });
-    const mq = window.matchMedia && matchMedia('(orientation: portrait)');
-    if (mq && mq.addEventListener) mq.addEventListener('change', () => this.check());
-    else if (mq && mq.addListener) mq.addListener(() => this.check());
-    if (screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener('change', () => this.check());
-  }
-
-  portrait() { return window.innerHeight > window.innerWidth; }
-
-  check() {
-    const scene = this.game.scene;
-    const want = !!(scene && scene.usesPad) && isPhone();
-    const show = want && this.portrait() && !this.dismissed;
-    if (show === this.shown) return;
-    this.shown = show;
-    this.el.hidden = !show;
-    // a meio de um nível, roda-se o telemóvel para a vertical: pausa
-    if (show && document.body.classList.contains('playing') && scene.autoPause) scene.autoPause();
-  }
-
-  // Ao entrar numa cena: em ecrã inteiro (Android), tenta mesmo fixar a orientação.
-  sceneChanged() {
-    const scene = this.game.scene, so = screen.orientation;
-    if (so && so.lock && isPhone() && (fullscreen.active() || isStandalone())) {
-      if (scene && scene.usesPad) so.lock('landscape').catch(() => {});
-      else if (so.unlock) try { so.unlock(); } catch (err) { /* ignora */ }
-    }
-    this.check();
-  }
-}
 
 // ---------- Instalar como app ----------
 // Chrome/Edge/Samsung (Android e computador) oferecem o pedido de instalação; no iPhone/iPad

@@ -24,7 +24,7 @@ export class PlayScene {
     this.level = LEVELS[index];
     this.theme = THEMES[this.level.theme] || THEMES.park;
     this.sprites = getSprites();
-    this.usesPad = true;       // em retrato, reserva a faixa de baixo para os botões táteis
+    this.usesPad = true;       // joga-se com os botões táteis ◀ ▶ ▲ (ver js/layout.js)
     this.t = 0;
     this.state = 'intro';      // intro → play ⇄ hurt → won → done
     this.paused = false;
@@ -437,7 +437,7 @@ export class PlayScene {
 
   updateCamera(dt, snap) {
     const v = this.game.view, p = this.player;
-    const visH = v.h - v.pad;
+    const visH = v.h;
     const k = snap ? 1 : Math.min(1, dt * 6);
     const maxX = this.W - v.w;
     const ahead = p.sled ? 56 : p.facing * 12;
@@ -481,7 +481,7 @@ export class PlayScene {
   }
 
   draw(ctx, v) {
-    const visH = v.h - v.pad;
+    const visH = v.h;
     const camX = Math.round(this.camX), camY = Math.round(this.camY);
     this.drawBackdrop(ctx, v, visH, camY);
 
@@ -548,14 +548,6 @@ export class PlayScene {
     }
 
     this.fx.draw(ctx, camX, camY);
-
-    // Em retrato com ecrã tátil, a faixa de baixo fica reservada aos botões.
-    if (v.pad > 0) {
-      ctx.fillStyle = '#1a1433';
-      ctx.fillRect(0, v.h - v.pad, v.w, v.pad);
-      ctx.fillStyle = '#2d2452';
-      ctx.fillRect(0, v.h - v.pad, v.w, 2);
-    }
   }
 
   // Carro de cesto: o casal sentado no cesto de vime e o carreiro atrás, de pé no patim.

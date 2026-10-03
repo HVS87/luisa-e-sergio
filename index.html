@@ -80,8 +80,8 @@
 
         <h3>Ecrã tátil</h3>
         <ul class="controls">
-          <li><span class="keys"><span class="mini-btn"><i class="tri tri-l"></i></span><span class="mini-btn"><i class="tri tri-r"></i></span></span><span>Andar (em baixo, à esquerda)</span></li>
-          <li><span class="keys"><span class="mini-btn"><i class="tri tri-u"></i></span></span><span>Saltar (em baixo, à direita)</span></li>
+          <li><span class="keys"><span class="mini-btn"><i class="tri tri-l"></i></span><span class="mini-btn"><i class="tri tri-r"></i></span></span><span>Andar (à esquerda do jogo)</span></li>
+          <li><span class="keys"><span class="mini-btn"><i class="tri tri-u"></i></span></span><span>Saltar (à direita do jogo)</span></li>
           <li><span class="keys"><span class="mini-btn"><span class="ico-pause"></span></span></span><span>Pausa (em cima, à direita)</span></li>
           <li><span class="keys">Tocar no ecrã</span><span>Ação nos minijogos; nos níveis vistos de cima, andar até onde se toca</span></li>
         </ul>
@@ -91,7 +91,7 @@
           <li>Mantém o salto premido para saltar mais alto.</li>
           <li>Salta em cima das nuvens cinzentas para as afastar.</li>
           <li>Cuidado com os espinhos e os buracos! Mas não há vidas a perder: voltas sempre ao último ponto de passagem.</li>
-          <li>No telemóvel, os níveis de plataformas e de bicicleta jogam-se melhor com o ecrã deitado (o jogo avisa). Os minijogos funcionam bem nas duas posições.</li>
+          <li>No telemóvel e no tablet joga-se ao alto ou deitado: o jogo deteta a posição e arruma-se sozinho, com os botões sempre fora da área de jogo.</li>
           <li>A música e os sons ligam-se e desligam-se em separado, no menu ou na pausa.</li>
         </ul>
 
@@ -117,8 +117,10 @@
     <div class="panel">
       <p class="kicker" id="story-kicker">Nível 1</p>
       <h2 id="story-title"></h2>
-      <p class="story-text" id="story-text"></p>
-      <p class="story-help" id="story-help" hidden></p>
+      <div class="scroll story-scroll">
+        <p class="story-text" id="story-text"></p>
+        <p class="story-help" id="story-help" hidden></p>
+      </div>
       <div class="btn-row">
         <button class="btn" data-action="menu" data-back>Menu</button>
         <button class="btn btn-primary" data-action="start">Começar</button>
@@ -146,8 +148,10 @@
   <section class="screen" data-screen="install">
     <div class="panel">
       <h2>Instalar como app</h2>
-      <p class="install-lead" id="install-lead"></p>
-      <ol class="install-steps" id="install-steps"></ol>
+      <div class="scroll">
+        <p class="install-lead" id="install-lead"></p>
+        <ol class="install-steps" id="install-steps"></ol>
+      </div>
       <button class="btn btn-primary" data-action="back" data-back>Voltar</button>
     </div>
   </section>
@@ -189,14 +193,6 @@
       <div class="tbtn tr"><i class="tri tri-r"></i></div>
     </div>
     <div id="jump" class="tbtn"><i class="tri tri-u"></i></div>
-  </div>
-
-  <!-- Aviso de orientação (telemóvel na vertical, em níveis que se jogam deitados) -->
-  <div id="rotate" hidden>
-    <div class="rotate-phone" aria-hidden="true"><i></i></div>
-    <p class="rotate-title">Roda o telemóvel</p>
-    <p class="rotate-text">Este nível joga-se melhor com o ecrã deitado.</p>
-    <button class="btn btn-small" id="rotate-ok">Jogar na vertical</button>
   </div>
 
   <noscript>Este jogo precisa de JavaScript ativo.</noscript>

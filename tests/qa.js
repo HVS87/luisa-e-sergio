@@ -12,6 +12,7 @@
 // Atenção: os testes apagam o progresso guardado neste browser.
 import { LEVELS, levelLabel } from '../js/levels/index.js';
 import { SAVE_KEY } from '../js/config.js';
+import { computeLayout, SIDE_MIN_ASPECT } from '../js/layout.js';
 
 const STEP = 1 / 60;
 const results = [];
@@ -348,6 +349,86 @@ function testReachable() {
   game.goMenu();
 }
 
+// Disposição do ecrã: área de jogo e botões táteis, em telemóvel, tablet e computador.
+function testLayout() {
+  log('— Disposição do ecrã (js/layout.js) —');
+  const none = { t: 0, r: 0, b: 0, l: 0 };
+  const L = (W, H, mobile, controls, safe = none) => computeLayout({ W, H, mobile, controls, safe });
+  let a = L(390, 844, true, true, { t: 47, r: 0, b: 34, l: 0 });
+  check('telemóvel ao alto: botões numa barra por baixo do jogo', a.mode === 'bar' && a.y === 0 && a.h + a.bar === 844 && a.bar >= a.tb + 34 && a.h > a.w, JSON.stringify(a));
+  a = L(844, 390, true, true, { t: 0, r: 47, b: 21, l: 47 });
+  check('telemóvel deitado: botões em faixas laterais, fora do jogo', a.mode === 'side' && a.h === 390 && a.x >= 47 + 2 * a.tb && 844 - a.x - a.w >= 47 + a.tb && a.w / a.h >= SIDE_MIN_ASPECT, JSON.stringify(a));
+  a = L(1024, 768, true, true);
+  check('tablet deitado: botões numa barra por baixo (jogo largo)', a.mode === 'bar' && a.w === 1024 && a.w / a.h > 1.4, JSON.stringify(a));
+  a = L(768, 1024, true, true);
+  check('tablet ao alto: barra por baixo', a.mode === 'bar' && a.h > a.w && a.bar < 1024 * 0.3, JSON.stringify(a));
+  a = L(844, 390, true, false);
+  check('minijogos em telemóvel/tablet: ecrã todo', a.mode === 'none' && a.w === 844 && a.h === 390);
+  a = L(1920, 1080, false, false);
+  check('computador 16:9: ecrã todo, versão horizontal', a.x === 0 && a.y === 0 && a.w === 1920 && a.h === 1080);
+  a = L(600, 900, false, false);
+  check('computador com janela alta: moldura 16:9 horizontal, centrada', a.w === 600 && Math.abs(a.w / a.h - 16 / 9) < 0.01 && Math.abs(a.y - (900 - a.h) / 2) <= 1, JSON.stringify(a));
+  a = L(3440, 1000, false, false);
+  check('computador ultralargo: limitado a 2,4:1 e centrado', Math.abs(a.w / a.h - 2.4) < 0.01 && Math.abs(a.x - (3440 - a.w) / 2) <= 1, JSON.stringify(a));
+  // varrimento de tamanhos: tudo dentro do ecrã, botões nunca por cima do jogo, PC sempre horizontal
+  const bad = [];
+  let n = 0;
+  for (let W = 320; W <= 1400; W += 54) for (let H = 320; H <= 1400; H += 54) {
+    n++;
+    const c = L(W, H, true, true, { t: 0, r: 20, b: 20, l: 20 });
+    const inside = c.x >= 0 && c.y >= 0 && c.x + c.w <= W && c.y + c.h <= H && c.w >= 200 && c.h >= 150;
+    const room = c.mode === 'bar' ? c.bar >= c.tb + 20 && c.y + c.h + c.bar === H : c.mode === 'side' && c.x >= 20 + 2 * c.tb && W - c.x - c.w >= 20 + c.tb;
+    if (!inside || !room) bad.push(`tátil ${W}x${H}`);
+    const p = L(W, H, false, false);
+    if (p.w < p.h || p.x < 0 || p.y < 0 || p.x + p.w > W || p.y + p.h > H) bad.push(`pc ${W}x${H}`);
+  }
+  check(`varrimento de ${n} tamanhos de ecrã: disposições válidas`, !bad.length, bad.slice(0, 8).join(', '));
+
+  // neste ecrã, a sério: num nível com botões, em modo tátil, os botões não tapam o jogo
+  const wasTouch = I.touch;
+  window.dispatchEvent(new Event('touchstart'));
+  const rect = (el) => el.getBoundingClientRect();
+  const hit = (p, q) => p.left < q.right - 1 && q.left < p.right - 1 && p.top < q.bottom - 1 && q.top < p.bottom - 1;
+  const inView = (el) => { const b = rect(el); return b.width > 0 && b.top >= -1 && b.left >= -1 && b.bottom <= innerHeight + 1 && b.right <= innerWidth + 1; };
+  LEVELS.forEach((lv, i) => {
+    game.startLevel(i);
+    if (!game.scene.usesPad) return;
+    game.ui.act('start');
+    const cv = rect(document.getElementById('game'));
+    const btns = [...document.querySelectorAll('#touch .tbtn')];
+    check(`${lv.id}: botões táteis visíveis e fora da área de jogo (${game.layout.mode})`, btns.length === 3 && btns.every((b) => inView(b) && !hit(rect(b), cv)) && game.layout.mode !== 'none', JSON.stringify(game.layout));
+  });
+  // um minijogo ocupa o ecrã todo (sem botões)
+  game.startLevel(0);
+  game.ui.act('start');
+  check('minijogo: sem botões táteis', game.layout.mode === 'none' && getComputedStyle(document.getElementById('touch')).display === 'none');
+  // o toque é medido em relação à área de jogo (e não ao ecrã inteiro)
+  const canvas = document.getElementById('game'), cv = rect(canvas);
+  canvas.dispatchEvent(new PointerEvent('pointerdown', { clientX: cv.left + cv.width * 0.25, clientY: cv.top + cv.height * 0.75, pointerId: 91, pointerType: 'touch', bubbles: true }));
+  check('toque: posição relativa à área de jogo', Math.abs(I.pointerX - 0.25) < 0.01 && Math.abs(I.pointerY - 0.75) < 0.01, I.pointerX + ', ' + I.pointerY);
+  canvas.dispatchEvent(new PointerEvent('pointerup', { pointerId: 91, pointerType: 'touch', bubbles: true }));
+  check('toque: larga ao levantar o dedo', I.pointerX === -1);
+  // todos os ecrãs cabem neste tamanho (botões sempre à vista)
+  const out = [];
+  for (let i = 0; i < LEVELS.length; i++) { game.startLevel(i); if (!inView($('[data-screen=story] [data-action=start]'))) out.push('introdução ' + LEVELS[i].id); }
+  game.startLevel(0); game.ui.act('start'); game.ui.act('pause');
+  if (![...document.querySelectorAll('[data-screen=pause] .btn')].every(inView)) out.push('pausa');
+  game.ui.act('resume');
+  game.ui.showComplete(0, 5, 5);
+  if (![...document.querySelectorAll('[data-screen=complete] .btn')].every(inView)) out.push('nível concluído');
+  game.goMenu();
+  if (![...document.querySelectorAll('[data-screen=menu] .btn')].filter((b) => !b.hidden).every(inView)) out.push('menu');
+  for (const sc of ['howto', 'levels']) { game.ui.act(sc); if (!inView($(`[data-screen=${sc}] [data-action=back]`))) out.push(sc); game.ui.act('back'); }
+  check(`todos os botões dos menus e painéis cabem neste ecrã (${innerWidth}x${innerHeight})`, !out.length, out.join(', '));
+  if (!wasTouch) {
+    // repõe o modo teclado
+    game.startLevel(0); game.ui.act('start');
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'ArrowRight' }));
+    window.dispatchEvent(new KeyboardEvent('keyup', { code: 'ArrowRight' }));
+  }
+  game.goMenu();
+}
+
 // Joga um nível do princípio ao fim, a partir do ecrã de introdução.
 async function playLevel(i, opts = {}) {
   const L = LEVELS[i];
@@ -514,7 +595,7 @@ function testMenus() {
   game.ui.act('install');
   check('«Instalar app» mostra os passos (ou o pedido do browser)', game.ui.current === 'install' ? document.querySelectorAll('#install-steps li').length >= 2 : true);
   game.ui.act('back');
-  check('ids usados pela interface existem', ['#btn-play', '#btn-music', '#btn-sound', '#btn-music-pause', '#btn-sound-pause', '#btn-install', '#btn-fullscreen', '#rotate', '#rotate-ok', '#hint', '#hud-hearts', '#v-bonus'].every((s) => $(s)));
+  check('ids usados pela interface existem', ['#btn-play', '#btn-music', '#btn-sound', '#btn-music-pause', '#btn-sound-pause', '#btn-install', '#btn-fullscreen', '#pad', '#jump', '#hint', '#hud-hearts', '#v-bonus'].every((s) => $(s)));
   game.ui.kb = false;
 }
 
@@ -539,7 +620,7 @@ async function testViewports() {
     for (const v of views) {
       game.startLevel(i);
       game.ui.act('start');
-      Object.assign(game.view, v, { pad: v.portrait && game.scene.usesPad ? Math.round(v.h * 0.3) : 0 });
+      Object.assign(game.view, v);
       if (game.scene.onResize) game.scene.onResize();
       cv.width = v.w; cv.height = v.h;
       try {
@@ -578,6 +659,68 @@ function testAudio() {
   check('menu toca a faixa do menu', game.scene.music === 'menu');
 }
 
+// Folha de contacto: desenha todas as cenas num dado tamanho de ecrã (em píxeis de jogo), lado
+// a lado, para rever as disposições. Na consola:
+//   (await import('/tests/qa.js')).sheet(__game, { w: 422, h: 195, portrait: false }, 3)
+// only: 'pad' (só as cenas com botões ◀ ▶ ▲) ou 'nopad' (só as outras); a faixa escura no
+// topo de cada imagem marca a zona tapada pelo HUD e pela linha de instruções.
+export async function sheet(g, v, cols = 3, only = null, secs = 9) {
+  game = g;
+  I = g.input;
+  game.ctx2d = document.getElementById('game').getContext('2d');
+  const keep = { ...game.view }, tiles = [];
+  const snap = (label) => {
+    const c = document.createElement('canvas');
+    c.width = v.w; c.height = v.h;
+    const x = c.getContext('2d');
+    x.imageSmoothingEnabled = false;
+    game.scene.draw(x, game.view);
+    x.fillStyle = 'rgba(26,20,51,0.45)';
+    x.fillRect(0, 0, v.w, 14);
+    x.fillRect(Math.round(v.w * 0.08), 28, Math.round(v.w * 0.84), 16);
+    x.fillStyle = '#fff';
+    x.font = '8px monospace';
+    x.fillText(label, 3, 10);
+    tiles.push(c);
+  };
+  const use = () => { Object.assign(game.view, v); if (game.scene.onResize) game.scene.onResize(); };
+  for (let i = 0; i < LEVELS.length; i++) {
+    game.startLevel(i);
+    const pad = !!game.scene.usesPad;
+    if (only === 'pad' && !pad && !LEVELS[i].then) continue;
+    game.ui.act('start');
+    use();
+    const first = game.scene;
+    frames(Math.round(secs * 60));
+    if (!(only === 'pad' && !pad) && !(only === 'nopad' && pad)) snap(LEVELS[i].id);
+    if (LEVELS[i].then && only !== 'pad') {
+      await runUntil(() => game.scene !== first || game.ui.current === 'complete', 400);
+      if (game.scene !== first) { use(); frames(Math.round(secs * 60)); snap(LEVELS[i].id + ' (2)'); }
+    }
+  }
+  if (only !== 'pad') {
+    game.showVictory('wedding'); use(); frames(60 * 12, null); snap('casamento: igreja');
+    frames(60 * 9, null); snap('casamento: festa');
+    frames(60 * 8, null); snap('casamento: céu');
+    game.showVictory('family'); use(); frames(120, null); snap('família');
+    game.goMenu(); use(); frames(60, null); snap('menu');
+  }
+  Object.assign(game.view, keep);
+  game.goMenu();
+  const rows = Math.ceil(tiles.length / cols), out = document.createElement('canvas');
+  out.width = cols * (v.w + 4); out.height = rows * (v.h + 4);
+  const x = out.getContext('2d');
+  x.fillStyle = '#000';
+  x.fillRect(0, 0, out.width, out.height);
+  tiles.forEach((c, i) => x.drawImage(c, (i % cols) * (v.w + 4) + 2, Math.floor(i / cols) * (v.h + 4) + 2));
+  const old = document.getElementById('qa-sheet');
+  if (old) old.remove();
+  out.id = 'qa-sheet';
+  out.style.cssText = 'position:fixed;left:0;top:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:200;image-rendering:pixelated';
+  document.body.append(out);
+  return { tiles: tiles.length, size: [out.width, out.height] };
+}
+
 // Para depurar um robô na consola: (await import('/tests/qa.js')).debugLevel(__game, 2)
 export async function debugLevel(g, i, secs = 300) {
   game = g;
@@ -606,7 +749,7 @@ export async function run(g) {
   if (new URLSearchParams(location.search).has('touch')) window.dispatchEvent(new Event('touchstart'));
   log('QA — Luísa & Sérgio (' + new Date().toLocaleString('pt-PT') + ')');
   const t0 = performance.now();
-  const steps = [testData, testReachable, testMenus, testSettings, testAudio, testFullGame, testRestart, testViewports];
+  const steps = [testData, testReachable, testLayout, testMenus, testSettings, testAudio, testFullGame, testRestart, testViewports];
   for (const fn of steps) {
     try { await fn(); } catch (err) { check(`${fn.name} terminou sem exceções`, false, err.stack || err.message); }
     await tick();

@@ -53,7 +53,7 @@ export class BikeScene {
     this.game = game;
     this.index = index;
     this.level = LEVELS[index];
-    this.usesPad = true;       // em retrato, reserva a faixa de baixo para os botões táteis
+    this.usesPad = true;       // joga-se com os botões táteis ◀ ▶ ▲ (ver js/layout.js)
     this.spr = getSprites();
     const pal = { o: INK, s: '#aab2c5' };
     this.wheels = WHEEL.map((rows) => makeSprite(rows, pal));
@@ -366,9 +366,9 @@ export class BikeScene {
 
   // ---------- Desenho ----------
   draw(ctx, v) {
-    const visH = v.h - v.pad;
+    const visH = v.h;
     const camX = Math.round(this.bx - v.w * 0.32);
-    const base = Math.round(visH * (v.portrait ? 0.62 : 0.7));    // linha do chão no ecrã, junto à bicicleta
+    const base = Math.round(visH * 0.7);    // linha do chão no ecrã, junto à bicicleta
     const sy = (wx) => base + Math.round(this.H(wx) - this.camH);  // y no ecrã da estrada em wx
     const t = this.t;
 
@@ -481,12 +481,6 @@ export class BikeScene {
     ctx.fillRect(px, py, Math.round(pw * clamp(this.bx / (this.length - 150), 0, 1)), 2);
     for (const ev of this.events) { ctx.fillStyle = ev.kind === 'cafe' ? '#8a5a34' : '#d43d51'; ctx.fillRect(px + Math.round((pw * ev.x) / this.length), py - 2, 2, 6); }
 
-    if (v.pad > 0) {
-      ctx.fillStyle = '#1a1433';
-      ctx.fillRect(0, v.h - v.pad, v.w, v.pad);
-      ctx.fillStyle = '#2d2452';
-      ctx.fillRect(0, v.h - v.pad, v.w, 2);
-    }
   }
 
   // Uma bicicleta com alforge e o seu ciclista. x = roda de trás (posição no mundo).

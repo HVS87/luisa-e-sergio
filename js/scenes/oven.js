@@ -62,14 +62,12 @@ export class OvenScene {
   enter() { this.begin(); }
 
   exit() {
-    document.body.classList.remove('minigame');
     this.game.ui.setLevelMode(false, false);
   }
 
   begin() {
     this.paused = false;
     this.game.input.reset();
-    document.body.classList.add('minigame');
     this.game.ui.show(null);
     this.game.ui.setHud(this.got, this.total, this.level.title);
     this.game.ui.setLevelMode(true, true);
@@ -238,7 +236,6 @@ export class OvenScene {
   finish() {
     this.state = 'done';
     this.game.save.complete(this.level.id, this.got, this.total);
-    document.body.classList.remove('minigame');
     this.game.ui.setLevelMode(false, false);
     this.game.ui.showComplete(this.index, this.got, this.total);
   }
