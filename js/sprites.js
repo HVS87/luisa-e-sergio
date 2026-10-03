@@ -118,6 +118,7 @@ const LOOKS = {
       wedding: { t: '#ffffff', T: '#dfe6f5', b: '#f2f2f2', v: '#f4f7ff' },
       scrubs: { t: '#4f9be0', T: '#3a78b8', b: '#ffffff', q: '#4f9be0', Q: '#3a78b8', cap: true },
       ppe: { t: '#cfe6f5', T: '#a8cfe6', b: '#ffffff', q: '#7fb8e0', Q: '#5a9ad0', cap: true },
+      winter: { t: '#d43d51', T: '#a82a43', b: '#5a3a22', q: '#fff6e6', Q: '#d43d51', cap: true },
     },
   },
   sergio: {
@@ -131,6 +132,7 @@ const LOOKS = {
       wedding: { t: '#2a3358', k: '#ffffff', p: '#2a3358', b: '#111122' },
       scrubs: { t: '#3fae8a', k: '#3fae8a', p: '#3fae8a', b: '#ffffff', q: '#3fae8a', Q: '#2f8a6c', cap: true },
       ppe: { t: '#cfe6f5', k: '#cfe6f5', p: '#a8cfe6', b: '#ffffff', q: '#7fb8e0', Q: '#5a9ad0', cap: true },
+      winter: { t: '#3d5aa8', k: '#ffd166', p: '#2b2b3a', b: '#5a3a22', q: '#3fae8a', Q: '#2f8a6c', cap: true },
     },
   },
 };
@@ -149,6 +151,8 @@ LOOKS.pai = { def: SERGIO, base: { h: '#8a8794', d: '#d9b08c' }, outfits: { casu
 // As tias do Sérgio, em Pretarouca (nível 6): uma de cabelo grisalho, outra de lenço na cabeça.
 LOOKS.tia1 = { def: LUISA, base: { h: '#b8b4c0', H: '#d8d4e0', v: '#b8b4c0', e: '#2b1d2e' }, outfits: { casual: { t: '#4a5a8a', T: '#ffffff', b: '#2b1d2e' } } };
 LOOKS.tia2 = { def: LUISA, base: { h: '#5a4030', H: '#5a4030', v: '#5a4030', e: '#2b1d2e' }, outfits: { casual: { t: '#7a3a4a', T: '#ffffff', b: '#2b1d2e', q: '#3a3550', Q: '#55507a', cap: true } } };
+// Figurante: o guia dos trenós de huskies, na Noruega (nível 8).
+LOOKS.guia = { def: SERGIO, base: { h: '#d8b25a', d: '#f6c9a0' }, outfits: { casual: { t: '#ff8a4b', k: '#ff8a4b', p: '#2b2b3a', b: '#2b1d2e', q: '#2b2b3a', Q: '#ff8a4b', cap: true } } };
 // Figurante: o carreiro do carro de cesto, de branco e chapéu de palha.
 LOOKS.carreiro = { def: SERGIO, base: { h: '#3b2a20', s: '#e8b088', d: '#b98f72' }, outfits: { casual: { t: '#ffffff', k: '#ffffff', p: '#f2f2f2', b: '#5a3a22', q: '#e8c878', Q: '#2b1d2e', cap: true } } };
 
@@ -273,6 +277,41 @@ export function drawArch(ctx, x, baseY) {
   }
 }
 
+const HUSKY = [
+  ['.............ww.', 'w...........wggw', 'ww.........ggkgp', '.ggggggggggggww.', '.gggggggggggw...', '.wwwwwwwwwww....', '.gg......gg.....', 'gg........gg....'],
+  ['.............ww.', 'w...........wggw', 'ww.........ggkgp', '.ggggggggggggww.', '.gggggggggggw...', '.wwwwwwwwwww....', '..gg....gg......', '..gg....gg......'],
+];
+let huskies = null;
+// Os dois fotogramas de um husky a correr.
+export function getHuskies() {
+  if (!huskies) huskies = HUSKY.map((rows) => makeSprite(rows, { g: '#8a93a7', w: '#ffffff', k: '#2b1d2e', p: '#2b1d2e' }));
+  return huskies;
+}
+
+// Acampamento no Ártico: tenda sami (lavvu) e fogueira.
+export function drawCamp(ctx, x, baseY, t) {
+  const r = (dx, dy, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x + dx, baseY + dy, w, h); };
+  for (let i = 0; i < 38; i++) {
+    const half = 2 + Math.round(i * 0.52), y = -38 + i;
+    r(-half - 1, y, half * 2 + 2, 1, '#2b1d2e');
+    r(-half, y, half * 2, 1, i % 9 === 8 ? '#b8924a' : '#e8d9b8');
+  }
+  r(-1, -46, 1, 9, '#5a3524');
+  r(1, -45, 1, 8, '#5a3524');
+  r(-4, -43, 1, 6, '#5a3524');
+  r(4, -42, 1, 5, '#5a3524');
+  for (let i = 0; i < 14; i++) r(-Math.round(i * 0.35) - 1, -14 + i, Math.round(i * 0.7) + 2, 1, '#3a2414');
+  r(-2, -6, 4, 6, '#ffd166');
+  // fogueira
+  const f = Math.floor(t * 9) % 2;
+  r(-36, -3, 14, 3, '#5a3524');
+  r(-34, -5, 10, 2, '#6a4424');
+  r(-33, -12 - f, 8, 8 + f, '#ff8a4b');
+  r(-31, -15 + f, 4, 7, '#ffd166');
+  r(-30, -18 - f, 2, 3, '#fff3c4');
+  r(-38, -1, 18, 1, 'rgba(255,138,75,0.35)');
+}
+
 // Iguarias da Madeira para apanhar pelo caminho (10x10).
 export function drawItem(ctx, kind, x, y) {
   const r = (dx, dy, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x + dx, y + dy, w, h); };
@@ -285,6 +324,13 @@ export function drawItem(ctx, kind, x, y) {
   } else if (kind === 'poncha') {
     r(1, 2, 8, 8, '#2b1d2e'); r(5, 0, 2, 3, '#2b1d2e');
     r(2, 3, 6, 6, '#ffb347'); r(2, 3, 6, 1, '#ffe9a8'); r(2, 4, 1, 5, '#ffd08a'); r(5, 0, 1, 5, '#8a5a34'); r(6, 2, 2, 2, '#ffe84a');
+  } else if (kind === 'cacau') {          // caneca de chocolate quente
+    r(1, 2, 8, 8, '#2b1d2e'); r(8, 4, 2, 4, '#2b1d2e');
+    r(2, 3, 6, 6, '#ffffff'); r(2, 3, 6, 2, '#6a4424'); r(2, 7, 6, 1, '#d43d51');
+    r(3, 0, 1, 2, '#ffffff'); r(6, 0, 1, 2, '#ffffff');
+  } else if (kind === 'camera') {         // máquina fotográfica
+    r(0, 2, 10, 8, '#2b1d2e'); r(2, 0, 4, 3, '#2b1d2e');
+    r(1, 3, 8, 6, '#3a3550'); r(3, 4, 4, 4, '#8fd0f5'); r(4, 5, 2, 2, '#ffffff'); r(7, 3, 2, 1, '#ffd166');
   } else if (kind === 'espetada') {
     for (let i = 0; i < 10; i++) r(i, 9 - i, 1, 1, '#6b8a3a');
     r(1, 5, 4, 4, '#2b1d2e'); r(4, 2, 4, 4, '#2b1d2e');

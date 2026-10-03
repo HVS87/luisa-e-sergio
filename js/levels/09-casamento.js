@@ -1,6 +1,6 @@
 import { START, FLAT, HEARTS, STEPS, GAP, BRIDGE, PLATFORMS, CHECKPOINT, END } from './chunks.js';
 
-// Nível 8 (final) — o dia do casamento. Ao concluir, aparece o ecrã de vitória.
+// Nível 9 (final) — o dia do casamento. Ao concluir, aparece o ecrã de vitória.
 export default {
   id: 'casamento',
   title: 'O Casamento',

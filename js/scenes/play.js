@@ -2,8 +2,12 @@
 import { TILE as T, PHYS } from '../config.js';
 import { LEVELS, buildGrid } from '../levels/index.js';
 import { THEMES, drawBackground, getTiles } from '../themes.js';
-import { getCharacter, charFrame, getSprites, partnerOf, drawSign, drawCheckpoint, drawArch, drawCrib, drawItem, drawHouse } from '../sprites.js';
+import { getCharacter, charFrame, getSprites, partnerOf, drawSign, drawCheckpoint, drawArch, drawCrib, drawItem, drawHouse, drawCamp, getHuskies } from '../sprites.js';
 import { Particles } from '../fx.js';
+import { AuroraScene } from './aurora.js';
+
+// Cenas que podem continuar o nível depois de se chegar à meta (`then` no ficheiro do nível).
+const NEXT = { aurora: AuroraScene };
 
 const PW = 10, PH = 20;        // caixa de colisão do jogador (o sprite tem 16x24)
 const TRAIL = 16;              // atraso (em passos) com que o par segue o jogador
@@ -420,6 +424,11 @@ export class PlayScene {
 
   finish() {
     this.state = 'done';
+    const Next = NEXT[this.level.then];
+    if (Next) {
+      this.game.setScene(new Next(this.game, this.index, { got: this.got, total: this.total }));
+      return;
+    }
     this.game.save.complete(this.level.id, this.got, this.total);
     this.game.ui.setLevelMode(false, false);
     this.game.ui.showComplete(this.index, this.got, this.total);
@@ -446,8 +455,15 @@ export class PlayScene {
       drawBackground(this.theme, ctx, v.w, v.h, camX, this.H - 2 * T - camY, this.t);
       return;
     }
-    // Com zonas a alturas diferentes, o horizonte acompanha a câmara só em parte (paralaxe vertical).
-    const gyOf = (z) => Math.round(visH * 0.8 + (this.H - (2 + z.base) * T - (camY + visH * 0.8)) * 0.3);
+    // Com zonas a alturas diferentes: quando o jogador está no chão da zona (à altura `base`),
+    // o horizonte do cenário coincide com esse chão; quando sobe ou desce, acompanha só em parte.
+    const maxY = this.H - visH;
+    const gyOf = (z) => {
+      const surface = this.H - (2 + z.base) * T;
+      const cam0 = maxY <= 0 ? maxY : clamp(surface - PH / 2 - visH * 0.6, 0, maxY);
+      const s0 = surface - cam0;
+      return Math.round(s0 + (surface - camY - s0) * 0.3);
+    };
     const cx = this.camX + v.w / 2;
     let zi = 0;
     while (zi + 1 < this.zones.length && cx >= this.zones[zi + 1].x * T) zi++;
@@ -546,6 +562,25 @@ export class PlayScene {
     const R = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(px + x, py + y, w, h); };
     const driver = this.npcs.find((n) => n.def.rides);
     const jig = this.player.onGround ? Math.floor(this.t * 16) % 2 : 0;
+    if (this.level.sledStyle === 'husky') {
+      // Trenó de madeira puxado por huskies, com o guia atrás
+      const dogs = getHuskies(), f = Math.floor(this.t * 10) % 2;
+      R(20, 18, 34, 1, '#5a3524');
+      ctx.drawImage(dogs[f], px + 30, py + 13 + f);
+      ctx.drawImage(dogs[1 - f], px + 48, py + 13 + (1 - f));
+      if (driver) ctx.drawImage(driver.frames.stand.r, px - 22, py - 2 + jig);
+      ctx.drawImage(this.partner.stand.r, px - 8, py - 2 + jig);
+      ctx.drawImage(this.me.stand.r, px + 4, py - 2 + jig);
+      R(-11, 12 + jig, 34, 10, '#2b1d2e');
+      R(-10, 13 + jig, 32, 8, '#8a5a34');
+      R(-10, 13 + jig, 32, 4, '#d43d51');
+      R(-10, 16 + jig, 32, 1, '#fff6e6');
+      R(-13, 4 + jig, 2, 18, '#5a3524');
+      R(-16, 22, 44, 2, '#5a3524');
+      R(27, 18, 2, 5, '#5a3524');
+      if (this.player.onGround) for (let i = 0; i < 4; i++) R(-22 - ((Math.floor(this.t * 30) + i * 6) % 16), 20 - (i % 3) * 2, 3, 2, '#ffffff');
+      return;
+    }
     if (driver) ctx.drawImage(driver.frames.stand.r, px - 22, py - 2 + jig);
     ctx.drawImage(this.partner.stand.r, px - 8, py - 3 + jig);
     ctx.drawImage(this.me.stand.r, px + 4, py - 3 + jig);
@@ -567,6 +602,7 @@ export class PlayScene {
     const g = this.goal, kind = this.level.goal;
     const x = Math.round(g.x - camX), y = Math.round(g.y - camY);
     if (kind === 'altar') drawArch(ctx, x, y);
+    if (kind === 'camp') { drawCamp(ctx, x + 30, y, this.t); return; }
     if (kind === 'house') {
       drawHouse(ctx, x + 30, y);
       const won = this.state === 'won' || this.state === 'done';

@@ -332,6 +332,37 @@ function lighthouse(ctx, x, gy, t) {
   }
 }
 
+// Casinhas de madeira coloridas, com neve no telhado (cidades do norte da Noruega).
+function nordicHouses(ctx, w, gy, camX, par, seed) {
+  const off = camX * par, cell = 34, cols = ['#c2384a', '#ffd166', '#3d6fb5', '#3f8f5a', '#e8884a'];
+  for (let i = Math.floor(off / cell) - 1; i * cell - off < w + cell; i++) {
+    if (hash(i * 1.9 + seed) < 0.2) continue;
+    const x = Math.floor(i * cell - off), hh = 14 + Math.floor(hash(i * 2.7 + seed) * 8);
+    ctx.fillStyle = cols[Math.floor(hash(i * 4.3 + seed) * cols.length)];
+    ctx.fillRect(x, gy - hh, 24, hh + 30);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(x - 2, gy - hh - 3, 28, 4);
+    ctx.fillRect(x + 3, gy - hh - 6, 18, 3);
+    ctx.fillRect(x + 8, gy - hh - 9, 8, 3);
+    ctx.fillStyle = '#ffe9a8';
+    ctx.fillRect(x + 4, gy - hh + 5, 5, 5);
+    ctx.fillRect(x + 14, gy - hh + 5, 5, 5);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(x + 6, gy - hh + 5, 1, 5);
+    ctx.fillRect(x + 16, gy - hh + 5, 1, 5);
+  }
+}
+
+// Neve a cair.
+function snowfall(ctx, w, h, camX, t) {
+  ctx.fillStyle = '#ffffff';
+  for (let i = 0; i < 46; i++) {
+    const x = mod(hash(i * 1.3) * w * 1.7 - camX * 0.3 + Math.sin(t + i) * 6, w);
+    const y = mod(hash(i * 5.7) * h + t * (14 + (i % 5) * 5), h);
+    ctx.fillRect(Math.floor(x), Math.floor(y), i % 4 === 0 ? 2 : 1, i % 4 === 0 ? 2 : 1);
+  }
+}
+
 // ---------- Ambientes ----------
 // sky: cores do céu de cima para baixo · ground: cores do chão · plank: cores das plataformas
 // paint(ctx, w, h, camX, gy, t): desenha as camadas de fundo; gy é a linha do chão no ecrã.
@@ -395,6 +426,39 @@ export const THEMES = {
       hills(ctx, w, h, gy, camX, 0.08, 36, 10, '#a8e0a0', 3);
       hills(ctx, w, h, gy, camX, 0.2, 18, 8, '#7fcf82', 8);
       bunting(ctx, w, h, gy - 58, camX, 0.6);
+    },
+  },
+
+  // ---- Noruega ----
+  tromso: {
+    sky: ['#1a2a5e', '#3a5a9a', '#8fb0d8', '#f0c8b0'],
+    ground: { top: '#ffffff', topLight: '#ffffff', body: '#b8cfe6', bodyDark: '#9ab4d2' },
+    plank: ['#8a5a34', '#ffffff', '#5a3a22'],
+    hazard: 'rocks',
+    paint(ctx, w, h, camX, gy, t) {
+      stars(ctx, w, gy * 0.35, t, 9, 18);
+      hills(ctx, w, h, gy, camX, 0.04, 58, 22, '#dfe9f7', 3);
+      hills(ctx, w, h, gy, camX, 0.08, 38, 16, '#a8bedc', 8);
+      nordicHouses(ctx, w, gy, camX, 0.4, 2);
+      snowfall(ctx, w, gy, camX, t);
+    },
+  },
+
+  artico: {
+    sky: ['#050a24', '#0d1a45', '#1a3a5e'],
+    ground: { top: '#dfe9f7', topLight: '#ffffff', body: '#7f96b8', bodyDark: '#647ba0' },
+    plank: ['#8a5a34', '#ffffff', '#5a3a22'],
+    hazard: 'rocks',
+    paint(ctx, w, h, camX, gy, t) {
+      stars(ctx, w, gy * 0.85, t, 14, 70);
+      // um primeiro vislumbre de verde no céu
+      ctx.fillStyle = 'rgba(120,255,170,0.10)';
+      for (let x = 0; x < w; x += 4) ctx.fillRect(x, Math.round(gy * 0.2 + Math.sin((x + camX * 0.05) * 0.03 + t * 0.4) * 10), 4, 16);
+      hills(ctx, w, h, gy, camX, 0.04, 52, 22, '#3a4a7a', 5);
+      hills(ctx, w, h, gy, camX, 0.04, 40, 22, '#2a3862', 5);
+      hills(ctx, w, h, gy, camX, 0.1, 18, 12, '#1f2c52', 2);
+      trees(ctx, w, gy, camX, 0.45, 58, '#1a1626', '#1f3a4a', '#e8f0fa', 7);
+      snowfall(ctx, w, gy, camX, t);
     },
   },
 

@@ -59,11 +59,12 @@ tools/                servidor local e gerador de ícones
 | 5 | `05-solar.js` | O Solar da Família | visita vista de cima: interior do solar e jardim de buxo |
 | 6 | `06-pretarouca.js` | Pretarouca | passeio pela aldeia de granito + forno de lenha |
 | 7 | `07-covid.js` | Na Linha da Frente | arcada por vagas numa enfermaria, durante a pandemia |
-| 8 | `08-casamento.js` | O Casamento (final) | festa de casamento |
+| 8 | `08-noruega.js` | Aurora Boreal | cidade nevada, trenó de huskies e a aurora |
+| 9 | `09-casamento.js` | O Casamento (final) | festa de casamento |
 | B1 | `b1-xavier.js` | Bem-vindo, Xavier! | quarto azul |
 | B2 | `b2-luisa.js` | Bem-vinda, pequena Luísa! | quarto rosa |
 
-Os níveis 1 a 7 estão feitos. Os restantes são esqueletos jogáveis, montados com troços genéricos,
+Os níveis 1 a 8 estão feitos. Os restantes são esqueletos jogáveis, montados com troços genéricos,
 com textos provisórios; vão ser desenhados ao pormenor um a um.
 
 ### Nível 1 — minijogo "Operação"
@@ -176,6 +177,20 @@ o Sérgio, de bata, touca e máscara, andam lado a lado pela enfermaria (arrasta
 
 As vagas e os textos definem-se em `js/levels/07-covid.js`; o jogo está em
 `js/scenes/covid.js`.
+
+### Nível 8 — "Aurora Boreal"
+
+A viagem à Noruega para ver a aurora boreal, em duas partes:
+
+1. **Plataformas**: atravessar a cidade nevada (casas de madeira coloridas, neve a cair),
+   apanhar o chocolate quente e subir para o trenó puxado por huskies — anda sozinho, só
+   se salta por cima de pedras e riachos gelados — até ao acampamento com a tenda sami.
+2. **A aurora** (`js/scenes/aurora.js`): uma luz atravessa o céu e, seguindo-a com o dedo
+   (ou com as setas), a aurora vai-se desenhando atrás dela, em três véus de cores
+   diferentes. No fim tira-se a fotografia quando o céu está no máximo de brilho.
+
+Um nível de plataformas passa para uma segunda cena com `then` (aqui, `then: 'aurora'`);
+`sledStyle: 'husky'` troca o carro de cesto pelo trenó de cães.
 
 ### Como se desenha um nível de plataformas
 
