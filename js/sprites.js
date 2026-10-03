@@ -117,6 +117,7 @@ const LOOKS = {
       night: { t: '#d43d51', T: '#a82a43', b: '#2b1d2e' },
       wedding: { t: '#ffffff', T: '#dfe6f5', b: '#f2f2f2', v: '#f4f7ff' },
       scrubs: { t: '#4f9be0', T: '#3a78b8', b: '#ffffff', q: '#4f9be0', Q: '#3a78b8', cap: true },
+      ppe: { t: '#cfe6f5', T: '#a8cfe6', b: '#ffffff', q: '#7fb8e0', Q: '#5a9ad0', cap: true },
     },
   },
   sergio: {
@@ -129,6 +130,7 @@ const LOOKS = {
       night: { t: '#5a6aa8', k: '#5a6aa8', p: '#2a2f4a', b: '#2b1d2e' },
       wedding: { t: '#2a3358', k: '#ffffff', p: '#2a3358', b: '#111122' },
       scrubs: { t: '#3fae8a', k: '#3fae8a', p: '#3fae8a', b: '#ffffff', q: '#3fae8a', Q: '#2f8a6c', cap: true },
+      ppe: { t: '#cfe6f5', k: '#cfe6f5', p: '#a8cfe6', b: '#ffffff', q: '#7fb8e0', Q: '#5a9ad0', cap: true },
     },
   },
 };

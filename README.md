@@ -58,11 +58,12 @@ tools/                servidor local e gerador de ícones
 | 4 | `04-ciclismo.js` | De Bicicleta | viagem de bicicleta: serra, planície e costa |
 | 5 | `05-solar.js` | O Solar da Família | visita vista de cima: interior do solar e jardim de buxo |
 | 6 | `06-pretarouca.js` | Pretarouca | passeio pela aldeia de granito + forno de lenha |
-| 7 | `07-casamento.js` | O Casamento (final) | festa de casamento |
+| 7 | `07-covid.js` | Na Linha da Frente | arcada por vagas numa enfermaria, durante a pandemia |
+| 8 | `08-casamento.js` | O Casamento (final) | festa de casamento |
 | B1 | `b1-xavier.js` | Bem-vindo, Xavier! | quarto azul |
 | B2 | `b2-luisa.js` | Bem-vinda, pequena Luísa! | quarto rosa |
 
-Os níveis 1 a 6 estão feitos. Os restantes são esqueletos jogáveis, montados com troços genéricos,
+Os níveis 1 a 7 estão feitos. Os restantes são esqueletos jogáveis, montados com troços genéricos,
 com textos provisórios; vão ser desenhados ao pormenor um a um.
 
 ### Nível 1 — minijogo "Operação"
@@ -75,7 +76,7 @@ e largar dentro da zona verde. Cada osso retirado sem falhas vale um coração.
 
 Os ossos, a velocidade do marcador e a largura da zona verde definem-se em
 `js/levels/01-encontro.js`; a lógica e o cenário estão em `js/scenes/operation.js`.
-Um nível escolhe o tipo de jogo com `type` (`operation`, `date`, `bike`, `tour`; por omissão, plataformas).
+Um nível escolhe o tipo de jogo com `type` (`operation`, `date`, `bike`, `tour`, `covid`; por omissão, plataformas).
 
 ### Nível 2 — "O Primeiro Date"
 
@@ -158,6 +159,23 @@ Tem duas partes:
 
 Um nível de visita passa para uma segunda cena com `then` (aqui, `then: 'oven'`) e escolhe
 quem guia com `leader`. Mapa, frases e figurantes estão em `js/levels/06-pretarouca.js`.
+
+### Nível 7 — "Na Linha da Frente"
+
+A pandemia de COVID-19 vivida por dois médicos. É um jogo de arcada por vagas: a Luísa e
+o Sérgio, de bata, touca e máscara, andam lado a lado pela enfermaria (arrastar o dedo ou
+◀ ▶) e o desinfetante dispara sozinho contra os vírus que descem em direção às camas.
+
+- Cada vírus que passa aumenta a **pressão sobre o hospital**; se chegar ao máximo, a vaga
+  recomeça (mais fácil a cada tentativa e, à terceira, segue-se em frente).
+- O **cansaço** dos turnos faz disparar mais devagar; os cafés que caem recuperam energia e
+  as caixas de equipamento de proteção criam uma barreira temporária.
+- Os vírus dourados largam corações, que é preciso apanhar.
+- Entre vagas há momentos do confinamento: as palmas à janela às 22h, a videochamada com a
+  família e a chegada da vacina. Na última vaga os tiros são vacinas que atravessam tudo.
+
+As vagas e os textos definem-se em `js/levels/07-covid.js`; o jogo está em
+`js/scenes/covid.js`.
 
 ### Como se desenha um nível de plataformas
 
