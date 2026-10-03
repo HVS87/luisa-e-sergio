@@ -63,13 +63,97 @@ export function disc(ctx, cx, cy, r, color) {
   }
 }
 
+// Altura do contorno de um monte na posição wx (a mesma fórmula usada por hills).
+export function hillY(wx, gy, height, amp, seed) {
+  return Math.floor(gy - height - amp * (Math.sin(wx * 0.021 + seed) * 0.6 + Math.sin(wx * 0.047 + seed * 1.7) * 0.4));
+}
+
 export function hills(ctx, w, h, gy, camX, par, height, amp, color, seed) {
   ctx.fillStyle = color;
   const off = camX * par;
   for (let x = 0; x < w; x += 2) {
-    const wx = x + off;
-    const y = Math.floor(gy - height - amp * (Math.sin(wx * 0.021 + seed) * 0.6 + Math.sin(wx * 0.047 + seed * 1.7) * 0.4));
+    const y = hillY(x + off, gy, height, amp, seed);
     ctx.fillRect(x, y, 2, h - y);
+  }
+}
+
+// Casinhas brancas de telhado laranja espalhadas pela encosta (Funchal).
+function hillHouses(ctx, w, gy, camX, par, height, amp, seed) {
+  const off = camX * par, cell = 9;
+  for (let i = Math.floor(off / cell) - 1; i * cell - off < w; i++) {
+    const r = hash(i * 1.9 + seed);
+    if (r < 0.3) continue;
+    const wx = i * cell + Math.floor(hash(i * 5.1 + seed) * 4);
+    const x = Math.floor(wx - off), y = hillY(wx, gy, height, amp, seed) + 3 + Math.floor(hash(i * 3.3 + seed) * (height + amp - 8));
+    if (y > gy - 4) continue;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(x, y + 1, 4, 3);
+    ctx.fillStyle = r > 0.8 ? '#c2543a' : '#e8884a';
+    ctx.fillRect(x - 1, y, 6, 1);
+  }
+}
+
+// Teleférico: cabo com cabines a subir.
+function cableCar(ctx, w, h, y, camX, par, t) {
+  const off = camX * par;
+  ctx.fillStyle = '#7a8698';
+  ctx.fillRect(0, y, w, 1);
+  for (let i = Math.floor(off / 190) - 1; i * 190 - off < w; i++) {
+    const x = Math.floor(i * 190 - off);
+    ctx.fillRect(x, y - 2, 1, h - y);
+    ctx.fillRect(x - 2, y - 2, 5, 1);
+  }
+  const move = off - t * 10;
+  for (let i = Math.floor(move / 70) - 1; i * 70 - move < w; i++) {
+    const x = Math.floor(i * 70 - move);
+    ctx.fillStyle = '#5a6478';
+    ctx.fillRect(x + 3, y + 1, 1, 3);
+    ctx.fillStyle = '#3d8fe0';
+    ctx.fillRect(x, y + 4, 7, 6);
+    ctx.fillStyle = '#d6f0ff';
+    ctx.fillRect(x + 1, y + 5, 5, 2);
+  }
+}
+
+// Cascatas ao longe e bancos de nevoeiro (levada).
+function waterfalls(ctx, w, h, gy, camX, par, height, amp, seed, t) {
+  const off = camX * par, cell = 70;
+  for (let i = Math.floor(off / cell) - 1; i * cell - off < w; i++) {
+    if (hash(i * 2.7 + seed) < 0.45) continue;
+    const wx = i * cell + Math.floor(hash(i + seed) * 40);
+    const x = Math.floor(wx - off), y = hillY(wx, gy, height, amp, seed) + 6;
+    ctx.fillStyle = '#eafaf6';
+    ctx.fillRect(x, y, 2, gy - y + 30);
+    ctx.fillStyle = '#bfe6e0';
+    for (let k = 0; k < 4; k++) ctx.fillRect(x, y + ((Math.floor(t * 30) + k * 9) % 34), 2, 2);
+  }
+}
+
+function mist(ctx, w, gy, camX, t) {
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  for (let k = 0; k < 3; k++) {
+    const off = camX * (0.15 + k * 0.1) + t * (4 + k * 3), gap = 130;
+    for (let i = Math.floor(off / gap) - 1; i * gap - off < w; i++) {
+      const x = Math.floor(i * gap + hash(i + k * 9) * 60 - off);
+      ctx.fillRect(x, gy - 14 - k * 17, 74, 4);
+      ctx.fillRect(x + 10, gy - 17 - k * 17, 44, 3);
+    }
+  }
+}
+
+// Hortênsias à beira do caminho (Santana).
+function hydrangeas(ctx, w, gy, camX, par) {
+  const off = camX * par, cell = 22, cols = ['#6f8ff0', '#9f7fe8', '#f08ac8', '#8fc4ff'];
+  for (let i = Math.floor(off / cell) - 1; i * cell - off < w; i++) {
+    if (hash(i * 1.3) < 0.25) continue;
+    const x = Math.floor(i * cell - off);
+    ctx.fillStyle = '#2f7a45';
+    ctx.fillRect(x, gy - 7, 15, 7);
+    ctx.fillRect(x + 2, gy - 9, 11, 2);
+    for (let k = 0; k < 4; k++) {
+      ctx.fillStyle = cols[Math.floor(hash(i * 3.1 + k) * 4)];
+      ctx.fillRect(x + 1 + k * 4, gy - 8 + (k % 2) * 2, 3, 3);
+    }
   }
 }
 
@@ -261,6 +345,56 @@ export const THEMES = {
     },
   },
 
+  // ---- Madeira ----
+  funchal: {
+    sky: ['#2f9be8', '#8fd4f7', '#e6f6ff'],
+    ground: { top: '#e8e8ee', topLight: '#ffffff', body: '#5a5f70', bodyDark: '#44485a', style: 'calcada' },
+    hazard: 'rocks',
+    plank: ['#d43d51', '#ff8a9a', '#8a2338'],
+    paint(ctx, w, h, camX, gy, t) {
+      disc(ctx, Math.round(w * 0.82), Math.round(gy * 0.2), 11, '#fff3a0');
+      clouds(ctx, w, camX, 0.04, gy * 0.1, gy * 0.18, '#ffffff', t, 3);
+      hills(ctx, w, h, gy, camX, 0.06, 62, 14, '#6fae7a', 2);
+      hills(ctx, w, h, gy, camX, 0.12, 40, 12, '#4f9a5a', 5);
+      hillHouses(ctx, w, gy, camX, 0.12, 40, 12, 5);
+      cableCar(ctx, w, h, gy - 78, camX, 0.3, t);
+      palms(ctx, w, gy, camX, 0.5, 120, 4);
+    },
+  },
+
+  levada: {
+    sky: ['#8fcfc6', '#c6ebe2', '#f2fbf6'],
+    ground: { top: '#4f9a4a', topLight: '#8fd47a', body: '#5a4636', bodyDark: '#463628' },
+    hazard: 'rocks',
+    plank: ['#8a6a4a', '#b08f68', '#5a4230'],
+    paint(ctx, w, h, camX, gy, t) {
+      hills(ctx, w, h, gy, camX, 0.05, 70, 26, '#8fc4a8', 3);
+      hills(ctx, w, h, gy, camX, 0.1, 46, 22, '#5fa585', 7);
+      waterfalls(ctx, w, h, gy, camX, 0.1, 46, 22, 7, t);
+      hills(ctx, w, h, gy, camX, 0.2, 22, 16, '#3a8060', 1);
+      mist(ctx, w, gy, camX, t);
+      trees(ctx, w, gy, camX, 0.5, 64, '#3a2a22', '#1f5a3a', '#2f7a4a', 9);
+    },
+  },
+
+  santana: {
+    sky: ['#5fb4f0', '#b8e4ff', '#fff1d0'],
+    ground: { top: '#62c25a', topLight: '#a4ec8a', body: '#9a6a44', bodyDark: '#7a5034' },
+    plank: ['#c98f52', '#e8b878', '#8a5a34'],
+    paint(ctx, w, h, camX, gy, t) {
+      disc(ctx, Math.round(w * 0.25), Math.round(gy * 0.22), 12, '#fff3a0');
+      clouds(ctx, w, camX, 0.05, gy * 0.1, gy * 0.2, '#ffffff', t, 6);
+      sea(ctx, w, h, gy - 44, '#2f8fd0', '#9fdcf5', t, camX * 0.05);
+      // socalcos: o mesmo contorno em degraus de cores diferentes
+      hills(ctx, w, h, gy, camX, 0.12, 30, 12, '#4f9a5a', 4);
+      hills(ctx, w, h, gy, camX, 0.12, 24, 12, '#6fbf6a', 4);
+      hills(ctx, w, h, gy, camX, 0.12, 18, 12, '#4f9a5a', 4);
+      hills(ctx, w, h, gy, camX, 0.12, 12, 12, '#7fcf72', 4);
+      palms(ctx, w, gy, camX, 0.4, 130, 11);
+      hydrangeas(ctx, w, gy, camX, 0.8);
+    },
+  },
+
   nurseryBlue: {
     sky: ['#7fb8ff', '#c4e2ff', '#ffffff'],
     ground: { top: '#6fb0f0', topLight: '#b8dcff', body: '#f3ecd8', bodyDark: '#ddd2b4', style: 'brick' },
@@ -306,7 +440,7 @@ export function getTiles(theme) {
   x.fillStyle = g.body;
   x.fillRect(0, 0, TILE, TILE);
   x.fillStyle = g.bodyDark;
-  if (g.style === 'brick') {
+  if (g.style === 'brick' || g.style === 'calcada') {
     x.fillRect(0, 7, 16, 1);
     x.fillRect(0, 15, 16, 1);
     x.fillRect(4, 0, 1, 7);
@@ -322,6 +456,11 @@ export function getTiles(theme) {
   x.fillRect(0, 0, TILE, 4);
   if (g.style === 'brick') {
     x.fillStyle = g.bodyDark;
+    x.fillRect(0, 4, TILE, 1);
+  } else if (g.style === 'calcada') {
+    // calçada portuguesa: onda preta sobre pedra branca
+    x.fillStyle = '#2b2b3a';
+    for (let i = 0; i < TILE; i++) x.fillRect(i, 1 + (Math.floor(i / 4) % 2), 1, 2);
     x.fillRect(0, 4, TILE, 1);
   } else {
     for (let i = 0; i < TILE; i++) {
@@ -346,7 +485,22 @@ export function getTiles(theme) {
 
   const hazard = mk();
   x = hazard.getContext('2d');
-  for (let k = 0; k < 4; k++) {
+  if (theme.hazard === 'rocks') {
+    // pedregulhos de basalto
+    const rock = (bx, by, w, h) => {
+      x.fillStyle = '#2b1d2e';
+      x.fillRect(bx + 1, by, w - 2, h);
+      x.fillRect(bx, by + 2, w, h - 2);
+      x.fillStyle = '#6a6478';
+      x.fillRect(bx + 1, by + 1, w - 2, h - 1);
+      x.fillStyle = '#9a94a8';
+      x.fillRect(bx + 2, by + 1, w - 5, 2);
+      x.fillStyle = '#4a4458';
+      x.fillRect(bx + 1, by + h - 3, w - 2, 3);
+    };
+    rock(0, 8, 10, 8);
+    rock(8, 5, 8, 11);
+  } else for (let k = 0; k < 4; k++) {
     const bx = k * 4;
     x.fillStyle = '#2b1d2e';
     x.fillRect(bx + 1, 7, 2, 1);

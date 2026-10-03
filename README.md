@@ -54,13 +54,13 @@ tools/                servidor local e gerador de ícones
 |---|----------|----------|----------|
 | 1 | `01-encontro.js` | Como se Conheceram | minijogo "Operação" no bloco operatório |
 | 2 | `02-date.js` | O Primeiro Date | microjogos num restaurante |
-| 3 | `03-ferias.js` | Férias a Dois | praia |
+| 3 | `03-madeira.js` | Na Madeira | plataformas: Funchal, levada, carro de cesto, Santana |
 | 4 | `04-pedido.js` | O Pedido | noite estrelada |
 | 5 | `05-casamento.js` | O Casamento (final) | festa de casamento |
 | B1 | `b1-xavier.js` | Bem-vindo, Xavier! | quarto azul |
 | B2 | `b2-luisa.js` | Bem-vinda, pequena Luísa! | quarto rosa |
 
-Os níveis 1 e 2 estão feitos. Os restantes são esqueletos jogáveis, montados com troços genéricos,
+Os níveis 1, 2 e 3 estão feitos. Os restantes são esqueletos jogáveis, montados com troços genéricos,
 com textos provisórios; vão ser desenhados ao pormenor um a um.
 
 ### Nível 1 — minijogo "Operação"
@@ -96,6 +96,19 @@ Cada momento perfeito vale um coração e enche o medidor de Química; com Quím
 superior a `hot` (75) o nível acaba com o final alternativo "E depois do jantar...".
 A ordem dos momentos define-se em `js/levels/02-date.js`; os microjogos estão em
 `js/scenes/date.js`. O jogador controla a personagem escolhida no menu.
+
+### Nível 3 — "Na Madeira"
+
+O Sérgio apresenta a Luísa à família. É um nível de plataformas em quatro zonas, cada uma
+com o seu cenário: o Funchal (mercado, teleférico, calçada portuguesa), uma levada na serra
+(cascatas e nevoeiro), a descida do Monte de carro de cesto (o carro anda sozinho, só se
+salta) e Santana (socalcos, hortênsias e a casa típica onde a avó espera).
+
+Pelo caminho encontram-se familiares, que cumprimentam e servem de ponto de passagem, e há
+quatro iguarias para apanhar (banana, bolo do caco, poncha e espetada). Tudo isto se define
+em `js/levels/03-madeira.js`: `npcs` (família), `host` (quem recebe em casa), `items`
+(iguarias) e marcadores `{ zone, base }` na lista de troços para mudar de cenário.
+`lift(troço, n)` sobe um troço n blocos, para construir encostas.
 
 ### Como se desenha um nível de plataformas
 

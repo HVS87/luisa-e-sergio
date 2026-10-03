@@ -12,6 +12,10 @@
 //
 // Limites do salto: sobe até 2 blocos e atravessa buracos de até 3 blocos.
 
+// Sobe um troço n blocos, prolongando para baixo a sua última linha
+// (o chão continua chão e os buracos continuam buracos).
+export const lift = (chunk, n) => [...chunk, ...Array(n).fill(chunk[chunk.length - 1])];
+
 export const START = [
   '..........',
   '..P.......',

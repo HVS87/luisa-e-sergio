@@ -3,14 +3,14 @@
 import { LEVEL_ROWS } from '../config.js';
 import encontro from './01-encontro.js';
 import date from './02-date.js';
-import ferias from './03-ferias.js';
+import madeira from './03-madeira.js';
 import pedido from './04-pedido.js';
 import casamento from './05-casamento.js';
 import xavier from './b1-xavier.js';
 import luisinha from './b2-luisa.js';
 
 // Os níveis da história vêm primeiro (o último tem `final: true`), seguidos dos bónus.
-export const LEVELS = [encontro, date, ferias, pedido, casamento, xavier, luisinha];
+export const LEVELS = [encontro, date, madeira, pedido, casamento, xavier, luisinha];
 
 // Etiqueta de cada nível: "Nível 3", "Bónus 1", ...
 export function levelLabel(index) {
@@ -23,6 +23,7 @@ export function levelLabel(index) {
 export function buildGrid(chunks, rows = LEVEL_ROWS) {
   const grid = Array.from({ length: rows }, () => []);
   for (const chunk of chunks) {
+    if (!Array.isArray(chunk)) continue;   // marcadores de zona: { zone, base }
     const w = Math.max(...chunk.map((r) => r.length));
     const padTop = rows - chunk.length;
     for (let y = 0; y < rows; y++) {

@@ -2,11 +2,12 @@
 import { TILE as T, PHYS } from '../config.js';
 import { LEVELS, buildGrid } from '../levels/index.js';
 import { THEMES, drawBackground, getTiles } from '../themes.js';
-import { getCharacter, charFrame, getSprites, partnerOf, drawSign, drawCheckpoint, drawArch, drawCrib } from '../sprites.js';
+import { getCharacter, charFrame, getSprites, partnerOf, drawSign, drawCheckpoint, drawArch, drawCrib, drawItem, drawHouse } from '../sprites.js';
 import { Particles } from '../fx.js';
 
 const PW = 10, PH = 20;        // caixa de colisão do jogador (o sprite tem 16x24)
 const TRAIL = 16;              // atraso (em passos) com que o par segue o jogador
+const SLED_SPEED = 150;        // velocidade do carro de cesto (px/s)
 const NO_INPUT = { left: false, right: false, jump: false, jumpPressed: false };
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -18,7 +19,6 @@ export class PlayScene {
     this.index = index;
     this.level = LEVELS[index];
     this.theme = THEMES[this.level.theme] || THEMES.park;
-    this.tiles = getTiles(this.theme);
     this.sprites = getSprites();
     this.t = 0;
     this.state = 'intro';      // intro → play ⇄ hurt → won → done
@@ -34,7 +34,7 @@ export class PlayScene {
     this.game.ui.setLevelMode(false, false);
   }
 
-  // Lê o mapa do nível e coloca jogador, corações, inimigos e meta.
+  // Lê o mapa do nível e coloca jogador, corações, inimigos, família e meta.
   load() {
     const L = this.level;
     const me = this.game.save.data.character;
@@ -43,11 +43,32 @@ export class PlayScene {
     this.cols = this.grid[0].length;
     this.W = this.cols * T;
     this.H = this.rows * T;
+
+    // Zonas: um nível pode mudar de ambiente a meio. Na lista de troços, um objeto
+    // { zone: 'tema', base: altura } marca onde começa uma zona nova.
+    this.zones = [];
+    let col = 0;
+    for (const c of L.chunks) {
+      if (Array.isArray(c)) col += Math.max(...c.map((r) => r.length));
+      else this.zones.push({ x: col, theme: THEMES[c.zone] || this.theme, base: c.base || 0 });
+    }
+    this.zoned = this.zones.length > 0;
+    if (!this.zoned) this.zones.push({ x: 0, theme: this.theme, base: 0 });
+    this.colTiles = [];
+    for (let x = 0, zi = 0; x < this.cols; x++) {
+      while (zi + 1 < this.zones.length && x >= this.zones[zi + 1].x) zi++;
+      this.colTiles.push(getTiles(this.zones[zi].theme));
+    }
+
     this.hearts = [];
+    this.items = [];
     this.walkers = [];
     this.checks = [];
+    this.npcs = [];
+    this.sled = null;          // troço de carro de cesto: { from, to, x, y }
     let start = { x: 1, y: this.rows - 3 };
     let goal = { x: this.cols - 3, y: this.rows - 3 };
+    let sledTo = this.cols;
     for (let y = 0; y < this.rows; y++) {
       for (let x = 0; x < this.cols; x++) {
         const ch = this.grid[y][x];
@@ -57,19 +78,34 @@ export class PlayScene {
         else if (ch === 'h') this.hearts.push({ x: x * T + 8, y: y * T + 8, got: false, ph: (x * 0.9) % 6 });
         else if (ch === 'w') this.walkers.push({ x: x * T + 1, y: (y + 1) * T - 10, w: 14, h: 10, dir: -1, x0: x * T + 1, dead: false });
         else if (ch === 'C') this.checks.push({ x: x * T + 8, y: (y + 1) * T, on: false });
+        else if (ch === 'N') this.npcs.push({ x: x * T + 8, y: (y + 1) * T, met: false, metT: 0 });
+        else if (ch === 'S') this.sled = { from: x * T, to: 0, x: x * T + 3, y: (y + 1) * T - PH, seen: false };
+        else if (ch === 'F') sledTo = x;
+        else if (ch >= '1' && ch <= '9') this.items.push({ x: x * T + 8, y: y * T + 8, got: false, def: (L.items || [])[Number(ch) - 1] || { kind: 'banana', name: '' } });
         this.grid[y][x] = '.';
       }
     }
+    if (this.sled) this.sled.to = sledTo * T;
+    // Família pelo caminho: pela ordem em que aparece no nível
+    this.npcs.sort((a, b) => a.x - b.x);
+    this.npcs.forEach((n, i) => {
+      n.def = (L.npcs || [])[i] || { look: 'tia', line: '' };
+      n.frames = getCharacter(n.def.look);
+    });
+    this.host = L.host ? getCharacter(L.host.look) : null;
+    this.total = this.hearts.length + this.items.length;
+
     this.goal = { x: goal.x * T + 8, y: (goal.y + 1) * T };
     this.spawn = { x: start.x * T + (T - PW) / 2, y: (start.y + 1) * T - PH };
     this.me = getCharacter(me, L.outfit);
     this.partner = getCharacter(partnerOf(me), L.outfit);
-    this.player = { x: this.spawn.x, y: this.spawn.y, w: PW, h: PH, vx: 0, vy: 0, facing: 1, onGround: true, coyote: 0, buffer: 0, invuln: 0, dist: 0 };
+    this.player = { x: this.spawn.x, y: this.spawn.y, w: PW, h: PH, vx: 0, vy: 0, facing: 1, onGround: true, coyote: 0, buffer: 0, invuln: 0, dist: 0, sled: false };
     this.comp = L.companion ? { x: this.spawn.x - 14, y: this.spawn.y, facing: 1, moving: false, air: false, dist: 0 } : null;
     this.trail = [];
     this.fx = new Particles();
     this.got = 0;
     this.timer = 0;
+    this.hintT = 0;
     this.camX = 0;
     this.camY = 0;
     this.updateCamera(0, true);
@@ -79,7 +115,7 @@ export class PlayScene {
     this.state = 'play';
     this.paused = false;
     this.game.input.reset();
-    this.game.ui.setHud(this.got, this.hearts.length, this.level.title);
+    this.game.ui.setHud(this.got, this.total, this.level.title);
     this.game.ui.setLevelMode(true, true);
   }
 
@@ -104,6 +140,13 @@ export class PlayScene {
   // Chamado quando a janela perde o foco.
   autoPause() {
     if (!this.paused && this.state === 'play') this.togglePause();
+  }
+
+  // Mostra uma frase no topo do ecrã durante uns segundos.
+  hint(text, secs = 4) {
+    if (!text) return;
+    this.game.ui.setHint(this.game.ui.fmt(text));
+    this.hintT = secs;
   }
 
   // ---------- Mapa ----------
@@ -154,6 +197,10 @@ export class PlayScene {
     this.t += dt;
     if (this.paused) return;
     this.fx.update(dt);
+    if (this.hintT > 0) {
+      this.hintT -= dt;
+      if (this.hintT <= 0) this.game.ui.setHint('');
+    }
     if (this.state === 'play') {
       this.stepPlayer(dt, this.game.input);
       this.stepWorld(dt);
@@ -166,15 +213,24 @@ export class PlayScene {
       if (Math.floor(this.timer * 7) !== Math.floor((this.timer - dt) * 7)) {
         this.fx.heart(this.goal.x - 12 + Math.random() * 24, this.goal.y - 26, Math.random() < 0.3 ? '#ffd166' : '#ff5d8f');
       }
-      if (this.timer > 1.9) this.finish();
+      if (this.timer > (this.host ? 3.4 : 1.9)) this.finish();
     }
     this.updateCamera(dt, false);
   }
 
   stepPlayer(dt, I) {
     const p = this.player;
+
+    // Carro de cesto: entre as marcas S e F anda sozinho, só dá para saltar.
+    const s = this.sled;
+    const riding = !!s && this.state === 'play' && p.x >= s.from && p.x < s.to;
+    if (riding !== p.sled) this.setSled(riding);
+
     const dir = (I.right ? 1 : 0) - (I.left ? 1 : 0);
-    if (dir) {
+    if (p.sled) {
+      p.vx = SLED_SPEED;
+      p.facing = 1;
+    } else if (dir) {
       p.vx = approach(p.vx, dir * PHYS.speed, PHYS.accel * dt);
       p.facing = dir;
     } else {
@@ -199,7 +255,25 @@ export class PlayScene {
     p.dist += Math.abs(p.x - ox);
     if (p.invuln > 0) p.invuln -= dt;
 
-    this.stepCompanion(Math.abs(p.x - ox) + Math.abs(p.y - oy) > 0.05);
+    if (!p.sled) this.stepCompanion(Math.abs(p.x - ox) + Math.abs(p.y - oy) > 0.05);
+  }
+
+  setSled(on) {
+    const p = this.player, s = this.sled;
+    p.sled = on;
+    this.trail = [];
+    if (on) {
+      if (!s.seen) {
+        s.seen = true;
+        this.spawn = { x: s.x, y: s.y };
+      }
+    } else {
+      p.vx = 60;
+      if (this.comp) Object.assign(this.comp, { x: p.x - 14, y: p.y, air: !p.onGround, moving: false, facing: 1 });
+      this.fx.burst(p.x + 5, p.y + PH, 12, ['#e8c878', '#ffffff', '#c9a060'], 60);
+      this.game.audio.play('check');
+      this.hint(this.level.sledEnd, 3);
+    }
   }
 
   // O par repete o caminho do jogador com um pequeno atraso.
@@ -218,6 +292,12 @@ export class PlayScene {
     }
   }
 
+  collect() {
+    this.got++;
+    this.game.audio.play('heart');
+    this.game.ui.setHud(this.got, this.total, this.level.title);
+  }
+
   stepWorld(dt) {
     const p = this.player;
     const cx = p.x + PW / 2, cy = p.y + PH / 2;
@@ -226,10 +306,17 @@ export class PlayScene {
     for (const h of this.hearts) {
       if (h.got || Math.abs(cx - h.x) > 9 || Math.abs(cy - h.y) > 12) continue;
       h.got = true;
-      this.got++;
       this.fx.burst(h.x, h.y, 8, ['#ff5d8f', '#ffd1e0', '#ffffff'], 50);
-      this.game.audio.play('heart');
-      this.game.ui.setHud(this.got, this.hearts.length, this.level.title);
+      this.collect();
+    }
+
+    // Iguarias e outros objetos especiais (contam como corações)
+    for (const it of this.items) {
+      if (it.got || Math.abs(cx - it.x) > 10 || Math.abs(cy - it.y) > 13) continue;
+      it.got = true;
+      this.fx.burst(it.x, it.y, 12, ['#ffd166', '#ffffff', '#ff5d8f'], 60);
+      this.collect();
+      this.hint(it.def.name, 3);
     }
 
     // Pontos de passagem
@@ -239,6 +326,18 @@ export class PlayScene {
       this.spawn = { x: c.x - PW / 2, y: c.y - PH };
       this.fx.burst(c.x, c.y - 18, 10, ['#ff5d8f', '#ffd166'], 40);
       this.game.audio.play('check');
+    }
+
+    // Família: quem se encontra pelo caminho cumprimenta (e serve de ponto de passagem)
+    for (const n of this.npcs) {
+      if (n.met || cx < n.x - 18) continue;
+      n.met = true;
+      n.metT = this.t;
+      this.spawn = { x: n.x - 26, y: n.y - PH };
+      this.fx.heart(n.x, n.y - 30);
+      this.fx.heart(n.x + 6, n.y - 34, '#ffd166');
+      this.game.audio.play('check');
+      this.hint(n.def.line, 5);
     }
 
     // Nuvens cinzentas: saltar-lhes em cima afasta-as; tocar-lhes de lado magoa.
@@ -273,7 +372,7 @@ export class PlayScene {
     for (let ty = ty0; ty <= ty1; ty++) {
       for (let tx = tx0; tx <= tx1; tx++) {
         if (this.tile(tx, ty) !== '^') continue;
-        if (p.x + PW > tx * T + 3 && p.x < tx * T + 13 && p.y + PH > ty * T + 9) this.hurt();
+        if (p.x + PW > tx * T + 3 && p.x < tx * T + 13 && p.y + PH > ty * T + 9) this.hurt(p.sled);
       }
     }
 
@@ -299,6 +398,7 @@ export class PlayScene {
     p.vx = 0; p.vy = 0;
     p.onGround = true;
     p.invuln = 1.4;
+    p.sled = false;
     this.trail = [];
     if (this.comp) Object.assign(this.comp, { x: p.x - 14, y: p.y, air: false, moving: false, facing: 1 });
     this.state = 'play';
@@ -312,13 +412,14 @@ export class PlayScene {
     this.game.ui.setLevelMode(true, false);
     this.game.audio.play('win');
     this.fx.burst(this.goal.x, this.goal.y - 20, 18, ['#ff5d8f', '#ffd166', '#ffffff'], 80);
+    if (this.level.host) this.hint(this.level.host.line, 9);
   }
 
   finish() {
     this.state = 'done';
-    this.game.save.complete(this.level.id, this.got, this.hearts.length);
+    this.game.save.complete(this.level.id, this.got, this.total);
     this.game.ui.setLevelMode(false, false);
-    this.game.ui.showComplete(this.index, this.got, this.hearts.length);
+    this.game.ui.showComplete(this.index, this.got, this.total);
   }
 
   updateCamera(dt, snap) {
@@ -326,7 +427,8 @@ export class PlayScene {
     const visH = v.h - v.pad;
     const k = snap ? 1 : Math.min(1, dt * 6);
     const maxX = this.W - v.w;
-    const tx = maxX <= 0 ? maxX / 2 : clamp(p.x + PW / 2 - v.w / 2 + p.facing * 12, 0, maxX);
+    const ahead = p.sled ? 56 : p.facing * 12;
+    const tx = maxX <= 0 ? maxX / 2 : clamp(p.x + PW / 2 - v.w / 2 + ahead, 0, maxX);
     this.camX += (tx - this.camX) * k;
     // Níveis mais baixos que o ecrã ficam encostados ao fundo; os mais altos seguem o jogador.
     const maxY = this.H - visH;
@@ -335,11 +437,33 @@ export class PlayScene {
   }
 
   // ---------- Desenho ----------
+  drawBackdrop(ctx, v, visH, camY) {
+    const camX = Math.max(0, this.camX);
+    if (!this.zoned) {
+      drawBackground(this.theme, ctx, v.w, v.h, camX, this.H - 2 * T - camY, this.t);
+      return;
+    }
+    // Com zonas a alturas diferentes, o horizonte acompanha a câmara só em parte (paralaxe vertical).
+    const gyOf = (z) => Math.round(visH * 0.8 + (this.H - (2 + z.base) * T - (camY + visH * 0.8)) * 0.3);
+    const cx = this.camX + v.w / 2;
+    let zi = 0;
+    while (zi + 1 < this.zones.length && cx >= this.zones[zi + 1].x * T) zi++;
+    const z = this.zones[zi], next = this.zones[zi + 1];
+    drawBackground(z.theme, ctx, v.w, v.h, camX, gyOf(z), this.t);
+    if (next) {
+      const d = next.x * T - cx;
+      if (d < 80) {
+        ctx.globalAlpha = clamp(1 - d / 80, 0, 1);
+        drawBackground(next.theme, ctx, v.w, v.h, camX, gyOf(next), this.t);
+        ctx.globalAlpha = 1;
+      }
+    }
+  }
+
   draw(ctx, v) {
     const visH = v.h - v.pad;
     const camX = Math.round(this.camX), camY = Math.round(this.camY);
-    const gy = this.H - 2 * T - camY;
-    drawBackground(this.theme, ctx, v.w, v.h, Math.max(0, this.camX), gy, this.t);
+    this.drawBackdrop(ctx, v, visH, camY);
 
     // Blocos visíveis
     const x0 = Math.max(0, Math.floor(camX / T)), x1 = Math.min(this.cols - 1, Math.floor((camX + v.w) / T));
@@ -348,10 +472,11 @@ export class PlayScene {
       for (let x = x0; x <= x1; x++) {
         const ch = this.grid[y][x];
         if (ch === '.') continue;
-        let img = this.tiles.body;
-        if (ch === '#') { if (y === 0 || this.grid[y - 1][x] !== '#') img = this.tiles.top; }
-        else if (ch === '-') img = this.tiles.platform;
-        else if (ch === '^') img = this.tiles.hazard;
+        const tiles = this.colTiles[x];
+        let img = tiles.body;
+        if (ch === '#') { if (y === 0 || this.grid[y - 1][x] !== '#') img = tiles.top; }
+        else if (ch === '-') img = tiles.platform;
+        else if (ch === '^') img = tiles.hazard;
         ctx.drawImage(img, x * T - camX, y * T - camY);
       }
     }
@@ -359,10 +484,24 @@ export class PlayScene {
     this.drawGoal(ctx, camX, camY);
     for (const c of this.checks) drawCheckpoint(ctx, Math.round(c.x - camX), Math.round(c.y - camY), c.on, this.t);
 
+    const p = this.player;
+    for (const n of this.npcs) {
+      if (this.state === 'won' && this.host) continue;        // no fim juntam-se todos à porta de casa
+      if (n.def.rides && p.sled) continue;                    // vai a conduzir o carro de cesto
+      const hop = n.met && this.t - n.metT < 1.2 ? Math.round(Math.abs(Math.sin((this.t - n.metT) * 10)) * 3) : 0;
+      const img = n.frames.stand[p.x < n.x ? 'l' : 'r'];
+      ctx.drawImage(img, Math.round(n.x - camX) - 8, Math.round(n.y - camY) - 24 - hop);
+    }
+
     for (const h of this.hearts) {
       if (h.got) continue;
       const bob = Math.round(Math.sin(this.t * 4 + h.ph) * 1.5);
       ctx.drawImage(this.sprites.heart, Math.round(h.x - camX) - 4, Math.round(h.y - camY) - 4 + bob);
+    }
+    for (const it of this.items) {
+      if (it.got) continue;
+      const bob = Math.round(Math.sin(this.t * 3 + it.x) * 2);
+      drawItem(ctx, it.def.kind, Math.round(it.x - camX) - 5, Math.round(it.y - camY) - 5 + bob);
     }
 
     for (const w of this.walkers) {
@@ -372,14 +511,19 @@ export class PlayScene {
     }
 
     if (this.state !== 'hurt') {
-      const p = this.player, c = this.comp;
-      if (c) {
-        const img = charFrame(this.partner, c.facing, c.moving, c.air, c.dist);
-        ctx.drawImage(img, Math.round(c.x - camX) - 3, Math.round(c.y - camY) - 4);
-      }
-      if (!(p.invuln > 0 && Math.floor(p.invuln * 12) % 2)) {
-        const img = charFrame(this.me, p.facing, Math.abs(p.vx) > 8, !p.onGround, p.dist);
-        ctx.drawImage(img, Math.round(p.x - camX) - 3, Math.round(p.y - camY) - 4);
+      const c = this.comp;
+      const px = Math.round(p.x - camX) - 3, py = Math.round(p.y - camY) - 4;
+      if (p.sled) {
+        this.drawSled(ctx, px, py);
+      } else {
+        if (c) {
+          const img = charFrame(this.partner, c.facing, c.moving, c.air, c.dist);
+          ctx.drawImage(img, Math.round(c.x - camX) - 3, Math.round(c.y - camY) - 4);
+        }
+        if (!(p.invuln > 0 && Math.floor(p.invuln * 12) % 2)) {
+          const img = charFrame(this.me, p.facing, Math.abs(p.vx) > 8, !p.onGround, p.dist);
+          ctx.drawImage(img, px, py);
+        }
       }
     }
 
@@ -394,11 +538,48 @@ export class PlayScene {
     }
   }
 
+  // Carro de cesto: o casal sentado no cesto de vime e o carreiro atrás, de pé no patim.
+  drawSled(ctx, px, py) {
+    const R = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(px + x, py + y, w, h); };
+    const driver = this.npcs.find((n) => n.def.rides);
+    const jig = this.player.onGround ? Math.floor(this.t * 16) % 2 : 0;
+    if (driver) ctx.drawImage(driver.frames.stand.r, px - 22, py - 2 + jig);
+    ctx.drawImage(this.partner.stand.r, px - 8, py - 3 + jig);
+    ctx.drawImage(this.me.stand.r, px + 4, py - 3 + jig);
+    // cesto de vime
+    R(-11, 11 + jig, 34, 11, '#2b1d2e');
+    R(-10, 12 + jig, 32, 9, '#c9a060');
+    for (let i = 0; i < 8; i++) R(-9 + i * 4, 13 + jig + (i % 2) * 2, 2, 6, '#a8803a');
+    R(-10, 12 + jig, 32, 1, '#e8c878');
+    R(22, 9 + jig, 3, 9, '#2b1d2e');
+    R(23, 10 + jig, 1, 7, '#c9a060');
+    // patins de madeira
+    R(-16, 22, 44, 2, '#5a3524');
+    R(27, 19, 2, 4, '#5a3524');
+    // linhas de velocidade
+    if (this.player.onGround) for (let i = 0; i < 3; i++) R(-34 - ((Math.floor(this.t * 30) + i * 7) % 14), 8 + i * 6, 8, 1, 'rgba(255,255,255,0.7)');
+  }
+
   drawGoal(ctx, camX, camY) {
     const g = this.goal, kind = this.level.goal;
     const x = Math.round(g.x - camX), y = Math.round(g.y - camY);
     if (kind === 'altar') drawArch(ctx, x, y);
-    if (kind === 'partner' || kind === 'altar') {
+    if (kind === 'house') {
+      drawHouse(ctx, x + 30, y);
+      const won = this.state === 'won' || this.state === 'done';
+      const hop = won ? Math.round(Math.abs(Math.sin(this.t * 7)) * 3) : 0;
+      if (this.host) ctx.drawImage(this.host.stand[this.player.x < g.x ? 'l' : 'r'], x + 2, y - 24 - hop);
+      // quando o casal chega, a família toda junta-se à porta
+      if (won) {
+        this.npcs.forEach((n, i) => {
+          const h2 = Math.round(Math.abs(Math.sin(this.t * 7 + i * 1.3)) * 3);
+          ctx.drawImage(n.frames.stand.l, x + 58 + i * 17, y - 24 - h2);
+        });
+      } else {
+        const bob = Math.round(Math.sin(this.t * 4) * 1.5);
+        ctx.drawImage(this.sprites.heart, x + 6, y - 36 + bob);
+      }
+    } else if (kind === 'partner' || kind === 'altar') {
       const img = this.partner.stand[this.player.x < g.x ? 'l' : 'r'];
       ctx.drawImage(img, x - 8, y - 24);
       if (this.state !== 'won') {

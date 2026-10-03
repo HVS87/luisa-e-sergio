@@ -140,6 +140,13 @@ LOOKS.waiter = {
   outfits: { casual: { t: '#2b2b3a', k: '#ffffff', p: '#2b2b3a', b: '#111122' } },
 };
 
+// Família da Madeira (figurantes do nível 3). Nomes e aspeto são fáceis de ajustar aqui.
+LOOKS.tia = { def: LUISA, base: { h: '#3b2a20', H: '#3b2a20', v: '#3b2a20' }, outfits: { casual: { t: '#d43d51', T: '#ffd166', b: '#2b1d2e' } } };
+LOOKS.avo = { def: LUISA, base: { h: '#d8d8e0', H: '#f2f2f7', v: '#d8d8e0' }, outfits: { casual: { t: '#5a4a8a', T: '#463a6e', b: '#2b1d2e' } } };
+LOOKS.primo = { def: SERGIO, base: { h: '#6b4a2e', d: '#f6c9a0' }, outfits: { casual: { t: '#f08a4b', k: '#f08a4b', p: '#4a5a3a', b: '#5a3a22', q: '#3d8fe0', Q: '#2f6fb5', cap: true } } };
+// o tio é carreiro: roupa branca e chapéu de palha
+LOOKS.tio = { def: SERGIO, base: { h: '#3b2a20', s: '#e8b088', d: '#b98f72' }, outfits: { casual: { t: '#ffffff', k: '#ffffff', p: '#f2f2f2', b: '#5a3a22', q: '#e8c878', Q: '#2b1d2e', cap: true } } };
+
 const cache = new Map();
 
 // Devolve os fotogramas { stand, a, b } de uma personagem, cada um com versão direita (r) e esquerda (l).
@@ -259,6 +266,62 @@ export function drawArch(ctx, x, baseY) {
       ctx.fillRect(x + 14 + Math.floor(hash(i * 2.9) * 2), baseY - 40 + i * 5, 2, 2);
     }
   }
+}
+
+// Iguarias da Madeira para apanhar pelo caminho (10x10).
+export function drawItem(ctx, kind, x, y) {
+  const r = (dx, dy, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x + dx, y + dy, w, h); };
+  if (kind === 'banana') {
+    r(0, 5, 3, 3, '#2b1d2e'); r(1, 6, 7, 3, '#2b1d2e'); r(6, 3, 4, 4, '#2b1d2e'); r(8, 0, 2, 4, '#2b1d2e');
+    r(1, 6, 6, 2, '#ffd84a'); r(6, 4, 3, 2, '#ffd84a'); r(8, 1, 1, 3, '#ffd84a'); r(2, 7, 4, 1, '#f0a93e');
+  } else if (kind === 'caco') {
+    r(1, 2, 8, 7, '#2b1d2e'); r(0, 3, 10, 5, '#2b1d2e');
+    r(1, 3, 8, 5, '#e8c890'); r(2, 3, 6, 1, '#fff0c8'); r(1, 6, 8, 2, '#c9a060'); r(3, 4, 4, 2, '#ffe9a8');
+  } else if (kind === 'poncha') {
+    r(1, 2, 8, 8, '#2b1d2e'); r(5, 0, 2, 3, '#2b1d2e');
+    r(2, 3, 6, 6, '#ffb347'); r(2, 3, 6, 1, '#ffe9a8'); r(2, 4, 1, 5, '#ffd08a'); r(5, 0, 1, 5, '#8a5a34'); r(6, 2, 2, 2, '#ffe84a');
+  } else if (kind === 'espetada') {
+    for (let i = 0; i < 10; i++) r(i, 9 - i, 1, 1, '#6b8a3a');
+    r(1, 5, 4, 4, '#2b1d2e'); r(4, 2, 4, 4, '#2b1d2e');
+    r(2, 6, 2, 2, '#a8553a'); r(5, 3, 2, 2, '#c2683a');
+  }
+}
+
+// Casa típica de Santana: telhado de colmo até ao chão, fachada branca com vermelho e azul.
+export function drawHouse(ctx, x, baseY) {
+  const H = 42;
+  for (let r = 0; r < H; r++) {
+    const half = 3 + Math.round(r * 0.56), y = baseY - H + r;
+    ctx.fillStyle = '#2b1d2e';
+    ctx.fillRect(x - half - 1, y, half * 2 + 2, 1);
+    ctx.fillStyle = r % 5 === 4 ? '#b8924a' : '#d9b56a';
+    ctx.fillRect(x - half, y, half * 2, 1);
+    const inner = half - 6;
+    if (r > 9 && inner > 0) {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(x - inner, y, inner * 2, 1);
+      ctx.fillStyle = '#d43d51';
+      ctx.fillRect(x - inner, y, 1, 1);
+      ctx.fillRect(x + inner - 1, y, 1, 1);
+    }
+  }
+  ctx.fillStyle = '#d43d51';
+  ctx.fillRect(x - 5, baseY - 17, 10, 17);
+  ctx.fillStyle = '#8a2338';
+  ctx.fillRect(x - 4, baseY - 16, 8, 16);
+  ctx.fillStyle = '#ffd166';
+  ctx.fillRect(x + 1, baseY - 8, 2, 2);
+  for (const wx of [x - 15, x + 9]) {
+    ctx.fillStyle = '#3d8fe0';
+    ctx.fillRect(wx, baseY - 13, 7, 7);
+    ctx.fillStyle = '#d6f0ff';
+    ctx.fillRect(wx + 1, baseY - 12, 2, 2);
+    ctx.fillRect(wx + 4, baseY - 12, 2, 2);
+    ctx.fillRect(wx + 1, baseY - 9, 2, 2);
+    ctx.fillRect(wx + 4, baseY - 9, 2, 2);
+  }
+  ctx.fillStyle = '#3d8fe0';
+  ctx.fillRect(x - 2, baseY - 27, 4, 4);
 }
 
 // Berço com bebé (níveis bónus).
