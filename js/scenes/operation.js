@@ -272,7 +272,7 @@ export class OperationScene {
       this.fx.heart(this.sx + 6, 26, '#ffd166');
       this.game.ui.setHud(this.got, this.bones.length, this.level.title);
     }
-    this.hint(`${b.name} removido!` + (this.clean ? ' Perfeito!' : ''));
+    this.hint(`${b.name} ${b.fem ? 'removida' : 'removido'}!` + (this.clean ? ' Perfeito!' : ''));
   }
 
   finish() {

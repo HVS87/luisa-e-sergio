@@ -87,7 +87,7 @@ export class UI {
     const d = this.game.save.data;
     const started = Object.keys(d.done).length > 0;
     $('#btn-play').textContent = started ? 'Continuar' : 'Jogar';
-    $('#btn-character').textContent = 'Jogo com: ' + PEOPLE[d.character].nome;
+    $('#btn-character').textContent = 'Jogar com: ' + PEOPLE[d.character].nome;
     const sons = 'Sons: ' + (d.muted ? 'Não' : 'Sim'), musica = 'Música: ' + (d.musicMuted ? 'Não' : 'Sim');
     $('#btn-sound').textContent = sons;
     $('#btn-sound-pause').textContent = sons;
@@ -219,8 +219,13 @@ export class UI {
       case 'start': this.show(null); g.scene.begin(); break;
       case 'pause':
       case 'resume': if (g.scene.togglePause) g.scene.togglePause(); break;
+      // «Recomeçar» e «Repetir»: nos níveis em duas partes (aldeia + forno, cidade + aurora),
+      // volta-se ao início do nível e não só à segunda parte
       case 'restart':
-      case 'retry': this.show(null); g.scene.restart(); break;
+      case 'retry':
+        if (g.scene.prev) g.startLevel(g.scene.index);
+        else { this.show(null); g.scene.restart(); }
+        break;
       case 'next': g.afterLevel(g.scene.index); break;
       case 'bonus': g.startLevel(LEVELS.findIndex((L) => L.bonus)); break;
       case 'menu': g.goMenu(); break;

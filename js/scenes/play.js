@@ -2,7 +2,7 @@
 import { TILE as T, PHYS } from '../config.js';
 import { LEVELS, buildGrid } from '../levels/index.js';
 import { THEMES, drawBackground, getTiles } from '../themes.js';
-import { getCharacter, charFrame, getSprites, partnerOf, drawSign, drawCheckpoint, drawArch, drawCrib, drawItem, drawHouse, drawCamp, getHuskies } from '../sprites.js';
+import { getCharacter, charFrame, getSprites, partnerOf, drawSign, drawCheckpoint, drawItem, drawHouse, drawCamp, getHuskies } from '../sprites.js';
 import { Particles } from '../fx.js';
 import { AuroraScene } from './aurora.js';
 
@@ -128,6 +128,7 @@ export class PlayScene {
 
   restart() {
     this.load();
+    this.game.ui.setHint('');
     this.begin();
   }
 
@@ -601,7 +602,6 @@ export class PlayScene {
   drawGoal(ctx, camX, camY) {
     const g = this.goal, kind = this.level.goal;
     const x = Math.round(g.x - camX), y = Math.round(g.y - camY);
-    if (kind === 'altar') drawArch(ctx, x, y);
     if (kind === 'camp') { drawCamp(ctx, x + 30, y, this.t); return; }
     if (kind === 'house') {
       drawHouse(ctx, x + 30, y);
@@ -618,17 +618,8 @@ export class PlayScene {
         const bob = Math.round(Math.sin(this.t * 4) * 1.5);
         ctx.drawImage(this.sprites.heart, x + 6, y - 36 + bob);
       }
-    } else if (kind === 'partner' || kind === 'altar') {
-      const img = this.partner.stand[this.player.x < g.x ? 'l' : 'r'];
-      ctx.drawImage(img, x - 8, y - 24);
-      if (this.state !== 'won') {
-        const bob = Math.round(Math.sin(this.t * 4) * 1.5);
-        ctx.drawImage(this.sprites.heart, x - 4, y - 36 + bob);
-      }
-    } else if (kind === 'crib') {
-      drawCrib(ctx, x, y, this.level.baby || '#8fc4ff');
     } else {
-      drawSign(ctx, x, y, this.t);
+      drawSign(ctx, x, y, this.t);      // qualquer outra meta: uma placa com bandeira
     }
   }
 }

@@ -114,8 +114,6 @@ const LOOKS = {
     base: { h: '#b07a45', H: '#d6a468', v: '#b07a45', e: '#55703f' },   // castanho claro, olhos esverdeados
     outfits: {
       casual: { t: '#ff5d8f', T: '#d63f72', b: '#7a2e4a' },
-      work: { t: '#4f7fd6', T: '#3a62ad', b: '#2b1d2e' },
-      beach: { t: '#ffd166', T: '#f0a93e', b: '#f08a4b' },
       night: { t: '#d43d51', T: '#a82a43', b: '#2b1d2e' },
       wedding: { t: '#ffffff', T: '#dfe6f5', b: '#f2f2f2', v: '#f4f7ff' },
       scrubs: { t: '#4f9be0', T: '#3a78b8', b: '#ffffff', q: '#4f9be0', Q: '#3a78b8', cap: true },
@@ -130,8 +128,6 @@ const LOOKS = {
     base: { h: '#3b2a20', s: '#eebb8e', d: '#b98f72' },   // castanho escuro, barba curta
     outfits: {
       casual: { t: '#3fa672', k: '#3fa672', p: '#3b4a7a', b: '#2b1d2e' },
-      work: { t: '#eef2f7', k: '#c2384a', p: '#3a3f55', b: '#2b1d2e' },
-      beach: { t: '#ff8a4b', k: '#ff8a4b', p: '#2aa5c9', b: '#f6c9a0' },
       night: { t: '#5a6aa8', k: '#5a6aa8', p: '#2a2f4a', b: '#2b1d2e' },
       wedding: { t: '#2a3358', k: '#ffffff', p: '#2a3358', b: '#111122' },
       scrubs: { t: '#3fae8a', k: '#3fae8a', p: '#3fae8a', b: '#ffffff', q: '#3fae8a', Q: '#2f8a6c', cap: true },
@@ -162,10 +158,10 @@ LOOKS.padre = { def: SERGIO, base: { h: '#8a8794', d: '#f6c9a0' }, outfits: { ca
 // Figurante: o guia dos trenós de huskies, na Noruega (nível 9).
 LOOKS.guia = { def: SERGIO, base: { h: '#d8b25a', d: '#f6c9a0' }, outfits: { casual: { t: '#ff8a4b', k: '#ff8a4b', p: '#2b2b3a', b: '#2b1d2e', q: '#2b2b3a', Q: '#ff8a4b', cap: true } } };
 // Figurante: o carreiro do carro de cesto, de branco e chapéu de palha.
+LOOKS.carreiro = { def: SERGIO, base: { h: '#3b2a20', s: '#e8b088', d: '#b98f72' }, outfits: { casual: { t: '#ffffff', k: '#ffffff', p: '#f2f2f2', b: '#5a3a22', q: '#e8c878', Q: '#2b1d2e', cap: true } } };
 // Nível bónus, na maternidade: a parteira (figurante) e o Xavier já a andar (desenhado a metade do tamanho dos pais).
 LOOKS.parteira = { def: LUISA, base: { h: '#2b2b3a', H: '#4a4a5e', v: '#2b2b3a', e: '#2b1d2e' }, outfits: { casual: { t: '#f29ac0', T: '#d877a3', b: '#ffffff', q: '#f29ac0', Q: '#d877a3', cap: true } } };
 LOOKS.xavier = { def: SERGIO, base: { h: '#6b4a2e', s: '#f6c9a0', d: '#f6c9a0' }, outfits: { casual: { t: '#8fc4ff', k: '#ffffff', p: '#5a8fd0', b: '#ffffff' } } };
-LOOKS.carreiro = { def: SERGIO, base: { h: '#3b2a20', s: '#e8b088', d: '#b98f72' }, outfits: { casual: { t: '#ffffff', k: '#ffffff', p: '#f2f2f2', b: '#5a3a22', q: '#e8c878', Q: '#2b1d2e', cap: true } } };
 
 const cache = new Map();
 
@@ -386,7 +382,7 @@ export function drawHouse(ctx, x, baseY) {
   ctx.fillRect(x - 2, baseY - 27, 4, 4);
 }
 
-// Berço com bebé (níveis bónus).
+// Berço com bebé (final da família, depois do nível bónus).
 export function drawCrib(ctx, x, baseY, blanket, scale = 1) {
   const r = (dx, dy, w, h, col) => {
     ctx.fillStyle = col;

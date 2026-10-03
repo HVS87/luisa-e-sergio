@@ -10,7 +10,6 @@ import { Particles } from '../fx.js';
 
 const INK = '#2b1d2e', GOLD = '#ffd166', CREAM = '#fff6e6', PINK = '#ff5d8f';
 const WRAPS = [['#c2384a', '#ffd166'], ['#2f7a45', '#ffffff'], ['#3d6fb5', '#ffd166'], ['#e8c060', '#c2384a'], ['#7a4a9a', '#ffffff']];
-const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 export class ProposalScene {
   constructor(game, index) {
@@ -51,6 +50,7 @@ export class ProposalScene {
 
   begin() {
     this.state = 'memory';
+    this.timer = 0;
     this.paused = false;
     this.game.input.reset();
     document.body.classList.add('minigame');
@@ -79,7 +79,8 @@ export class ProposalScene {
 
   // Onde fica cada coisa no ecrã (depende do tamanho e da orientação).
   layout(v) {
-    const cols = v.portrait ? 4 : 8, rows = this.cards.length / cols;
+    // em paisagem, duas filas; ao alto, quatro ou seis colunas (conforme o número de presentes)
+    const n = this.cards.length, cols = v.portrait ? (n % 4 === 0 && n <= 16 ? 4 : 6) : n / 2, rows = Math.ceil(n / cols);
     const cs = Math.min(v.portrait ? 34 : 30, Math.floor((v.w - 10) / cols) - 4);
     const gw = cols * (cs + 4) - 4, gh = rows * (cs + 4) - 4;
     const gx = Math.round((v.w - gw) / 2);
@@ -121,7 +122,7 @@ export class ProposalScene {
       if (this.wait > 0) {
         this.wait -= dt;
         if (this.wait <= 0) this.resolve(L);
-      } else if (I.actionPressed) {
+      } else if (I.actionPressed && this.timer > 0.25) {
         const i = tapX >= 0 ? this.cardAt(L, tapX, tapY) : this.cursor;
         if (i >= 0) { this.cursor = i; this.flip(i); }
       }
@@ -354,6 +355,7 @@ export class ProposalScene {
     }
     else if (kind === 'buxo') { R(x + 6, y + 11, 2, 3, '#6a4a2a'); R(x + 2, y + 6, 10, 6, '#2f7a40'); R(x + 4, y + 2, 6, 4, '#2f7a40'); R(x + 6, y, 2, 2, '#2f7a40'); R(x + 4, y + 3, 2, 6, '#4f9a55'); }
     else if (kind === 'bola') { R(x + 1, y + 4, 12, 7, INK); R(x + 2, y + 5, 10, 5, '#e0a040'); R(x + 3, y + 5, 7, 1, '#ffe0a0'); R(x + 5, y + 7, 2, 1, '#a8324a'); R(x + 8, y + 8, 2, 1, '#a8324a'); }
+    else if (kind === 'binoculos') { R(x + 1, y + 4, 5, 9, INK); R(x + 8, y + 4, 5, 9, INK); R(x + 2, y + 5, 3, 7, '#5a6a7a'); R(x + 9, y + 5, 3, 7, '#5a6a7a'); R(x + 5, y + 6, 4, 3, INK); R(x + 2, y + 11, 3, 1, '#9fd3e8'); R(x + 9, y + 11, 3, 1, '#9fd3e8'); R(x + 2, y + 2, 2, 2, INK); R(x + 10, y + 2, 2, 2, INK); }
     else if (kind === 'mascara') { R(x + 2, y + 4, 10, 7, '#8fd0f5'); R(x + 2, y + 6, 10, 1, '#ffffff'); R(x + 2, y + 8, 10, 1, '#ffffff'); R(x, y + 5, 2, 1, '#ffffff'); R(x + 12, y + 5, 2, 1, '#ffffff'); R(x, y + 9, 2, 1, '#ffffff'); R(x + 12, y + 9, 2, 1, '#ffffff'); }
     else if (kind === 'aurora') {
       R(x, y, 14, 14, '#07102e');

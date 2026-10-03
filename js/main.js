@@ -31,6 +31,7 @@ const SCENES = { platform: PlayScene, operation: OperationScene, date: DateScene
 
 const game = {
   view, input, audio, save,
+  scenes: SCENES,
   ui: null,
   scene: null,
   // Com ?debug no endereço, todos os níveis ficam desbloqueados (para testar).
@@ -82,12 +83,12 @@ const game = {
 // de jogo corresponda a um número inteiro de píxeis reais (pixel art sempre nítida).
 function resize() {
   const W = Math.max(1, window.innerWidth), H = Math.max(1, window.innerHeight);
-  document.body.classList.toggle('portrait', H > W);
   const dpr = window.devicePixelRatio || 1;
   const portrait = H > W;
-  // Em paisagem arredonda-se (quase sempre) para baixo, para o nível caber inteiro em altura.
+  // Arredonda-se (quase sempre) para baixo: em paisagem, para o nível caber inteiro em altura;
+  // em retrato, para a largura de jogo nunca ficar muito abaixo dos 250 px (iPhone: 281 px).
   const k = Math.max(1, portrait
-    ? Math.round((W * dpr) / VIEW_PORTRAIT_W)
+    ? Math.floor((W * dpr) / VIEW_PORTRAIT_W + 0.25)
     : Math.floor((H * dpr) / VIEW_LANDSCAPE_H + 0.2));
   const w = Math.ceil((W * dpr) / k), h = Math.ceil((H * dpr) / k);
   if (canvas.width !== w || canvas.height !== h) {
@@ -155,3 +156,6 @@ requestAnimationFrame(frame);
 
 // Útil para depuração na consola do browser.
 window.__game = game;
+
+// Com ?qa no endereço, corre a suite de testes automáticos (tests/qa.js).
+if (new URLSearchParams(location.search).has('qa')) import('../tests/qa.js').then((m) => m.run(game));

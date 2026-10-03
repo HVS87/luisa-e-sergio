@@ -16,12 +16,13 @@ export default {
   //   size:  comprimento do osso no raio-X (píxeis, até 180)
   //   speed: travessias do marcador por segundo (maior = mais difícil)
   //   band:  largura da zona verde (menor = mais difícil)
+  //   fem:   nome feminino («Costela removida!»)
   //   slot:  posição no corpo — umero, costela, femur, rotula ou tibia
   bones: [
     { name: 'Úmero', tool: 'saw', shape: 'long', size: 150, speed: 0.5, band: 46, slot: 'umero' },
-    { name: 'Costela', tool: 'hammer', shape: 'rib', size: 130, speed: 0.6, band: 40, slot: 'costela' },
+    { name: 'Costela', fem: true, tool: 'hammer', shape: 'rib', size: 130, speed: 0.6, band: 40, slot: 'costela' },
     { name: 'Fémur', tool: 'saw', shape: 'long', size: 170, speed: 0.7, band: 34, slot: 'femur' },
-    { name: 'Rótula', tool: 'hammer', shape: 'round', size: 24, speed: 0.72, band: 28, slot: 'rotula' },
-    { name: 'Tíbia', tool: 'saw', shape: 'long', size: 140, speed: 0.82, band: 32, slot: 'tibia' },
+    { name: 'Rótula', fem: true, tool: 'hammer', shape: 'round', size: 24, speed: 0.72, band: 28, slot: 'rotula' },
+    { name: 'Tíbia', fem: true, tool: 'saw', shape: 'long', size: 140, speed: 0.82, band: 32, slot: 'tibia' },
   ],
 };

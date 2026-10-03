@@ -2,7 +2,7 @@
 // variant 'wedding' → animação do casamento: a cerimónia na igreja, a festa no solar até de
 //                     madrugada e, por fim, a imagem sobe até ao céu, onde rebenta o fogo de
 //                     artifício à volta dos parabéns pelos anos de casados.
-// variant 'family'  → fim dos níveis bónus (família completa).
+// variant 'family'  → fim do nível bónus (família completa).
 import { TILE as T, WEDDING_DAY } from '../config.js';
 import { stars, disc, hills, hash } from '../themes.js';
 import { getCharacter, charFrame, getSprites, drawCrib, drawArch } from '../sprites.js';

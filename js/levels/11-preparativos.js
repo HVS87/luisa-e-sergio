@@ -13,7 +13,7 @@ export default {
   final: true,             // depois deste nível vem o final do jogo
   title: 'Os Preparativos',
   story: 'Véspera do casamento, no Solar dos Soares de Albergaria. Há uma tenda para montar, mesas para pôr, luzes para pendurar e um bolo que tem de chegar inteiro. Que azáfama!',
-  help: 'Anda pelo relvado (toca no sítio para onde queres ir, ou usa as setas) e vai onde aparecem as setas: aos postes para levantar a tenda, à carrinha e ao canteiro para ir buscar as coisas, às mesas para as pousar. Tudo o que ficar pronto antes do pôr do sol vale um coração!',
+  help: 'Anda pelo relvado (toca no sítio para onde queres ir, ou usa as setas) e vai aonde aparecem as setas: aos postes para levantar a tenda, à carrinha e ao canteiro para ir buscar as coisas, às mesas para as pousar. Tudo o que ficar pronto antes do pôr do sol vale um coração!',
   outro: 'Está tudo pronto. Amanhã é o grande dia!',
   firstHint: 'Tanta coisa para fazer! Comecem pela tenda.',
   ready: 'Tenda montada, mesas postas, luzes acesas e o bolo no sítio. Está tudo pronto!',

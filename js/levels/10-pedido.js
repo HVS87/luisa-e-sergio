@@ -26,6 +26,7 @@ export default {
     { icon: 'buxo', text: 'O solar e o seu jardim de buxo.' },
     { icon: 'bola', text: 'A bôla das tias, em Pretarouca.' },
     { icon: 'mascara', text: 'Os dias difíceis, vividos lado a lado.' },
+    { icon: 'binoculos', text: 'Madrugadas de binóculos ao pescoço, à espera das aves.' },
     { icon: 'aurora', text: 'A aurora boreal, na Noruega.' },
   ],
 };

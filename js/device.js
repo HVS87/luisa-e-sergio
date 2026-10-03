@@ -58,7 +58,6 @@ export class Orientation {
     const scene = this.game.scene;
     const want = !!(scene && scene.usesPad) && isPhone();
     const show = want && this.portrait() && !this.dismissed;
-    document.body.classList.toggle('want-landscape', want);
     if (show === this.shown) return;
     this.shown = show;
     this.el.hidden = !show;

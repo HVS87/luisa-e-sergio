@@ -1,11 +1,11 @@
-// Nível de visita guiada, visto de cima: a Luísa mostra a casa de família ao Sérgio.
-// O jogador conduz a Luísa por um ou mais mapas (interior do solar, jardim de buxo),
-// o Sérgio segue-a, e em cada ponto de interesse ela conta-lhe qualquer coisa.
+// Visita guiada vista de cima (níveis do solar e de Pretarouca; base dos preparativos, prep.js).
+// Quem guia (`leader` no nível) percorre um ou mais mapas, o par segue-o, e em cada ponto
+// de interesse conta-lhe qualquer coisa.
 //
 // Controlos: setas / WASD, ou tocar e manter o dedo no sítio para onde se quer ir.
 import { TILE as T } from '../config.js';
 import { LEVELS } from '../levels/index.js';
-import { getCharacter, charFrame, getSprites, makeSprite } from '../sprites.js';
+import { getCharacter, charFrame, getSprites, makeSprite, flip } from '../sprites.js';
 import { hash } from '../themes.js';
 import { Particles } from '../fx.js';
 import { OvenScene } from './oven.js';
@@ -48,12 +48,7 @@ export class TourScene {
     this.follow = getCharacter(leader === 'luisa' ? 'sergio' : 'luisa', 'casual');
     this.followName = leader === 'luisa' ? 'ao Sérgio' : 'à Luísa';
     const cow = makeSprite(COW, { b: '#c98f52', B: '#a8744e', w: '#fff6e6', k: INK, p: '#f0a8a0', t: '#8a5a34' });
-    this.cowImg = { r: cow, l: null };
-    const flipped = document.createElement('canvas');
-    flipped.width = cow.width; flipped.height = cow.height;
-    const fg = flipped.getContext('2d');
-    fg.translate(cow.width, 0); fg.scale(-1, 1); fg.drawImage(cow, 0, 0);
-    this.cowImg.l = flipped;
+    this.cowImg = { r: cow, l: flip(cow) };
     this.t = 0;
     this.paused = false;
     this.setup();
@@ -250,7 +245,7 @@ export class TourScene {
       p.dist += moved;
       p.moving = moved > 0.05;
       if (this.wet && this.hintT <= 0) this.hint('Os regadores estão ligados! Espera que parem.', 2.5);
-      if (this.moo && this.hintT <= 0) { this.hint('Muuu! As vacas têm prioridade: espera que passe.', 2.5); this.game.audio.play('click'); }
+      if (this.moo && this.hintT <= 0) { this.hint('Muuu! As vacas têm prioridade: espera que passem.', 2.5); this.game.audio.play('click'); }
       if (p.moving && !this.sergioLost) this.trail.push({ x: p.x, y: p.y, facing: p.facing });
     }
     // O Sérgio segue o caminho da Luísa, uns passos atrás

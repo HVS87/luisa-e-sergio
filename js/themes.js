@@ -157,23 +157,6 @@ function hydrangeas(ctx, w, gy, camX, par) {
   }
 }
 
-function city(ctx, w, h, gy, camX, par, color, win, seed, minH, maxH) {
-  const off = camX * par, cell = 26;
-  for (let i = Math.floor(off / cell) - 1; i * cell - off < w; i++) {
-    const bx = Math.floor(i * cell - off);
-    const bh = Math.floor(minH + hash(i + seed) * (maxH - minH));
-    const bw = 18 + Math.floor(hash(i * 3.3 + seed) * 9);
-    ctx.fillStyle = color;
-    ctx.fillRect(bx, gy - bh, bw, h - (gy - bh));
-    ctx.fillStyle = win;
-    for (let r = 0; r * 7 + 5 < bh - 4; r++) {
-      for (let c = 0; c * 5 + 3 < bw - 3; c++) {
-        if (hash(i * 13.7 + r * 5.3 + c * 9.1 + seed) > 0.45) ctx.fillRect(bx + 3 + c * 5, gy - bh + 5 + r * 7, 2, 3);
-      }
-    }
-  }
-}
-
 function trees(ctx, w, gy, camX, par, gap, trunk, leaf, leaf2, seed) {
   const off = camX * par;
   for (let i = Math.floor(off / gap) - 1; i * gap - off < w + gap; i++) {
@@ -239,45 +222,7 @@ function clouds(ctx, w, camX, par, y0, spread, color, t, seed) {
   }
 }
 
-const FLAGS = ['#ff5d8f', '#ffd166', '#7be0b0', '#6fb0f0', '#ffffff'];
 const mod = (a, n) => ((a % n) + n) % n;
-
-// Bandeirinhas de festa presas a postes.
-function bunting(ctx, w, h, y, camX, par) {
-  const off = camX * par;
-  for (let i = Math.floor(off / 10) - 1; i * 10 - off < w; i++) {
-    const x = Math.floor(i * 10 - off);
-    const sag = Math.round(Math.sin((mod(i, 12) / 12) * Math.PI) * 6);
-    if (mod(i, 12) === 0) {
-      ctx.fillStyle = '#fff6e6';
-      ctx.fillRect(x, y - 2, 2, h - y);
-    }
-    ctx.fillStyle = '#fff6e6';
-    ctx.fillRect(x, y + sag, 10, 1);
-    ctx.fillStyle = FLAGS[mod(i, 5)];
-    ctx.fillRect(x + 2, y + sag + 1, 6, 2);
-    ctx.fillRect(x + 3, y + sag + 3, 4, 2);
-    ctx.fillRect(x + 4, y + sag + 5, 2, 2);
-  }
-}
-
-// Fio de luzinhas a piscar.
-function lights(ctx, w, h, y, camX, par, t) {
-  const off = camX * par;
-  for (let i = Math.floor(off / 8) - 1; i * 8 - off < w; i++) {
-    const x = Math.floor(i * 8 - off);
-    const sag = Math.round(Math.sin((mod(i, 14) / 14) * Math.PI) * 7);
-    if (mod(i, 14) === 0) {
-      ctx.fillStyle = '#2a2140';
-      ctx.fillRect(x, y - 2, 2, h - y);
-    }
-    ctx.fillStyle = '#2a2140';
-    ctx.fillRect(x, y + sag, 8, 1);
-    const lit = Math.sin(t * 3 + i * 2.1) > -0.3;
-    ctx.fillStyle = lit ? '#ffe28a' : '#b8862e';
-    ctx.fillRect(x + 3, y + sag + 1, 2, 2);
-  }
-}
 
 // Eólicas no cimo da serra, com as pás a rodar.
 function turbines(ctx, w, gy, camX, par, height, amp, seed, t) {
@@ -380,55 +325,6 @@ export const THEMES = {
     },
   },
 
-  city: {
-    sky: ['#3d8fe0', '#8fd0f5', '#e6f6ff'],
-    ground: { top: '#c9ced9', topLight: '#eef1f6', body: '#7a8094', bodyDark: '#5e6478', style: 'brick' },
-    plank: ['#d6604a', '#f08a6e', '#9a3a2e'],
-    paint(ctx, w, h, camX, gy, t) {
-      clouds(ctx, w, camX, 0.05, gy * 0.12, gy * 0.2, '#ffffff', t, 1);
-      city(ctx, w, h, gy, camX, 0.12, '#9fc3e6', '#cfe6fa', 3, 46, 92);
-      city(ctx, w, h, gy, camX, 0.3, '#5f7fae', '#ffe28a', 9, 22, 56);
-    },
-  },
-
-  beach: {
-    sky: ['#1f9be8', '#7fd4f7', '#fff1c9'],
-    ground: { top: '#f7e2a0', topLight: '#fff5cc', body: '#e0bd72', bodyDark: '#c39c52' },
-    plank: ['#c98f52', '#e8b878', '#8a5a34'],
-    paint(ctx, w, h, camX, gy, t) {
-      disc(ctx, Math.round(w * 0.2), Math.round(gy * 0.24), 12, '#fff3a0');
-      clouds(ctx, w, camX, 0.05, gy * 0.14, gy * 0.18, '#ffffff', t, 5);
-      sea(ctx, w, h, gy - 26, '#1f7fc4', '#8fdcf5', t, camX * 0.1);
-      palms(ctx, w, gy, camX, 0.5, 110, 7);
-    },
-  },
-
-  night: {
-    sky: ['#0b0e33', '#1d2666', '#46408f'],
-    ground: { top: '#3f9a66', topLight: '#6fd08f', body: '#5a4a5e', bodyDark: '#44364a' },
-    plank: ['#8a6a9a', '#b08fc0', '#5a4268'],
-    paint(ctx, w, h, camX, gy, t) {
-      stars(ctx, w, gy * 0.8, t, 11, 60);
-      disc(ctx, Math.round(w * 0.78), Math.round(gy * 0.26), 11, '#fff6d6');
-      hills(ctx, w, h, gy, camX, 0.08, 34, 10, '#1a2058', 2);
-      trees(ctx, w, gy, camX, 0.3, 90, '#141736', '#152a4a', '#1f3a5e', 6);
-      lights(ctx, w, h, gy - 46, camX, 0.6, t);
-    },
-  },
-
-  wedding: {
-    sky: ['#4aaef0', '#a8e0ff', '#fff6dc'],
-    ground: { top: '#62c25a', topLight: '#a4ec8a', body: '#9a6a44', bodyDark: '#7a5034' },
-    plank: ['#f0f0f5', '#ffffff', '#b8b8c8'],
-    paint(ctx, w, h, camX, gy, t) {
-      disc(ctx, Math.round(w * 0.8), Math.round(gy * 0.22), 12, '#fff3a0');
-      clouds(ctx, w, camX, 0.05, gy * 0.12, gy * 0.2, '#ffffff', t, 2);
-      hills(ctx, w, h, gy, camX, 0.08, 36, 10, '#a8e0a0', 3);
-      hills(ctx, w, h, gy, camX, 0.2, 18, 8, '#7fcf82', 8);
-      bunting(ctx, w, h, gy - 58, camX, 0.6);
-    },
-  },
-
   // ---- Noruega ----
   tromso: {
     sky: ['#1a2a5e', '#3a5a9a', '#8fb0d8', '#f0c8b0'],
@@ -462,12 +358,10 @@ export const THEMES = {
     },
   },
 
-  // ---- Viagem de bicicleta ---- (road: cores da berma e da terra por baixo da estrada)
+  // ---- Viagem de bicicleta ---- (só o fundo e road: cores da berma e da terra por baixo da estrada)
   serra: {
     sky: ['#4a9be0', '#a8d8f5', '#eaf6ff'],
     road: { grass: '#4f9a4a', earth: '#6b4a36', earthDark: '#55392a' },
-    ground: { top: '#4f9a4a', topLight: '#8fd47a', body: '#6b4a36', bodyDark: '#55392a' },
-    plank: ['#8a6a4a', '#b08f68', '#5a4230'],
     paint(ctx, w, h, camX, gy, t) {
       clouds(ctx, w, camX, 0.04, gy * 0.12, gy * 0.2, '#ffffff', t, 8);
       hills(ctx, w, h, gy, camX, 0.04, 66, 24, '#8fb4cc', 2);
@@ -481,8 +375,6 @@ export const THEMES = {
   planicie: {
     sky: ['#58a8e8', '#bfe2f7', '#fff2c9'],
     road: { grass: '#d9c05a', earth: '#b8894a', earthDark: '#9a6f38' },
-    ground: { top: '#d9c05a', topLight: '#f2e08a', body: '#b8894a', bodyDark: '#9a6f38' },
-    plank: ['#c98f52', '#e8b878', '#8a5a34'],
     paint(ctx, w, h, camX, gy, t) {
       disc(ctx, Math.round(w * 0.78), Math.round(gy * 0.24), 13, '#fff3a0');
       clouds(ctx, w, camX, 0.03, gy * 0.14, gy * 0.14, '#ffffff', t, 12);
@@ -496,8 +388,6 @@ export const THEMES = {
   costa: {
     sky: ['#3a3f8f', '#c45a8a', '#ff9a5a', '#ffd08a'],
     road: { grass: '#7a9a5a', earth: '#8a6a5a', earthDark: '#6e5246' },
-    ground: { top: '#7a9a5a', topLight: '#a8c47a', body: '#8a6a5a', bodyDark: '#6e5246' },
-    plank: ['#c98f52', '#e8b878', '#8a5a34'],
     paint(ctx, w, h, camX, gy, t) {
       stars(ctx, w, gy * 0.3, t, 5, 14);
       disc(ctx, Math.round(w * 0.62), gy - 34, 14, '#ffe9b0');
@@ -558,27 +448,6 @@ export const THEMES = {
     },
   },
 
-  nurseryBlue: {
-    sky: ['#7fb8ff', '#c4e2ff', '#ffffff'],
-    ground: { top: '#6fb0f0', topLight: '#b8dcff', body: '#f3ecd8', bodyDark: '#ddd2b4', style: 'brick' },
-    plank: ['#ffd166', '#ffe9a8', '#d9a53e'],
-    paint(ctx, w, h, camX, gy, t) {
-      clouds(ctx, w, camX, 0.06, gy * 0.12, gy * 0.3, '#ffffff', t, 4);
-      hills(ctx, w, h, gy, camX, 0.1, 30, 12, '#b8dcff', 2);
-      hills(ctx, w, h, gy, camX, 0.22, 14, 8, '#9fd0ff', 7);
-    },
-  },
-
-  nurseryPink: {
-    sky: ['#ff9fc6', '#ffd3e6', '#ffffff'],
-    ground: { top: '#f078ae', topLight: '#ffc0dc', body: '#f3ecd8', bodyDark: '#ddd2b4', style: 'brick' },
-    plank: ['#ffd166', '#ffe9a8', '#d9a53e'],
-    paint(ctx, w, h, camX, gy, t) {
-      clouds(ctx, w, camX, 0.06, gy * 0.12, gy * 0.3, '#ffffff', t, 9);
-      hills(ctx, w, h, gy, camX, 0.1, 30, 12, '#ffd0e4', 5);
-      hills(ctx, w, h, gy, camX, 0.22, 14, 8, '#ffb8d6', 1);
-    },
-  },
 };
 
 // Desenha o fundo completo de um ambiente.
@@ -603,7 +472,7 @@ export function getTiles(theme) {
   x.fillStyle = g.body;
   x.fillRect(0, 0, TILE, TILE);
   x.fillStyle = g.bodyDark;
-  if (g.style === 'brick' || g.style === 'calcada') {
+  if (g.style === 'calcada') {
     x.fillRect(0, 7, 16, 1);
     x.fillRect(0, 15, 16, 1);
     x.fillRect(4, 0, 1, 7);
@@ -617,10 +486,7 @@ export function getTiles(theme) {
   x.drawImage(body, 0, 0);
   x.fillStyle = g.top;
   x.fillRect(0, 0, TILE, 4);
-  if (g.style === 'brick') {
-    x.fillStyle = g.bodyDark;
-    x.fillRect(0, 4, TILE, 1);
-  } else if (g.style === 'calcada') {
+  if (g.style === 'calcada') {
     // calçada portuguesa: onda preta sobre pedra branca
     x.fillStyle = '#2b2b3a';
     for (let i = 0; i < TILE; i++) x.fillRect(i, 1 + (Math.floor(i / 4) % 2), 1, 2);

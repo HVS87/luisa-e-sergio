@@ -8,15 +8,16 @@ export const save = {
   data: defaults(),
 
   load() {
+    this.data = defaults();
     try {
       const raw = localStorage.getItem(SAVE_KEY);
-      if (raw) {
-        const old = JSON.parse(raw);
+      const old = raw ? JSON.parse(raw) : null;
+      if (old && typeof old === 'object') {
         // gravações antigas tinham um só botão de som, que desligava tudo
-        if (old && old.musicMuted === undefined) old.musicMuted = !!old.muted;
+        if (old.musicMuted === undefined) old.musicMuted = !!old.muted;
         this.data = Object.assign(defaults(), old);
       }
-    } catch (err) { /* modo privado ou armazenamento bloqueado */ }
+    } catch (err) { /* modo privado, armazenamento bloqueado ou gravação estragada */ }
     if (this.data.character !== 'sergio') this.data.character = 'luisa';
     if (!this.data.done || typeof this.data.done !== 'object') this.data.done = {};
   },

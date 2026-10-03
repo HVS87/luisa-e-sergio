@@ -2,7 +2,7 @@
 // O Sérgio aponta os binóculos e a Luísa identifica as aves no guia de campo.
 //
 // À distância as aves são só silhuetas; dentro dos binóculos (que ampliam para o dobro)
-// vêem-se as cores. Mantendo uma ave na mira durante um instante, fica identificada e
+// veem-se as cores. Mantendo uma ave na mira durante um instante, fica identificada e
 // entra no caderno de campo: cada espécie vale um coração. As aves chegam uma a uma, ficam
 // algum tempo e vão-se embora; as que escaparem voltam uma segunda vez no fim.
 //

@@ -41,6 +41,9 @@ export class BirthScene {
     this.baby = null;
     this.bounces = 0;
     this.kid = null;           // o Xavier a passear (só na segunda ronda)
+    this.nurse = false;        // a parteira apanhou o bebé
+    this.moving = false;
+    this.face = -1;
     this.held = [];            // bebés já ao colo ou no berço
     this.fx = new Particles();
   }
@@ -72,6 +75,7 @@ export class BirthScene {
     this.game.input.reset();
     this.game.ui.setLevelMode(true, !this.paused);
     this.game.ui.show(this.paused ? 'pause' : null);
+    document.body.classList.toggle('caption', !this.paused && this.state === 'fade');
   }
 
   autoPause() { if (!this.paused) this.togglePause(); }
@@ -99,8 +103,14 @@ export class BirthScene {
   // (a gravidade ajusta-se para o arco caber no ecrã).
   launch(v, fromX, fromY, T) {
     const g = this.geo(v);
-    let target;
-    do { target = g.x0 + 8 + Math.random() * (g.x1 - g.x0 - 16); } while (Math.abs(target - g.X(this.sx)) < 40);
+    // um sítio ao acaso, longe do Sérgio; se a sala for estreita, o lado mais afastado dele
+    const lo = g.x0 + 8, hi = g.x1 - 8, sx = g.X(this.sx);
+    let target = -1;
+    for (let k = 0; k < 20 && target < 0; k++) {
+      const t = lo + Math.random() * (hi - lo);
+      if (Math.abs(t - sx) >= 40) target = t;
+    }
+    if (target < 0) target = sx - lo > hi - sx ? lo : hi;
     const b = this.baby || {};
     b.x = fromX; b.y = fromY;
     b.tx = target;
@@ -209,7 +219,8 @@ export class BirthScene {
     this.timer = 0;
     this.game.audio.play('win');
     this.fx.burst(this.baby.x, this.baby.y, 16, [GOLD, '#ffffff', r.blanket], 70);
-    this.game.ui.setHint((this.bounces ? 'Apanhado! ' : 'Apanhado à primeira! ') + r.born);
+    const apanhado = r.article === 'a' ? 'Apanhada' : 'Apanhado';
+    this.game.ui.setHint((this.bounces ? apanhado + '! ' : apanhado + ' à primeira! ') + r.born);
   }
 
   // O Xavier a passear pela sala: se o Sérgio lhe tropeça, perde um instante.

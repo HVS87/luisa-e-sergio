@@ -40,7 +40,7 @@ const GAMES = {
   // 1. Troca de olhares: manter premido só quando o par espreita por cima da ementa.
   olhares: {
     title: 'Troca de olhares',
-    hint: 'Mantém premido para olhar quando {par} espreitar. Olhar demais faz corar!',
+    hint: 'Mantém premido para olhar quando {par} espreitar. Olhar de mais faz corar!',
     init(s, g) { Object.assign(g, { n: 0, blush: 0, phase: 'menu', t: 1.5, scored: false, hide: 0, ok: true, gaze: false }); },
     update(s, g, dt, I) {
       g.t -= dt;
@@ -64,7 +64,7 @@ const GAMES = {
         g.hide = 1.6;
         g.blush = 0.55;
         s.sfx('hurt');
-        s.say('Apanhado a olhar fixamente! Que vergonha...', 1.6);
+        s.say(`${s.meL ? 'Apanhada' : 'Apanhado'} a olhar fixamente! Que vergonha...`, 1.6);
       }
     },
     pose(s, g) { return { me: { dx: g.gaze ? 3 : 0 } }; },
@@ -99,7 +99,7 @@ const GAMES = {
           if (g.i >= 2) {
             const ok = g.res.every((r) => r === 'ok');
             g.i = 1;
-            s.done(ok, ok ? 'Dois copos no ponto. Mãos de anestesista!' : s.tipsy ? 'Copos cheios até cima... isto vai subir à cabeça!' : 'Servido. Mais ou menos...');
+            s.done(ok, ok ? `Dois copos no ponto. Mãos de ${s.meL ? 'anestesista' : 'cirurgião'}!` : s.tipsy ? 'Copos cheios até cima... isto vai subir à cabeça!' : 'Servido. Mais ou menos...');
           } else {
             const lo = rnd(0.45, 0.62);
             g.zone = [lo, lo + 0.19];
@@ -234,7 +234,7 @@ const GAMES = {
         g.stun = 1.2;
         g.ok = false;
         s.sfx('hurt');
-        s.say('Apanhado! Levaste com o garfo na mão.', 1.3);
+        s.say(`${s.meL ? 'Apanhada' : 'Apanhado'}! Levaste com o garfo na mão.`, 1.3);
       };
       if (g.reach > 0) {
         if (g.look === 'watch') return caught();
@@ -300,7 +300,7 @@ const GAMES = {
         g.splash = 0.9;
         g.stains++;
         s.sfx('buzz');
-        s.say('Depressa demais! Molho na roupa...', 1.2);
+        s.say('Depressa de mais! Molho na roupa...', 1.2);
       } else if (g.v >= 0.4 && g.v <= 0.75) {
         g.p += dt * 0.21;
         g.low = 0;
@@ -313,7 +313,7 @@ const GAMES = {
           g.started = false;
           g.p = Math.max(0, g.p - 0.25);
           s.sfx('hurt');
-          s.say('Devagar demais: o fio partiu-se!', 1.2);
+          s.say('Devagar de mais: o fio partiu-se!', 1.2);
         }
       }
     },
@@ -434,7 +434,7 @@ const GAMES = {
       if (g.surge <= 0) { g.force = rnd(0.14, 0.44); g.surge = rnd(0.5, 1.1); }
       g.p = clamp(g.p - g.force * dt, -1, 1);
       if (g.p >= 1) s.done(false, 'A conta é tua! Um gesto com muita classe.', 8);
-      else if (g.p <= -1) s.done(false, s.fmt('{Par} foi mais rápido e pagou tudo.'), 5);
+      else if (g.p <= -1) s.done(false, s.fmt('{Par} adiantou-se e pagou tudo.'), 5);
       else if (g.time <= 0) {
         if (Math.abs(g.p) < 0.23) s.done(true, 'Empate! «Dividimos?» — a resposta certa.');
         else if (g.p > 0) s.done(false, 'Ficaste com a conta. Que classe!', 8);
@@ -493,8 +493,8 @@ const GAMES = {
           s.sfx('kiss');
           s.hearts(120, 40, 10);
           s.done(g.ok, g.ok ? 'O primeiro beijo. Perfeito!' : 'O primeiro beijo! (à segunda foi de vez)');
-        } else if (g.a < 0.9) miss('early', 'Cedo demais! Bateram com os narizes...');
-      } else if (g.a > 1.22) miss('late', 'Tarde demais! Beijaste o empregado da sobremesa...');
+        } else if (g.a < 0.9) miss('early', 'Cedo de mais! Bateram com os narizes...');
+      } else if (g.a > 1.22) miss('late', 'Tarde de mais! Beijaste o empregado da sobremesa...');
     },
     pose(s, g) {
       const dx = Math.round(Math.min(1, g.a) * (g.kind === 'early' ? 12 : 17));

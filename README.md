@@ -19,6 +19,23 @@ para abrir o jogo num telemóvel ligado ao mesmo Wi-Fi.
 
 Acrescentar `?debug` ao endereço desbloqueia todos os níveis (útil para testar).
 
+## Testes automáticos
+
+Abrir o jogo com `?qa` no endereço (por exemplo <http://localhost:8080/?qa>) corre a suite de
+QA de `tests/qa.js`, com o resultado num painel por cima do jogo (demora cerca de um minuto).
+Com `?qa&touch` simula um ecrã tátil, para correr num telemóvel. **A suite apaga o progresso
+guardado nesse browser.** Verifica, entre outras coisas:
+
+- os dados dos níveis (ids, etiquetas, textos sem marcadores por substituir, sem formas do
+  português do Brasil, nenhuma menção à mãe do Sérgio) e os cruzamentos entre níveis (uma
+  recordação do pedido por cada nível anterior, as aves, as rondas da maternidade);
+- que todos os corações e pontos de interesse das visitas são alcançáveis;
+- o jogo completo, com robôs que jogam cada nível: introdução, pausa, fim do nível, gravação,
+  desbloqueio, casamento, nível bónus e final da família;
+- recomeçar e repetir, opções (personagem, música, sons, tecla M), gravações antigas ou
+  estragadas, navegação por teclado, a API de som e o desenho de todas as cenas em nove
+  tamanhos de ecrã (de uma janela estreita a um ecrã largo).
+
 ## Controlos
 
 | Ação    | Teclado                 | Ecrã tátil                  |
@@ -27,7 +44,7 @@ Acrescentar `?debug` ao endereço desbloqueia todos os níveis (útil para testa
 | Saltar  | Espaço, ↑ ou W          | Botão ▲ (em baixo, à direita)     |
 | Ação (minijogos) | Espaço ou Enter | Tocar em qualquer ponto do ecrã |
 | Pausa   | P ou Esc                | Botão de pausa (em cima, à direita) |
-| Música on/off | M                 | Botão «Música» no menu ou na pausa |
+| Ligar/desligar a música | M       | Botão «Música» no menu ou na pausa |
 | Menus   | Setas + Enter           | Toque                       |
 
 A música e os efeitos sonoros ligam-se e desligam-se em separado («Música» e «Sons», no
@@ -37,7 +54,7 @@ menu principal e na pausa); a escolha fica guardada.
 
 - **Ecrã**: o jogo ocupa o ecrã inteiro (respeitando o entalhe e a barra do iPhone) e
   adapta-se a qualquer tamanho, sempre com píxeis nítidos. No Safari do iOS, depois de rodar
-  o telemóvel, as medidas são recalculadas várias vezes (o Safari demora a dá-las certas).
+  o telemóvel, as medidas são recalculadas várias vezes (o Safari demora a acertá-las).
 - **Orientação**: os níveis de plataformas e de bicicleta jogam-se melhor com o telemóvel
   deitado. Se estiver na vertical, aparece o aviso «Roda o telemóvel» (e, a meio do nível, o
   jogo faz pausa); dá para continuar na vertical com «Jogar na vertical». Nos tablets e nos
@@ -62,12 +79,14 @@ js/audio.js           música e efeitos sonoros gerados por código (melodias or
 js/device.js          aviso de orientação, instalar como app, ecrã inteiro, service worker
 js/save.js            progresso guardado no dispositivo
 js/sprites.js         personagens e objetos em pixel art (definidos em texto)
-js/themes.js          cenários de cada ambiente (parque, cidade, praia, noite, casamento, quartos de bebé)
+js/themes.js          cenários dos níveis de plataformas (parque, Funchal, levada, Santana, Tromsø, Ártico, ...)
 js/fx.js              partículas e fogo de artifício
 js/ui.js              lógica dos menus e painéis
-js/scenes/            menu, nível de plataformas, minijogos (operation.js) e ecrã de vitória
+js/scenes/            uma cena por tipo de nível (play, operation, date, bike, tour, oven, covid, birds,
+                      aurora, proposal, prep, birth), o menu e a vitória (casamento e família)
 js/levels/            um ficheiro por nível + troços reutilizáveis (chunks.js)
 sw.js                 service worker (jogar sem rede)
+tests/qa.js           suite de testes automáticos (abrir o jogo com ?qa)
 tools/                servidor local e gerador de ícones
 ```
 
@@ -100,7 +119,7 @@ e largar dentro da zona verde. Cada osso retirado sem falhas vale um coração.
 
 Os ossos, a velocidade do marcador e a largura da zona verde definem-se em
 `js/levels/01-encontro.js`; a lógica e o cenário estão em `js/scenes/operation.js`.
-Um nível escolhe o tipo de jogo com `type` (`operation`, `date`, `bike`, `tour`, `covid`, `proposal`, `prep`; por omissão, plataformas).
+Um nível escolhe o tipo de jogo com `type` (`operation`, `date`, `bike`, `tour`, `covid`, `birds`, `proposal`, `prep`, `birth`; por omissão, plataformas).
 
 ### Nível 2 — "O Primeiro Date"
 
@@ -109,7 +128,7 @@ botão (tocar no ecrã / Espaço):
 
 | Momento | Como se joga |
 |---------|--------------|
-| Troca de olhares | manter premido só quando o par espreita por cima da ementa; olhar demais faz corar |
+| Troca de olhares | manter premido só quando o par espreita por cima da ementa; olhar de mais faz corar |
 | Servir o vinho | manter premido e largar entre as marcas; entornar deixa a conversa seguinte "tonta" |
 | Conversa de médicos | tocar para dizer os bons temas e deixar passar os maus |
 | Roubar batatas fritas | tocar só quando o par olha para o lado |
@@ -120,7 +139,7 @@ botão (tocar no ecrã / Espaço):
 
 Pelo meio, o telefone do hospital toca duas vezes e é preciso silenciá-lo depressa.
 Cada momento perfeito vale um coração e enche o medidor de Química; com Química igual ou
-superior a `hot` (75) o nível acaba com o final alternativo "E depois do jantar...".
+superior a `hot` (68) o nível acaba com o final alternativo "E depois do jantar...".
 A ordem dos momentos define-se em `js/levels/02-date.js`; os microjogos estão em
 `js/scenes/date.js`. O jogador controla a personagem escolhida no menu.
 
@@ -207,9 +226,9 @@ Uma manhã num observatório de aves (`js/scenes/birds.js`). O Sérgio aponta os
 (arrastar o dedo ou setas) e a Luísa identifica as aves no guia de campo.
 
 - Ao longe as aves são só **silhuetas**; dentro dos binóculos, que ampliam para o dobro,
-  vêem-se as cores. Mantendo uma ave na mira durante um instante, fica identificada e
+  veem-se as cores. Mantendo uma ave na mira durante um instante, fica identificada e
   entra no **caderno de campo**, com uma curiosidade. Cada espécie vale um coração.
-- São dez espécies que se vêem em Portugal: cegonha-branca (sempre no ninho), flamingo,
+- São dez espécies que se veem em Portugal: cegonha-branca (sempre no ninho), flamingo,
   garça-real, poupa, pernilongo, guarda-rios (que mergulha), abelharuco, colhereiro,
   águia-pesqueira (atravessa o céu: é preciso segui-la) e mocho-galego (espreita de um
   buraco na árvore). As notas de música denunciam onde está cada uma.
@@ -236,9 +255,9 @@ Um nível de plataformas passa para uma segunda cena com `then` (aqui, `then: 'a
 ### Nível 10 — "O Pedido"
 
 É Natal e o Sérgio escondeu um colar na árvore, junto dos presentes. A Luísa abre os
-presentes num jogo de memória: são oito pares e cada par é uma recordação de um nível
+presentes num jogo de memória: são nove pares e cada par é uma recordação de um nível
 anterior (o bloco operatório, o primeiro date, a Madeira, as bicicletas, o solar,
-Pretarouca, a pandemia e a aurora). Um par encontrado sem andar a virar os mesmos presentes
+Pretarouca, a pandemia, o birdwatching e a aurora). Um par encontrado sem andar a virar os mesmos presentes
 vezes sem conta vale um coração. Quando o tapete fica vazio, há uma caixinha a brilhar na
 árvore: é o colar. O Sérgio ajoelha-se, faz o pedido, e toca-se para a Luísa dizer que sim.
 
@@ -312,6 +331,6 @@ C  ponto de passagem  P  início do jogador     G  meta
 ```
 
 Cada nível define ainda o ambiente (`theme`), a roupa das personagens (`outfit`), o tipo
-de meta (`goal`: `partner`, `flag`, `altar` ou `crib`) e se o par acompanha o jogador
+de meta (`goal`: `house`, `camp` ou, por omissão, uma placa com bandeira) e se o par acompanha o jogador
 (`companion`). Nos textos, `{eu}`, `{par}` e `{ao_par}` são substituídos pelos nomes
 conforme a personagem escolhida no menu.

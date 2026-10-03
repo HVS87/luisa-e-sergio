@@ -57,11 +57,6 @@ export class PrepScene extends TourScene {
     this.speedMul = 1;
   }
 
-  begin() {
-    super.begin();
-    this.game.ui.setHud(this.got, this.total, this.level.title);
-  }
-
   hint(text, secs) {
     super.hint(text, secs);
     this.shownGuide = null;
