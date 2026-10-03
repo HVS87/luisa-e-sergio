@@ -20,6 +20,7 @@ export class PlayScene {
     this.level = LEVELS[index];
     this.theme = THEMES[this.level.theme] || THEMES.park;
     this.sprites = getSprites();
+    this.usesPad = true;       // em retrato, reserva a faixa de baixo para os botões táteis
     this.t = 0;
     this.state = 'intro';      // intro → play ⇄ hurt → won → done
     this.paused = false;

@@ -279,6 +279,59 @@ function lights(ctx, w, h, y, camX, par, t) {
   }
 }
 
+// Eólicas no cimo da serra, com as pás a rodar.
+function turbines(ctx, w, gy, camX, par, height, amp, seed, t) {
+  const off = camX * par, cell = 110;
+  ctx.fillStyle = '#f2f6fa';
+  for (let i = Math.floor(off / cell) - 1; i * cell - off < w + 20; i++) {
+    if (hash(i * 1.7 + seed) < 0.35) continue;
+    const wx = i * cell + Math.floor(hash(i + seed) * 50);
+    const x = Math.floor(wx - off), y = hillY(wx, gy, height, amp, seed) + 2;
+    ctx.fillRect(x, y - 20, 2, 20);
+    const a = t * 1.4 + i * 2;
+    for (let k = 0; k < 3; k++) {
+      const ang = a + k * 2.0944;
+      for (let r = 1; r <= 9; r++) ctx.fillRect(Math.round(x + Math.cos(ang) * r), Math.round(y - 20 + Math.sin(ang) * r), 1, 1);
+    }
+  }
+}
+
+// Montes alentejanos: casas brancas com barra azul.
+function farmhouses(ctx, w, gy, camX, par, height, amp, seed) {
+  const off = camX * par, cell = 150;
+  for (let i = Math.floor(off / cell) - 1; i * cell - off < w + 30; i++) {
+    if (hash(i * 2.3 + seed) < 0.4) continue;
+    const wx = i * cell + Math.floor(hash(i + seed) * 70);
+    const x = Math.floor(wx - off), y = hillY(wx, gy, height, amp, seed) + 3;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(x, y - 7, 16, 7);
+    ctx.fillRect(x + 11, y - 12, 3, 5);
+    ctx.fillStyle = '#3d8fe0';
+    ctx.fillRect(x, y - 2, 16, 2);
+    ctx.fillStyle = '#c2543a';
+    ctx.fillRect(x - 1, y - 9, 18, 2);
+    ctx.fillStyle = '#5a3524';
+    ctx.fillRect(x + 4, y - 5, 2, 3);
+  }
+}
+
+// Farol a piscar.
+function lighthouse(ctx, x, gy, t) {
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(x, gy - 34, 7, 34);
+  ctx.fillStyle = '#d43d51';
+  ctx.fillRect(x, gy - 26, 7, 4);
+  ctx.fillRect(x, gy - 14, 7, 4);
+  ctx.fillRect(x - 1, gy - 40, 9, 3);
+  ctx.fillStyle = Math.sin(t * 3) > 0 ? '#fff3a0' : '#c9a060';
+  ctx.fillRect(x + 1, gy - 37, 5, 3);
+  if (Math.sin(t * 3) > 0) {
+    ctx.fillStyle = 'rgba(255,243,160,0.35)';
+    ctx.fillRect(x - 26, gy - 37, 26, 2);
+    ctx.fillRect(x + 7, gy - 37, 26, 2);
+  }
+}
+
 // ---------- Ambientes ----------
 // sky: cores do céu de cima para baixo · ground: cores do chão · plank: cores das plataformas
 // paint(ctx, w, h, camX, gy, t): desenha as camadas de fundo; gy é a linha do chão no ecrã.
@@ -342,6 +395,52 @@ export const THEMES = {
       hills(ctx, w, h, gy, camX, 0.08, 36, 10, '#a8e0a0', 3);
       hills(ctx, w, h, gy, camX, 0.2, 18, 8, '#7fcf82', 8);
       bunting(ctx, w, h, gy - 58, camX, 0.6);
+    },
+  },
+
+  // ---- Viagem de bicicleta ---- (road: cores da berma e da terra por baixo da estrada)
+  serra: {
+    sky: ['#4a9be0', '#a8d8f5', '#eaf6ff'],
+    road: { grass: '#4f9a4a', earth: '#6b4a36', earthDark: '#55392a' },
+    ground: { top: '#4f9a4a', topLight: '#8fd47a', body: '#6b4a36', bodyDark: '#55392a' },
+    plank: ['#8a6a4a', '#b08f68', '#5a4230'],
+    paint(ctx, w, h, camX, gy, t) {
+      clouds(ctx, w, camX, 0.04, gy * 0.12, gy * 0.2, '#ffffff', t, 8);
+      hills(ctx, w, h, gy, camX, 0.04, 66, 24, '#8fb4cc', 2);
+      hills(ctx, w, h, gy, camX, 0.08, 44, 18, '#6f9f8a', 6);
+      turbines(ctx, w, gy, camX, 0.08, 44, 18, 6, t);
+      hills(ctx, w, h, gy, camX, 0.16, 20, 12, '#4f8a5f', 3);
+      trees(ctx, w, gy, camX, 0.4, 84, '#3a2a22', '#2a5f3f', '#3a7f52', 5);
+    },
+  },
+
+  planicie: {
+    sky: ['#58a8e8', '#bfe2f7', '#fff2c9'],
+    road: { grass: '#d9c05a', earth: '#b8894a', earthDark: '#9a6f38' },
+    ground: { top: '#d9c05a', topLight: '#f2e08a', body: '#b8894a', bodyDark: '#9a6f38' },
+    plank: ['#c98f52', '#e8b878', '#8a5a34'],
+    paint(ctx, w, h, camX, gy, t) {
+      disc(ctx, Math.round(w * 0.78), Math.round(gy * 0.24), 13, '#fff3a0');
+      clouds(ctx, w, camX, 0.03, gy * 0.14, gy * 0.14, '#ffffff', t, 12);
+      hills(ctx, w, h, gy, camX, 0.05, 18, 6, '#e8c860', 3);
+      farmhouses(ctx, w, gy, camX, 0.05, 18, 6, 3);
+      hills(ctx, w, h, gy, camX, 0.12, 8, 4, '#d9b04a', 9);
+      trees(ctx, w, gy, camX, 0.35, 150, '#6a3a22', '#3f6a3a', '#5a8a4a', 14);
+    },
+  },
+
+  costa: {
+    sky: ['#3a3f8f', '#c45a8a', '#ff9a5a', '#ffd08a'],
+    road: { grass: '#7a9a5a', earth: '#8a6a5a', earthDark: '#6e5246' },
+    ground: { top: '#7a9a5a', topLight: '#a8c47a', body: '#8a6a5a', bodyDark: '#6e5246' },
+    plank: ['#c98f52', '#e8b878', '#8a5a34'],
+    paint(ctx, w, h, camX, gy, t) {
+      stars(ctx, w, gy * 0.3, t, 5, 14);
+      disc(ctx, Math.round(w * 0.62), gy - 34, 14, '#ffe9b0');
+      sea(ctx, w, h, gy - 30, '#3a4f9a', '#ffb88a', t, camX * 0.04);
+      hills(ctx, w, h, gy, camX, 0.1, 10, 10, '#5a4a6e', 7);
+      lighthouse(ctx, Math.round(w * 0.86 - ((camX * 0.1) % (w + 60))) + 30, gy - 8, t);
+      trees(ctx, w, gy, camX, 0.4, 120, '#2a2030', '#3a3558', '#4a4570', 3);
     },
   },
 

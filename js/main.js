@@ -9,6 +9,7 @@ import { MenuScene } from './scenes/menu.js';
 import { PlayScene } from './scenes/play.js';
 import { OperationScene } from './scenes/operation.js';
 import { DateScene } from './scenes/date.js';
+import { BikeScene } from './scenes/bike.js';
 import { VictoryScene } from './scenes/victory.js';
 
 const canvas = document.getElementById('game');
@@ -19,7 +20,7 @@ const ctx = canvas.getContext('2d', { alpha: false });
 const view = { w: 320, h: 180, k: 1, pad: 0, portrait: false };
 
 // Tipos de nível: plataformas (por omissão) e minijogos.
-const SCENES = { platform: PlayScene, operation: OperationScene, date: DateScene };
+const SCENES = { platform: PlayScene, operation: OperationScene, date: DateScene, bike: BikeScene };
 
 const game = {
   view, input, audio, save,
@@ -87,8 +88,8 @@ function resize() {
   ctx.imageSmoothingEnabled = false;
 
   view.w = w; view.h = h; view.k = k; view.portrait = portrait;
-  const inLevel = game.scene instanceof PlayScene;
-  view.pad = portrait && input.touch && inLevel ? Math.round(h * 0.3) : 0;
+  const usesPad = !!(game.scene && game.scene.usesPad);   // cenas jogadas com os botões ◀ ▶ ▲
+  view.pad = portrait && input.touch && usesPad ? Math.round(h * 0.3) : 0;
 
   const root = document.documentElement.style;
   root.setProperty('--u', Math.max(9, Math.min(26, W / 26, H / 24)).toFixed(2) + 'px');
