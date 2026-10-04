@@ -3,7 +3,7 @@
 // uma cópia); sem rede, usa-se a cópia guardada. As fontes do Google ficam em cache.
 // Ao mudar a lista de ficheiros, mudar também o nome da cache (a suite ?qa verifica que todos
 // os módulos do jogo estão aqui).
-const CACHE = 'luisa-sergio-v2';
+const CACHE = 'luisa-sergio-v3';
 const CORE = [
   './', 'index.html', 'css/style.css', 'manifest.webmanifest',
   'assets/icon-192.png', 'assets/icon-512.png', 'assets/icon-180.png',
@@ -14,6 +14,7 @@ const CORE = [
   'js/fx.js',
   'js/input.js',
   'js/layout.js',
+  'js/memories.js',
   'js/save.js',
   'js/sprites.js',
   'js/themes.js',
@@ -24,6 +25,7 @@ const CORE = [
   'js/scenes/birth.js',
   'js/scenes/covid.js',
   'js/scenes/date.js',
+  'js/scenes/house.js',
   'js/scenes/menu.js',
   'js/scenes/operation.js',
   'js/scenes/oven.js',
@@ -42,7 +44,8 @@ const CORE = [
   'js/levels/08-aves.js',
   'js/levels/09-noruega.js',
   'js/levels/10-pedido.js',
-  'js/levels/11-preparativos.js',
+  'js/levels/11-casa.js',
+  'js/levels/12-preparativos.js',
   'js/levels/b1-maternidade.js',
   'js/levels/chunks.js',
   'js/levels/index.js',

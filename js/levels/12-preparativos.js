@@ -1,4 +1,4 @@
-// Nível 11 (final) — os preparativos do casamento, no relvado do Solar da família da Luísa.
+// Nível 12 (final) — os preparativos do casamento, no relvado do Solar da família da Luísa.
 // Visto de cima (js/scenes/prep.js, que estende o motor das visitas): montar a tenda,
 // pôr as mesas, pendurar as luzes e levar o bolo, tudo antes do pôr do sol.
 // Ao concluir este nível, o jogo termina com a animação do casamento (js/scenes/victory.js).

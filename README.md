@@ -109,7 +109,8 @@ js/themes.js          cenários dos níveis de plataformas (parque, Funchal, lev
 js/fx.js              partículas e fogo de artifício
 js/ui.js              lógica dos menus e painéis
 js/scenes/            uma cena por tipo de nível (play, operation, date, bike, tour, oven, covid, birds,
-                      aurora, proposal, prep, birth), o menu e a vitória (casamento e família)
+                      aurora, proposal, house, prep, birth), o menu e a vitória (casamento e família)
+js/memories.js        ícones das recordações (presentes do pedido e fotografias da casa nova)
 js/levels/            um ficheiro por nível + troços reutilizáveis (chunks.js)
 sw.js                 service worker (jogar sem rede)
 tests/qa.js           suite de testes automáticos (abrir o jogo com ?qa)
@@ -130,10 +131,11 @@ tools/                servidor local e gerador de ícones
 | 8 | `08-aves.js` | Birdwatching | binóculos e caderno de campo num observatório de aves |
 | 9 | `09-noruega.js` | Aurora Boreal | cidade nevada, trenó de huskies e a aurora |
 | 10 | `10-pedido.js` | O Pedido | Natal: jogo de memória com os presentes e o pedido de casamento |
-| 11 | `11-preparativos.js` | Os Preparativos (final) | a azáfama da véspera do casamento, no solar |
+| 11 | `11-casa.js` | A Nossa Casa | a obra da vivenda junto ao Aqueduto e as fotografias na parede |
+| 12 | `12-preparativos.js` | Os Preparativos (final) | a azáfama da véspera do casamento, no solar |
 | Bónus | `b1-maternidade.js` | Na Maternidade | o Sérgio apanha o Xavier e, 2 anos depois, a Luisinha |
 
-Os onze níveis da história e o nível bónus estão feitos.
+Os doze níveis da história e o nível bónus estão feitos.
 
 ### Nível 1 — minijogo "Operação"
 
@@ -145,7 +147,7 @@ e largar dentro da zona verde. Cada osso retirado sem falhas vale um coração.
 
 Os ossos, a velocidade do marcador e a largura da zona verde definem-se em
 `js/levels/01-encontro.js`; a lógica e o cenário estão em `js/scenes/operation.js`.
-Um nível escolhe o tipo de jogo com `type` (`operation`, `date`, `bike`, `tour`, `covid`, `birds`, `proposal`, `prep`, `birth`; por omissão, plataformas).
+Um nível escolhe o tipo de jogo com `type` (`operation`, `date`, `bike`, `tour`, `covid`, `birds`, `proposal`, `house`, `prep`, `birth`; por omissão, plataformas).
 
 ### Nível 2 — "O Primeiro Date"
 
@@ -290,7 +292,29 @@ vezes sem conta vale um coração. Quando o tapete fica vazio, há uma caixinha 
 As recordações e as frases estão em `js/levels/10-pedido.js`; o jogo em
 `js/scenes/proposal.js`.
 
-### Nível 11 — "Os Preparativos"
+### Nível 11 — "A Nossa Casa"
+
+A Luísa e o Sérgio constroem a casa deles: uma vivenda de dois andares, com jardim e
+piscina, em Campolide, mesmo junto ao Aqueduto das Águas Livres, que se vê ao fundo com os
+arcos em ogiva e o Arco Grande. Quem orienta a obra é o Tio Alberto, o tio arquiteto da Luísa
+(`js/scenes/house.js`):
+
+1. **A obra**: a grua passa de um lado para o outro com cada peça (fundações, rés-do-chão,
+   laje, primeiro andar com varanda e telhado de telha) e toca-se para a largar em cima da
+   planta azul. À primeira e bem ao centro vale um coração; fora da planta, a peça volta a
+   subir. A grua vai ficando mais rápida. A meio, o Tio Alberto conta que o Aqueduto resistiu
+   ao terramoto de 1755 e que o Arco Grande tem mais de 65 metros.
+2. **A piscina**: mantém-se premido para a encher e larga-se com a água na linha dos
+   azulejos (se transbordar, perde-se o coração e tenta-se outra vez). Depois o jardim cresce:
+   uma oliveira, um limoeiro e alfazema.
+3. **As fotografias**: dentro de casa, penduram-se na sala as fotografias dos momentos dos
+   níveis anteriores (as mesmas recordações do pedido, mais o próprio pedido). Cada quadro
+   balança; tocar quando está direito vale um coração, e os outros ficam um pouco tortos.
+
+As fotografias vêm de `js/levels/10-pedido.js` (a suite de testes confirma que há uma por cada
+nível anterior); os textos estão em `js/levels/11-casa.js`.
+
+### Nível 12 — "Os Preparativos"
 
 A véspera do casamento, no relvado do solar. É um corre-corre visto de cima
 (`js/scenes/prep.js`, que estende o motor das visitas):
@@ -307,7 +331,7 @@ azul); cada tarefa acabada antes do pôr do sol vale um coração, e depois diss
 
 ### O final do jogo
 
-Concluído o nível 11, corre a animação do casamento (`js/scenes/victory.js`): a cerimónia
+Concluído o nível 12, corre a animação do casamento (`js/scenes/victory.js`): a cerimónia
 na igreja, a festa no solar até de madrugada e, por fim, a imagem sobe até ao céu, onde
 rebenta o fogo de artifício à volta de "Parabéns! pelos 4 anos de Casados" e da data
 08-10-22. Um toque salta a animação. A data e o número de anos estão em `js/config.js`.

@@ -171,6 +171,12 @@ const BOTS = {
     } else if (s.state === 'tree' && s.timer > 0.9) tap(L.boxX, L.boxY);
     else if (s.state === 'ask' && s.timer > 1.3) tap(v.w / 2, v.h / 2);
   },
+  HouseScene(s) {
+    const g = s.geo(game.view);
+    if (s.state === 'crane' && s.lock <= 0 && Math.abs(s.hookX - g.cx) < 2) { I.action = true; I.actionPressed = true; }
+    else if (s.state === 'pool') { if (s.pool.level < 0.83) { I.action = true; I.actionPressed = !s.pool.holding; } }
+    else if (s.state === 'photo' && s.timer > 0.55 && s.lock <= 0 && Math.abs(s.angle) < 2) { I.action = true; I.actionPressed = true; }
+  },
   BirthScene(s) {
     if (s.state === 'fly' && s.baby) I.pointerX = s.baby.tx / game.view.w;
   },
@@ -312,6 +318,10 @@ function testData() {
   const sp = new Set(aves.species.map((s) => s.id));
   check('aves: a ordem só usa espécies do caderno (ou o pardal)', aves.order.every((id) => sp.has(id) || id === 'pardal'), aves.order.join(','));
   check('aves: todas as espécies visitantes aparecem', aves.species.slice(1).every((s) => aves.order.includes(s.id)));
+  const casa = LEVELS.find((L) => L.type === 'house'), ci = LEVELS.indexOf(casa);
+  check('casa: uma fotografia por cada nível anterior', casa.photos.length === ci, `${casa.photos.length} fotografias para ${ci} níveis`);
+  check('casa: as fotografias são as recordações do pedido, mais o pedido', ped.memories.every((m) => casa.photos.some((p) => p.icon === m.icon)) && casa.photos.some((p) => p.icon === 'colar'));
+  check('casa: uma instrução por cada peça da obra (5)', casa.pieces.length === 5);
   const mat = LEVELS.find((L) => L.type === 'birth');
   check('maternidade: duas rondas, Xavier e depois a Luisinha', mat.rounds.length === 2 && mat.rounds[0].name === 'Xavier' && mat.rounds[1].toddler);
   const date = LEVELS.find((L) => L.type === 'date');

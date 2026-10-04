@@ -121,6 +121,7 @@ const LOOKS = {
       winter: { t: '#d43d51', T: '#a82a43', b: '#5a3a22', q: '#fff6e6', Q: '#d43d51', cap: true },
       xmas: { t: '#c2384a', T: '#ffffff', b: '#7a2e4a' },
       campo: { t: '#9aa86a', T: '#7d8a52', b: '#5a3a22', q: '#e8d8a8', Q: '#c9b57a', cap: true },   // colete caqui e chapéu
+      obra: { t: '#ff8a3a', T: '#d96a20', b: '#5a3a22', q: '#ffffff', Q: '#d8dce6', cap: true },     // colete refletor e capacete
     },
   },
   sergio: {
@@ -135,6 +136,7 @@ const LOOKS = {
       winter: { t: '#3d5aa8', k: '#ffd166', p: '#2b2b3a', b: '#5a3a22', q: '#3fae8a', Q: '#2f8a6c', cap: true },
       xmas: { t: '#2f7a45', k: '#c2384a', p: '#3b4a7a', b: '#2b1d2e' },
       campo: { t: '#7d8a52', k: '#e8d8a8', p: '#6b5a3e', b: '#5a3a22', q: '#e8d8a8', Q: '#c9b57a', cap: true },
+      obra: { t: '#ff8a3a', k: '#ffd23e', p: '#3b4a7a', b: '#5a3a22', q: '#ffffff', Q: '#d8dce6', cap: true },
     },
   },
 };
@@ -159,6 +161,8 @@ LOOKS.padre = { def: SERGIO, base: { h: '#8a8794', d: '#f6c9a0' }, outfits: { ca
 LOOKS.guia = { def: SERGIO, base: { h: '#d8b25a', d: '#f6c9a0' }, outfits: { casual: { t: '#ff8a4b', k: '#ff8a4b', p: '#2b2b3a', b: '#2b1d2e', q: '#2b2b3a', Q: '#ff8a4b', cap: true } } };
 // Figurante: o carreiro do carro de cesto, de branco e chapéu de palha.
 LOOKS.carreiro = { def: SERGIO, base: { h: '#3b2a20', s: '#e8b088', d: '#b98f72' }, outfits: { casual: { t: '#ffffff', k: '#ffffff', p: '#f2f2f2', b: '#5a3a22', q: '#e8c878', Q: '#2b1d2e', cap: true } } };
+// O Tio Alberto, tio da Luísa e arquiteto, na casa nova (nível 11): capacete amarelo na obra, sem ele já dentro de casa.
+LOOKS.alberto = { def: SERGIO, base: { h: '#9a96a2', d: '#c8c4cc' }, outfits: { casual: { t: '#5a6a8a', k: '#ffffff', p: '#4a4458', b: '#2b1d2e', q: '#ffd23e', Q: '#e0a820', cap: true }, casa: { t: '#5a6a8a', k: '#ffffff', p: '#4a4458', b: '#2b1d2e' } } };
 // Nível bónus, na maternidade: a parteira (figurante) e o Xavier já a andar (desenhado a metade do tamanho dos pais).
 LOOKS.parteira = { def: LUISA, base: { h: '#2b2b3a', H: '#4a4a5e', v: '#2b2b3a', e: '#2b1d2e' }, outfits: { casual: { t: '#f29ac0', T: '#d877a3', b: '#ffffff', q: '#f29ac0', Q: '#d877a3', cap: true } } };
 LOOKS.xavier = { def: SERGIO, base: { h: '#6b4a2e', s: '#f6c9a0', d: '#f6c9a0' }, outfits: { casual: { t: '#8fc4ff', k: '#ffffff', p: '#5a8fd0', b: '#ffffff' } } };
