@@ -16,7 +16,7 @@ const INK = '#2b1d2e', GOLD = '#ffd166';
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 // Blocos que não se atravessam. (O regador 's' só bloqueia enquanto está a regar.)
-const SOLID = new Set('BTFxtWwRbPCAkmonvdMGgOEKcYZ'.split(''));
+const SOLID = new Set('BTFxtWwRbPCAkmonvdMGgOEKcYZjueqy'.split(''));
 // Cenas que podem continuar o nível depois da visita (`then` no ficheiro do nível).
 const NEXT = { oven: OvenScene };
 
@@ -75,7 +75,7 @@ export class TourScene {
           else if (ch === 'D') m.doors.push({ x, y });
           else if (ch === 'V') { m.cows.push({ x: cx, y: cy, x0: cx, dir: 1, wait: 0 }); grid[y][x] = floor; }
           else if (ch === 'Y' || ch === 'Z') m.npcs.push({ x: cx, y: cy, frames: getCharacter((this.level.npcs || {})[ch] || 'luisa') });
-          else if (ch >= '1' && ch <= '9') {
+          else if (ch >= '0' && ch <= '9') {
             const poi = { n: ch, map: id, x: cx, y: cy, done: false, def: this.level.pois[ch] || { text: '' } };
             m.pois.push(poi);
             this.pois.push(poi);
@@ -587,6 +587,7 @@ export class TourScene {
         break;
       case 'W':
       case 'w':
+      case 'y':
       case 'b':
       case 'D':
       case 'd':
@@ -651,6 +652,61 @@ export class TourScene {
         R(x + 1, y + 12, 2, 3, '#5a3a20');
         R(x + 13, y + 12, 2, 3, '#5a3a20');
         break;
+      case 'u': {   // o que se vê lá em baixo, fora de casa: relva e buxos
+        R(x, y, T, T, '#4a8f52');
+        if (hs > 0.55) { R(x + 3, y + 3, 10, 10, '#2f7a40'); R(x + 5, y + 4, 4, 3, '#4f9a55'); R(x + 3, y + 11, 10, 2, '#1f5a30'); }
+        else if (hs > 0.3) { R(x + 4 + Math.floor(hs * 6), y + 5, 2, 1, '#6fbf6a'); R(x + 9, y + 11, 2, 1, '#3f7f45'); }
+        break;
+      }
+      case 'j':     // parede envidraçada da ponte coberta
+        R(x, y, T, T, '#5a3a20');
+        R(x + 2, y, 12, T, '#7a5232');
+        for (let k = 0; k < 2; k++) { R(x + 4, y + 1 + k * 8, 8, 6, '#3a2414'); R(x + 5, y + 2 + k * 8, 6, 4, '#bfe6ff'); R(x + 5, y + 2 + k * 8, 2, 1, '#ffffff'); }
+        break;
+      case 'e':     // balaustrada de granito da varanda
+        R(x, y, T, T, '#4a8f52');
+        R(x, y + 2, T, 3, '#d8d4cc');
+        R(x, y + 2, T, 1, '#f0ece4');
+        for (let k = 0; k < 3; k++) { R(x + 1 + k * 5, y + 5, 3, 7, '#b8b4ae'); R(x + 1 + k * 5, y + 7, 3, 2, '#d8d4cc'); }
+        R(x, y + 12, T, 3, '#8e8a86');
+        break;
+      case 'q': {   // cama de dossel antiga, de madeira esculpida, com cortinas (3 x 2 blocos)
+        const X = x - T, WOOD = '#5a3520', WOODL = '#7a4a2a', CARVE = '#3a2010', RED = '#8a2338', REDL = '#a8324a';
+        // cabeceira esculpida
+        R(X + 3, y - 2, 42, 14, WOOD);
+        R(X + 6, y, 36, 9, WOODL);
+        for (let k = 0; k < 5; k++) { R(X + 9 + k * 7, y + 2, 3, 5, CARVE); R(X + 10 + k * 7, y + 1, 1, 1, GOLD); }
+        // colchão, almofadas e colcha
+        R(X + 3, y + 11, 42, 19, '#fff6e6');
+        R(X + 7, y + 12, 14, 6, '#ffffff'); R(X + 27, y + 12, 14, 6, '#ffffff');
+        R(X + 7, y + 17, 14, 1, '#d8d0c0'); R(X + 27, y + 17, 14, 1, '#d8d0c0');
+        R(X + 3, y + 19, 42, 9, '#3d6fb5');
+        R(X + 3, y + 19, 42, 2, '#ffffff');
+        for (let k = 0; k < 6; k++) R(X + 6 + k * 7, y + 23, 3, 3, '#6f9ad8');
+        // pés da cama
+        R(X + 3, y + 27, 42, 5, WOOD);
+        R(X + 6, y + 28, 36, 2, WOODL);
+        for (let k = 0; k < 6; k++) R(X + 8 + k * 6, y + 28, 2, 2, CARVE);
+        // cortinas apanhadas junto às colunas
+        for (const cx of [X + 4, X + 38]) {
+          R(cx, y - 7, 6, 15, RED);
+          R(cx + 1, y + 8, 4, 3, GOLD);
+          R(cx, y + 11, 6, 14, RED);
+          R(cx + 2, y - 7, 1, 32, REDL);
+        }
+        // quatro colunas torneadas
+        for (const cx of [X, X + 44]) {
+          R(cx, y - 12, 4, 44, WOOD);
+          R(cx + 1, y - 12, 1, 44, WOODL);
+          for (let k = 0; k < 4; k++) R(cx - 1, y - 4 + k * 9, 6, 2, CARVE);
+        }
+        // dossel: cornija esculpida e sanefa
+        R(X - 2, y - 16, 52, 5, WOOD);
+        R(X - 2, y - 16, 52, 1, WOODL);
+        for (let k = 0; k < 8; k++) R(X + 2 + k * 6, y - 14, 3, 2, GOLD);
+        for (let k = 0; k < 8; k++) { R(X + k * 6, y - 11, 6, 4, RED); R(X + 1 + k * 6, y - 7, 4, 2, RED); R(X + 2 + k * 6, y - 5, 2, 1, GOLD); }
+        break;
+      }
       case 'v':     // jarrão de louça azul e branca
         R(x + 5, y + 2, 6, 12, '#ffffff');
         R(x + 4, y + 5, 8, 6, '#ffffff');
@@ -667,7 +723,14 @@ export class TourScene {
 
   // Paredes vistas de dentro de casa.
   drawWallIn(R, m, ch, c, r, x, y, below, hs) {
-    const face = below !== undefined && !'WPd'.includes(below) && below !== 'D';
+    const face = below !== undefined && !'WPdju'.includes(below) && below !== 'D';
+    if (ch === 'D' && (m.grid[r][c - 1] === 'e' || m.grid[r][c + 1] === 'e')) {   // escadaria da varanda para o jardim
+      R(x, y, T, T, '#b0aca8');
+      for (let k = 0; k < 4; k++) { R(x, y + k * 4, T, 1, '#d8d4cc'); R(x, y + k * 4 + 3, T, 1, '#8e8a86'); }
+      R(x, y, 2, T, '#8e8a86');
+      R(x + 14, y, 2, T, '#8e8a86');
+      return;
+    }
     if (ch === 'D') {       // porta aberta para o jardim
       R(x, y, T, T, '#7fcf72');
       R(x, y, T, 5, '#bfe6ff');
@@ -691,6 +754,12 @@ export class TourScene {
       R(x + 5, y - 3, 1, 3, hair);
       R(x + 4, y + 1, 8, 5, coat);
       R(x + 7, y + 1, 2, 2, '#ffffff');
+    } else if (ch === 'w') { // janela
+      R(x + 2, y - 6, 12, 13, '#6a4a2a');
+      R(x + 3, y - 5, 10, 11, '#bfe6ff');
+      R(x + 7, y - 5, 2, 11, '#6a4a2a');
+      R(x + 3, y - 1, 10, 1, '#6a4a2a');
+      R(x + 4, y - 4, 2, 2, '#ffffff');
     } else if (ch === 'd') { // porta da rua, fechada
       R(x + 2, y - 5, 12, 21, '#3a2414');
       R(x + 3, y - 4, 10, 20, '#6a4424');
@@ -719,6 +788,11 @@ export class TourScene {
       R(x + 7, y - 3, 2, 19, '#3a2414');
       R(x + 4, y + 6, 2, 2, GOLD);
       R(x + 10, y + 6, 2, 2, GOLD);
+    } else if (ch === 'y') {  // a varanda, com a sua balaustrada de granito
+      R(x, y, T, 7, '#cfc6b4');
+      R(x, y + 5, T, 2, '#d8d4cc');
+      for (let k = 0; k < 3; k++) R(x + 1 + k * 5, y + 7, 3, 6, '#b8b4ae');
+      R(x, y + 13, T, 3, '#8e8a86');
     } else if (ch === 'b') {  // brasão de armas em granito
       R(x + 1, y - 2, 14, 15, '#8e8a86');
       R(x + 2, y - 1, 12, 11, '#c4c0bc');

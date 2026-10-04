@@ -204,10 +204,18 @@ velocidade cai até trocarem. O percurso define-se troço a troço em `route`, n
 
 ### Nível 5 — "O Solar da Família"
 
-A Luísa mostra ao Sérgio o Solar dos Soares de Albergaria, em Oliveira do Conde. É uma
-visita guiada vista de cima, em dois mapas ligados por uma porta: o interior da casa
-(cozinha velha, capela, salão dos retratos, biblioteca) e o jardim histórico de buxo, com
-sebes em anéis à volta da fonte. O jogador conduz a Luísa (setas, ou tocar no sítio para
+A Luísa mostra ao Sérgio o Solar dos Soares de Albergaria, em Oliveira do Conde, onde mora a
+Avó Jose (a avó da Luísa). É uma visita guiada vista de cima, em dois mapas:
+
+- **A casa**, em duas alas ligadas por uma **ponte coberta** envidraçada: na ala norte, a
+  entrada, a cozinha velha e a capela; na ala sul, o salão dos retratos, o quarto da **cama de
+  dossel** (antiga, de madeira esculpida, com cortinas) e a **grande varanda** sobre o jardim,
+  o lugar preferido da Avó Jose, que lá está à espera para conhecer o Sérgio. Da varanda
+  desce-se por uma escadaria para o jardim.
+- **O jardim histórico de buxo**, com sebes em anéis à volta da fonte, e a fachada com a
+  varanda ao fundo.
+
+O jogador conduz a Luísa (setas, ou tocar no sítio para
 onde quer ir) e o Sérgio segue-a; em cada ponto a brilhar ela conta-lhe qualquer coisa.
 No jardim o Sérgio perde-se nos buxos e é preciso ir buscá-lo, e há regadores que só
 deixam passar quando param. A visita acaba na fonte, depois de mostrados todos os pontos.

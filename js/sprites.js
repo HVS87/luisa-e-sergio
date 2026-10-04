@@ -152,6 +152,8 @@ LOOKS.waiter = {
 // O aspeto é fácil de ajustar aqui (cabelo: h/H/v · roupa: t/T · calças: p).
 LOOKS.beatriz = { def: LUISA, base: { h: '#3b2a20', H: '#5a4030', v: '#3b2a20', e: '#2b1d2e' }, outfits: { casual: { t: '#ffd166', T: '#f0a93e', b: '#3d8fe0' } } };
 LOOKS.pai = { def: SERGIO, base: { h: '#8a8794', d: '#d9b08c' }, outfits: { casual: { t: '#5a7fb5', k: '#5a7fb5', p: '#4a4458', b: '#2b1d2e' } } };
+// A Avó Jose, avó da Luísa, que mora no solar (nível 5): cabelo branco e xaile.
+LOOKS.avojose = { def: LUISA, base: { h: '#eceaf2', H: '#ffffff', v: '#eceaf2', e: '#55703f' }, outfits: { casual: { t: '#6a5a8a', T: '#b8a8d8', b: '#2b1d2e' } } };
 // As tias do Sérgio, em Pretarouca (nível 6): uma de cabelo grisalho, outra de lenço na cabeça.
 LOOKS.tia1 = { def: LUISA, base: { h: '#b8b4c0', H: '#d8d4e0', v: '#b8b4c0', e: '#2b1d2e' }, outfits: { casual: { t: '#4a5a8a', T: '#ffffff', b: '#2b1d2e' } } };
 LOOKS.tia2 = { def: LUISA, base: { h: '#5a4030', H: '#5a4030', v: '#5a4030', e: '#2b1d2e' }, outfits: { casual: { t: '#7a3a4a', T: '#ffffff', b: '#2b1d2e', q: '#3a3550', Q: '#55507a', cap: true } } };

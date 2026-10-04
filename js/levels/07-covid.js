@@ -26,7 +26,7 @@ export default {
   // Momentos entre vagas
   moments: {
     palmas: '22h00. O país inteiro vem à janela bater palmas a quem está na linha da frente. Toca para bater palmas também!',
-    video: 'Confinamento: as saudades matam-se por videochamada. O pai e a Beatriz na Madeira, as tias em Pretarouca, o solar em Oliveira do Conde. (Toca para continuar.)',
+    video: 'Confinamento: as saudades matam-se por videochamada. O pai e a Beatriz na Madeira, as tias em Pretarouca, a Avó Jose no solar, em Oliveira do Conde. (Toca para continuar.)',
     vacina: 'Desde 27 de dezembro de 2020, as vacinas chegam primeiro a quem está na linha da frente. A esperança tem agora a forma de uma seringa! (Toca para continuar.)',
     fim: 'O pior já passou. Máscaras fora, um abraço apertado... e a certeza de que juntos aguentam tudo.',
   },
