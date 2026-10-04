@@ -71,9 +71,9 @@ export default {
     beatriz: { any: 'Beatriz: «Eu, o André e o pai tratamos das cadeiras. Mano, despachem a tenda e as mesas!»' },
     andre: {
       meninos: 'André: «A Carminho? Passou por aqui a correr, com a almofada debaixo do braço!»',
-      any: 'André: «Mano, as cadeiras são connosco. Amanhã só tens de aparecer... e dizer que sim!»',
+      any: 'André: «Mano, o resto é connosco. Amanhã só tens de aparecer... e dizer que sim!»',
     },
-    pai: { any: 'Pai do Sérgio: «As cadeiras são connosco. Amanhã é o grande dia!»' },
+    pai: { any: 'Pai do Sérgio: «Mais uma fila de cadeiras e está feito. Amanhã é o grande dia!»' },
   },
 
   // Os sobrinhos (posições em blocos): o percurso da Carminho à volta da tenda, onde o Henrique

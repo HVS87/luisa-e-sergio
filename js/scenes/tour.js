@@ -341,8 +341,17 @@ export class TourScene {
     const x0 = Math.max(0, Math.floor(camX / T)), x1 = Math.min(m.cols - 1, Math.floor((camX + v.w) / T));
     const y0 = Math.max(0, Math.floor(camY / T) - 1), y1 = Math.min(m.rows - 1, Math.floor((camY + v.h) / T) + 2);
 
-    // 1) Chão
-    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) this.drawFloor(R, m, x, y);
+    // 1) Chão: não muda durante o jogo, por isso desenha-se uma vez por mapa e depois só se copia
+    if (!m.floorImg) {
+      const c = document.createElement('canvas');
+      c.width = m.cols * T;
+      c.height = m.rows * T;
+      const fc = c.getContext('2d');
+      const FR = (x, y, w, h, col) => { fc.fillStyle = col; fc.fillRect(x, y, w, h); };
+      for (let y = 0; y < m.rows; y++) for (let x = 0; x < m.cols; x++) this.drawFloor(FR, m, x, y);
+      m.floorImg = c;
+    }
+    ctx.drawImage(m.floorImg, -camX, -camY);
 
     // 2) Objetos altos e personagens, linha a linha (os de baixo tapam os de cima)
     const ents = [{ y: this.p.y + 0.1, draw: () => this.drawPerson(ctx, this.lead, this.p, camX, camY, false) }];

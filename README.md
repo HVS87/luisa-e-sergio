@@ -32,13 +32,14 @@ guardado nesse browser.** Verifica, entre outras coisas:
 - que todos os corações e pontos de interesse das visitas são alcançáveis;
 - o jogo completo, com robôs que jogam cada nível: introdução, pausa, fim do nível, gravação,
   desbloqueio, casamento, nível bónus e final da família;
+- as regras da pandemia (à terceira falha a vaga segue em frente, com aviso; os corações caem
+  de onde está o vírus; os grandes desfazem-se em dois pequenos);
 - recomeçar e repetir, opções (personagem, música, sons, tecla M), gravações antigas ou
   estragadas, navegação por teclado, a API de som e o desenho de todas as cenas em nove
   tamanhos de ecrã (de um telemóvel muito estreito a um ecrã largo);
 - a disposição do ecrã: botões táteis sempre fora da área de jogo (em centenas de tamanhos
   de ecrã), computador sempre em horizontal, toques medidos em relação à área de jogo e todos
-  os botões dos menus à vista no ecrã em que a suite corre.
-
+  os botões dos menus à vista no ecrã em que a suite corre;
 - interações reais (toques, cliques e teclas como os do browser) e o modo offline;
 - um teste aleatório («monkey»): em cada cena, 45 s de toques e teclas ao acaso, pausas,
   recomeços e mudanças de tamanho do ecrã, à procura de exceções e estados incoerentes.
@@ -111,7 +112,7 @@ js/ui.js              lógica dos menus e painéis
 js/scenes/            uma cena por tipo de nível (play, operation, date, bike, tour, oven, covid, birds,
                       aurora, proposal, house, prep, birth), o menu e a vitória (casamento e família)
 js/memories.js        ícones das recordações (presentes do pedido e fotografias da casa nova)
-js/levels/            um ficheiro por nível + troços reutilizáveis (chunks.js)
+js/levels/            um ficheiro por nível + troços de plataformas (chunks.js)
 sw.js                 service worker (jogar sem rede)
 tests/qa.js           suite de testes automáticos (abrir o jogo com ?qa)
 tools/                servidor local e gerador de ícones

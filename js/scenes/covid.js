@@ -79,6 +79,7 @@ export class CovidScene {
     this.fails = 0;
     this.timer = 0;
     this.hintT = 0;
+    this.pending = '';
     this.fx = new Particles();
     this.clear();
   }
@@ -140,7 +141,7 @@ export class CovidScene {
       this.inter = ph.inter;
       this.energy = 1;
       this.pressure = 0;
-      this.hint(this.level.moments[ph.inter], 60);
+      this.hint(this.note(this.level.moments[ph.inter]), 60);
       this.game.audio.play(ph.last ? 'fanfare' : 'check');
     } else {
       this.state = 'wave';
@@ -151,9 +152,15 @@ export class CovidScene {
       // quais dos vírus desta vaga trazem um coração
       const n = this.wave.n, h = this.wave.hearts;
       this.goldAt = new Set(Array.from({ length: h }, (_, k) => Math.round(((k + 0.5) * n) / h)));
-      this.heartsLeft = h;
-      this.hint(`${this.wave.name} — ${this.wave.when}. ${this.wave.tip}`, 6);
+      this.hint(this.note(`${this.wave.name} — ${this.wave.when}. ${this.wave.tip}`), 6);
     }
+  }
+
+  // Junta ao texto da fase o aviso que ficou pendente da anterior (se houver).
+  note(text) {
+    const pre = this.pending;
+    this.pending = '';
+    return pre ? `${pre} ${text}` : text;
   }
 
   nextPhase() {
@@ -294,7 +301,6 @@ export class CovidScene {
         this.pressure += tp.press;
         this.game.audio.play('buzz');
         this.fx.burst(X(this.uOf(vi)), L.yBed - 4, 10, [RED, '#ffffff'], 50);
-        if (vi.gold) this.heartsLeft--;
       }
     }
 
@@ -328,7 +334,7 @@ export class CovidScene {
       this.fails++;
       this.ease = 1 + this.fails * EASE_STEP;
       this.game.audio.play('hurt');
-      if (this.fails >= MAX_FAILS) { this.hint('Foi no limite, mas aguentaram. Em frente!', 3); this.nextPhase(); return; }
+      if (this.fails >= MAX_FAILS) { this.pending = 'Foi no limite, mas aguentaram. Em frente!'; this.nextPhase(); return; }
       this.state = 'fail';
       this.timer = 0;
       this.hint('O hospital ficou no limite... Respira fundo. Ninguém desiste!', 3);
@@ -353,7 +359,7 @@ export class CovidScene {
     for (let k = 0; k < (tp.split || 0); k++) {
       this.viruses.push({ id: 1000 + this.extra++, u: clamp(vi.u + (k ? 0.07 : -0.07), 0.06, 0.94), f: Math.max(0, vi.f - 0.03), type: 'mini', hp: 1, ph: Math.random() * 6, gold: false, flash: 0 });
     }
-    if (vi.gold) this.drops.push({ u: vi.u, f: vi.f, kind: 'heart', id: vi.id });
+    if (vi.gold) this.drops.push({ u: this.uOf(vi), f: vi.f, kind: 'heart', id: vi.id });
   }
 
   // ---------- Desenho ----------

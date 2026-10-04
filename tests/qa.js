@@ -545,6 +545,30 @@ async function testRestart() {
   }
 }
 
+async function testCovidRules() {
+  log('— Pandemia: vagas e corações —');
+  const i = LEVELS.findIndex((L) => L.id === 'covid');
+  game.startLevel(i);
+  game.ui.act('start');
+  const s = game.scene, p0 = s.pi;
+  // sem ninguém a jogar o hospital chega ao limite; à terceira vez segue-se em frente, com aviso
+  await runUntil(() => s.pi !== p0, 400, () => {});
+  check('pandemia: sem jogar, à terceira falha a vaga segue em frente', s.pi === p0 + 1 && s.state === 'inter', `fase ${p0}→${s.pi}`);
+  check('pandemia: o aviso «Foi no limite» aparece na fase seguinte', $('#hint').textContent.startsWith('Foi no limite'), $('#hint').textContent.slice(0, 60));
+  // um vírus dourado da Delta deixa cair o coração de onde está de facto (com o ziguezague)
+  s.t = 0.4;
+  const vi = { id: 999, u: 0.5, f: 0.4, type: 'zig', hp: 0, ph: 1.3, gold: true, flash: 0 };
+  s.drops = [];
+  s.pop(vi, 0, 0);
+  check('pandemia: o coração cai de onde o vírus está', s.drops.length === 1 && Math.abs(s.drops[0].u - s.uOf(vi)) < 1e-9 && Math.abs(s.drops[0].u - 0.5) > 0.01, s.drops.map((d) => d.u.toFixed(3)).join());
+  // os grandes que se desfazem largam dois pequenos, que não contam para o total da vaga
+  const before = s.viruses.length, spawned = s.spawned;
+  s.pop({ id: 998, u: 0.5, f: 0.3, type: 'split', hp: 0, ph: 0, gold: false, flash: 0 }, 0, 0);
+  check('pandemia: o vírus verde-água desfaz-se em dois pequenos', s.viruses.length === before + 2 && s.viruses.slice(-2).every((v) => v.type === 'mini' && v.id >= 1000) && s.spawned === spawned);
+  check('pandemia: corações do nível = soma das vagas', s.total === LEVELS[i].waves.reduce((a, w) => a + w.hearts, 0) && s.total === 20, s.total);
+  game.goMenu();
+}
+
 function testSettings() {
   log('— Opções e gravação —');
   game.goMenu();
@@ -1049,7 +1073,7 @@ export async function run(g) {
   if (new URLSearchParams(location.search).has('touch')) I.setTouch(true);
   log('QA — Luísa & Sérgio (' + new Date().toLocaleString('pt-PT') + ')');
   const t0 = performance.now();
-  const steps = [testData, testReachable, testLayout, testInteractions, testOffline, testMenus, testSettings, testAudio, testFullGame, testRestart, testViewports, testMonkey];
+  const steps = [testData, testReachable, testLayout, testInteractions, testOffline, testMenus, testSettings, testAudio, testFullGame, testRestart, testCovidRules, testViewports, testMonkey];
   // ?qa&only=monkey corre só os testes cujo nome contém essa palavra (ex.: monkey, layout)
   const only = new URLSearchParams(location.search).get('only');
   for (const fn of steps.filter((x) => !only || x.name.toLowerCase().includes(only.toLowerCase()))) {

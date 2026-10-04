@@ -9,7 +9,7 @@ export default {
   music: 'calm',
   title: 'Na Linha da Frente',
   story: 'Março de 2020. Uma pandemia fecha o mundo em casa, mas não quem trabalha num hospital. Para a Luísa e o Sérgio começam os turnos sem fim, de máscara e viseira, lado a lado.',
-  help: 'Arrasta o dedo (ou usa as setas) para mover os dois pela enfermaria. O desinfetante dispara sozinho: não deixes os vírus chegar às camas! Apanha os cafés para aguentar o cansaço e os corações que caem.',
+  help: 'Arrasta o dedo (ou usa as setas) para mover os dois pela enfermaria. O desinfetante dispara sozinho: não deixes os vírus chegar às camas, senão a pressão sobre o hospital sobe! Apanha os cafés para aguentar o cansaço, a caixa de proteção e os corações que caem.',
   outro: 'Foram tempos duros, vividos lado a lado. E ficou tudo bem.',
 
   // Vagas, por ordem:
@@ -26,7 +26,7 @@ export default {
     { name: '3.ª vaga', when: 'janeiro de 2021', tip: 'A mais dura de todas. As variantes roxas aguentam três golpes.', n: 84, every: 0.36, speed: 2.4, burst: 3, mix: { n: 3, fast: 2, big: 1 }, hearts: 4, before: 'video' },
     { name: 'A vacinação', when: 'primavera de 2021', tip: 'Agora sim: cada vacina atravessa tudo o que apanha!', n: 100, every: 0.22, speed: 2.6, burst: 3, mix: { n: 2, fast: 1, big: 1 }, hearts: 3, before: 'vacina', vaccine: true },
     { name: 'Variante Delta', when: 'verão de 2021', tip: 'A Delta não desce a direito: anda aos ziguezagues!', n: 100, every: 0.24, speed: 2.6, burst: 3, mix: { zig: 3, fast: 1, big: 1 }, hearts: 3, vaccine: true },
-    { name: 'Variante Ómicron', when: 'inverno de 2021', tip: 'Pequenos, rápidos e muitos... e os grandes desfazem-se em dois!', n: 130, every: 0.18, speed: 2.4, burst: 4, mix: { mini: 4, split: 1, zig: 1 }, hearts: 4, vaccine: true },
+    { name: 'Variante Ómicron', when: 'dezembro de 2021', tip: 'Pequenos, rápidos e muitos... e os grandes desfazem-se em dois!', n: 130, every: 0.18, speed: 2.4, burst: 4, mix: { mini: 4, split: 1, zig: 1 }, hearts: 4, vaccine: true },
   ],
 
   // Momentos entre vagas

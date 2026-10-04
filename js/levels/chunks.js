@@ -1,4 +1,4 @@
-// Troços reutilizáveis para construir níveis.
+// Troços reutilizáveis para construir os níveis de plataformas (a Noruega usa-os; a Madeira usa `lift`).
 // Um nível é uma sequência de troços colados da esquerda para a direita.
 // Cada troço é desenhado de cima para baixo e alinha pela base (as duas últimas
 // linhas costumam ser chão). Linhas em falta por cima contam como vazias.
@@ -23,43 +23,12 @@ export const START = [
   '##########',
 ];
 
-export const FLAT = [
-  '........',
-  '########',
-  '########',
-];
-
 export const HEARTS = [
   '....h.......',
   '............',
   '..h...h..h..',
   '############',
   '############',
-];
-
-export const GAP = [
-  '.....h......',
-  '............',
-  '............',
-  '####...#####',
-  '####...#####',
-];
-
-export const BRIDGE = [
-  '......h.....',
-  '............',
-  '.....---....',
-  '###......###',
-  '###......###',
-];
-
-export const STEPS = [
-  '......hh......',
-  '......##......',
-  '....######....',
-  '..##########..',
-  '##############',
-  '##############',
 ];
 
 export const PLATFORMS = [
@@ -71,33 +40,4 @@ export const PLATFORMS = [
   '................',
   '################',
   '################',
-];
-
-export const SPIKES = [
-  '.....h......',
-  '............',
-  '.....^^.....',
-  '############',
-  '############',
-];
-
-export const WALKER = [
-  '..............',
-  '.......w......',
-  '##############',
-  '##############',
-];
-
-export const CHECKPOINT = [
-  '......',
-  '..C...',
-  '######',
-  '######',
-];
-
-export const END = [
-  '............',
-  '.......G....',
-  '############',
-  '############',
 ];
