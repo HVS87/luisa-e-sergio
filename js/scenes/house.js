@@ -37,7 +37,7 @@ const DAY = { wall: '#bfe0f5', wallD: '#9fc8e4', glass: '#6fa8d4', shine: '#ffff
 const NIGHT = { wall: '#7f9cc8', wallD: '#6884b0', glass: '#ffd98a', shine: '#fff3c4', frame: '#d0d8ec', slab: '#6f6c88', slabL: '#8a87a2', slabD: '#5a5772', door: '#5a3f2e', roof: '#8a4438', roofD: '#6e352e', roofE: '#522824', rail: INK };
 
 // Peça n da vivenda (ver PIECES), com o fundo em `bottom`, centrada em cx; W é a largura da casa.
-export function drawVillaPiece(R, n, cx, bottom, W, night = false) {
+function drawVillaPiece(R, n, cx, bottom, W, night = false) {
   const C = night ? NIGHT : DAY;
   const p = PIECES[n], w = Math.round(W * p.w), x = Math.round(cx - w / 2), y = bottom - p.h;
   if (n === 0 || n === 2) {

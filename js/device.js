@@ -3,8 +3,8 @@
 
 const ua = navigator.userAgent || '';
 // O iPad com iPadOS identifica-se como um Mac, mas tem ecrã tátil.
-export const isIOS = /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
-export const isAndroid = /Android/.test(ua);
+const isIOS = /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+const isAndroid = /Android/.test(ua);
 const isSafari = /Safari/.test(ua) && !/Chrome|CriOS|FxiOS|EdgiOS|Android/.test(ua);
 
 // Já está a correr como app instalada (ecrã principal)?

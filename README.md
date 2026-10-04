@@ -29,7 +29,8 @@ guardado nesse browser.** Verifica, entre outras coisas:
 - os dados dos níveis (ids, etiquetas, textos sem marcadores por substituir, sem formas do
   português do Brasil, nenhum tema proibido) e os cruzamentos entre níveis (uma
   recordação do pedido por cada nível anterior, as aves, as rondas da maternidade);
-- que todos os corações e pontos de interesse das visitas são alcançáveis;
+- que todos os corações e pontos de interesse das visitas são alcançáveis e que, nos níveis de
+  plataformas, cada coração e iguaria se apanha com um salto (com a física do próprio jogo);
 - o jogo completo, com robôs que jogam cada nível: introdução, pausa, fim do nível, gravação,
   desbloqueio, casamento, nível bónus e final da família;
 - as regras da pandemia (à terceira falha a vaga segue em frente, com aviso; os corações caem

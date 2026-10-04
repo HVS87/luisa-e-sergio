@@ -64,7 +64,7 @@ export function disc(ctx, cx, cy, r, color) {
 }
 
 // Altura do contorno de um monte na posição wx (a mesma fórmula usada por hills).
-export function hillY(wx, gy, height, amp, seed) {
+function hillY(wx, gy, height, amp, seed) {
   return Math.floor(gy - height - amp * (Math.sin(wx * 0.021 + seed) * 0.6 + Math.sin(wx * 0.047 + seed * 1.7) * 0.4));
 }
 

@@ -344,7 +344,7 @@ function testData() {
 // Visitas vistas de cima: todos os corações e pontos de interesse têm de ser alcançáveis a pé
 // (a partir do início do mapa ou da porta), sem contar com vacas nem regadores.
 function testReachable() {
-  log('— Corações e pontos alcançáveis (visitas) —');
+  log('— Corações e pontos alcançáveis (visitas e plataformas) —');
   LEVELS.forEach((L, i) => {
     if (L.type !== 'tour') return;
     game.startLevel(i);
@@ -369,6 +369,45 @@ function testReachable() {
     }
     check(`${L.id}: todos os corações e pontos alcançáveis`, !lost.length, lost.join(', '));
   });
+  // Plataformas: cada coração e iguaria tem de se apanhar com um salto (com a física do jogo) a
+  // partir de um sítio onde se possa estar de pé ali perto.
+  LEVELS.forEach((L, i) => {
+    if ((L.type || 'platform') !== 'platform') return;
+    game.startLevel(i);
+    game.ui.act('start');
+    const s = game.scene, T = 16, lost = [];
+    const stand = (tx, ty) => '#-'.includes(s.tile(tx, ty + 1)) && s.tile(tx, ty) !== '#' && s.tile(tx, ty - 1) !== '#';
+    const plans = [[0, 1], [1, 1], [-1, 1], [1, 0], [-1, 0], [1, 2], [-1, 2]];
+    const tryFrom = (o, tx, ty, [dir, jump]) => {
+      const pl = s.player;
+      Object.assign(pl, { x: tx * T + (T - pl.w) / 2, y: (ty + 1) * T - pl.h, vx: 0, vy: 0, onGround: true, coyote: 0, buffer: 0 });
+      if (pl.sled) s.setSled(false);
+      o.got = false;
+      s.state = 'play';
+      for (let f = 0; f < 80 && !o.got; f++) {
+        clearInput();
+        I.left = dir < 0;
+        I.right = dir > 0;
+        const at = jump === 2 ? 12 : 0;
+        if (jump && f >= at && f < at + 30) { I.jump = true; I.jumpPressed = f === at; }
+        pl.invuln = 99;
+        s.update(STEP);
+        I.endFrame();
+      }
+      return o.got;
+    };
+    for (const [k, o] of [...s.hearts.map((h) => ['coração', h]), ...s.items.map((h) => ['iguaria', h])]) {
+      const hx = Math.floor(o.x / T), hy = Math.floor(o.y / T);
+      let ok = false;
+      for (let dy = -2; dy <= 6 && !ok; dy++) for (let dx = -6; dx <= 6 && !ok; dx++) {
+        if (stand(hx + dx, hy + dy)) ok = plans.some((pl) => tryFrom(o, hx + dx, hy + dy, pl));
+      }
+      o.got = false;
+      if (!ok) lost.push(`${k} em ${hx},${hy}`);
+    }
+    check(`${L.id}: todos os corações e iguarias ao alcance de um salto`, !lost.length, lost.join(', '));
+  });
+  clearInput();
   game.goMenu();
 }
 

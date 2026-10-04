@@ -13,9 +13,9 @@
 // Tudo em píxeis CSS. Função pura, para poder ser testada com qualquer tamanho de ecrã.
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
-export const MARGIN = 10;          // folga à volta dos botões
+const MARGIN = 10;          // folga à volta dos botões
 export const SIDE_MIN_ASPECT = 1.2; // proporção mínima do jogo para usar as faixas laterais
-export const PC_MIN_ASPECT = 4 / 3, PC_MAX_ASPECT = 2.4;
+const PC_MIN_ASPECT = 4 / 3, PC_MAX_ASPECT = 2.4;
 
 // W, H: janela · mobile: telemóvel ou tablet · controls: mostrar os botões ◀ ▶ ▲
 // safe: margens seguras do ecrã (entalhe, cantos redondos, barra do sistema) { t, r, b, l }
