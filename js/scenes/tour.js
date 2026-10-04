@@ -16,7 +16,7 @@ const INK = '#2b1d2e', GOLD = '#ffd166';
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 // Blocos que não se atravessam. (O regador 's' só bloqueia enquanto está a regar.)
-const SOLID = new Set('BTFxtWwRbPCAkmonvdMGgOEKcYZjueqy'.split(''));
+const SOLID = new Set('BTFxtWwRbPCAkmonvdMGgOEKcYZjueq='.split(''));
 // Cenas que podem continuar o nível depois da visita (`then` no ficheiro do nível).
 const NEXT = { oven: OvenScene };
 
@@ -68,13 +68,14 @@ export class TourScene {
           const cx = x * T + 8, cy = y * T + 12;
           const path = [[-1, 0], [1, 0], [0, 1], [0, -1]].some(([dx, dy]) => (grid[y + dy] || [])[x + dx] === ',');
           const floor = def.indoor ? this.floorNear(grid, x, y) : path ? ',' : '.';
-          if (ch === 'h') { m.hearts.push({ x: cx, y: cy - 4, got: false }); grid[y][x] = floor; }
+          const who = (this.level.npcs || {})[ch];
+          if (who) { m.npcs.push({ id: who, x: cx, y: cy, frames: getCharacter(who) }); grid[y][x] = 'Y'; }   // 'Y' = bloco ocupado por uma pessoa
+          else if (ch === 'h') { m.hearts.push({ x: cx, y: cy - 4, got: false }); grid[y][x] = floor; }
           else if (ch === 'L') { m.start = { x: cx, y: cy }; grid[y][x] = floor; }
           else if (ch === 'S') { m.lost = { x: cx, y: cy }; grid[y][x] = floor; }
           else if (ch === 's') m.sprinklers.push({ x, y, phase: hash(x * 3.1 + y * 7.7) * 4 });
           else if (ch === 'D') m.doors.push({ x, y });
           else if (ch === 'V') { m.cows.push({ x: cx, y: cy, x0: cx, dir: 1, wait: 0 }); grid[y][x] = floor; }
-          else if (ch === 'Y' || ch === 'Z') m.npcs.push({ x: cx, y: cy, frames: getCharacter((this.level.npcs || {})[ch] || 'luisa') });
           else if (ch >= '0' && ch <= '9') {
             const poi = { n: ch, map: id, x: cx, y: cy, done: false, def: this.level.pois[ch] || { text: '' } };
             m.pois.push(poi);
@@ -377,9 +378,9 @@ export class TourScene {
 
   drawPerson(ctx, frames, e, camX, camY, lost) {
     const img = charFrame(frames, e.facing, e.moving, false, e.dist);
-    const x = Math.round(e.x - camX) - 8, y = Math.round(e.y - camY) - 23;
+    const x = Math.round(e.x - camX) - 8, y = Math.round(e.y - camY) + 1 - img.height;
     ctx.fillStyle = 'rgba(0,0,0,0.22)';
-    ctx.fillRect(x + 3, y + 22, 10, 3);
+    ctx.fillRect(x + 3, y + img.height - 2, 10, 3);
     ctx.drawImage(img, x, y);
     if (lost) {
       const b = Math.round(Math.sin(this.t * 6) * 1.5);
@@ -404,6 +405,10 @@ export class TourScene {
   drawFloor(R, m, c, r) {
     const ch = m.grid[r][c], x = c * T, y = r * T, hs = hash(c * 7.3 + r * 13.1);
     let kind = FLOORS[ch];
+    if (!kind && !m.def.indoor && 'Ym'.includes(ch)) {   // pessoas e mesas, cá fora: o chão é o do bloco ao lado
+      const nb = [m.grid[r][c - 1], m.grid[r][c + 1], (m.grid[r + 1] || [])[c], (m.grid[r - 1] || [])[c]].find((k) => FLOORS[k]);
+      if (nb) kind = FLOORS[nb];
+    }
     if (!kind) kind = m.def.indoor ? FLOORS[this.floorNear(m.grid, c, r)] : ('ftcEK'.includes(ch) || (ch === 'x' && m.def.ground === 'cobble') ? 'grass' : 'gravel');
     if (kind === 'gravel' && m.def.ground === 'cobble') kind = 'cobble';
     if (kind === 'grass') {
@@ -587,7 +592,7 @@ export class TourScene {
         break;
       case 'W':
       case 'w':
-      case 'y':
+      case '=':
       case 'b':
       case 'D':
       case 'd':
@@ -664,6 +669,16 @@ export class TourScene {
         for (let k = 0; k < 2; k++) { R(x + 4, y + 1 + k * 8, 8, 6, '#3a2414'); R(x + 5, y + 2 + k * 8, 6, 4, '#bfe6ff'); R(x + 5, y + 2 + k * 8, 2, 1, '#ffffff'); }
         break;
       case 'e':     // balaustrada de granito da varanda
+        if (!m.def.indoor) {   // vista do jardim: balaústres em cima, muro de suporte em baixo
+          R(x, y, T, 8, '#a8a4a0');
+          R(x, y, T, 2, '#f0ece4');
+          for (let k = 0; k < 3; k++) R(x + 1 + k * 5, y + 2, 3, 6, '#d8d4cc');
+          R(x, y + 8, T, 8, '#a8a4a0');
+          R(x, y + 8, T, 1, '#8e8a86');
+          R(x + (c % 2 ? 4 : 11), y + 9, 1, 6, '#8e8a86');
+          R(x, y + 15, T, 1, '#7e7a76');
+          break;
+        }
         R(x, y, T, T, '#4a8f52');
         R(x, y + 2, T, 3, '#d8d4cc');
         R(x, y + 2, T, 1, '#f0ece4');
@@ -770,6 +785,13 @@ export class TourScene {
 
   // Fachada do solar vista do jardim: paredes brancas, cantarias de granito.
   drawWallOut(R, m, ch, c, r, x, y) {
+    if (ch === 'D' && (m.grid[r][c - 1] === 'e' || m.grid[r][c + 1] === 'e')) {   // escadaria da varanda
+      R(x, y, T, T, '#b0aca8');
+      for (let k = 0; k < 4; k++) { R(x, y + k * 4, T, 1, '#d8d4cc'); R(x, y + k * 4 + 3, T, 1, '#8e8a86'); }
+      R(x, y, 2, T, '#8e8a86');
+      R(x + 14, y, 2, T, '#8e8a86');
+      return;
+    }
     R(x, y, T, T, '#f2ece0');
     if (c === 0 || c === m.cols - 1) {      // cunhais de granito
       for (let k = 0; k < 4; k++) R(x + (c === 0 ? 0 : 8 + (k % 2) * 2), y + k * 4, 6 + (k % 2) * 2, 3, '#a8a4a0');
@@ -788,11 +810,12 @@ export class TourScene {
       R(x + 7, y - 3, 2, 19, '#3a2414');
       R(x + 4, y + 6, 2, 2, GOLD);
       R(x + 10, y + 6, 2, 2, GOLD);
-    } else if (ch === 'y') {  // a varanda, com a sua balaustrada de granito
-      R(x, y, T, 7, '#cfc6b4');
-      R(x, y + 5, T, 2, '#d8d4cc');
-      for (let k = 0; k < 3; k++) R(x + 1 + k * 5, y + 7, 3, 6, '#b8b4ae');
-      R(x, y + 13, T, 3, '#8e8a86');
+    } else if (ch === '=') {  // a abertura larga da casa para a varanda
+      R(x, y, T, T, '#3a2c2a');
+      R(x, y, T, 2, '#a8a4a0');
+      if (m.grid[r][c - 1] !== '=') R(x, y, 2, T, '#a8a4a0');
+      if (m.grid[r][c + 1] !== '=') R(x + 14, y, 2, T, '#a8a4a0');
+      if (m.grid[r][c - 1] === '=' && m.grid[r][c + 1] === '=' && m.grid[r][c - 2] === '=' && m.grid[r][c + 2] === '=' && m.grid[r][c - 3] === '=' && m.grid[r][c + 3] === '=') { R(x + 1, y + 6, 14, 10, '#a8324a'); R(x + 1, y + 6, 1, 10, GOLD); R(x + 14, y + 6, 1, 10, GOLD); }
     } else if (ch === 'b') {  // brasão de armas em granito
       R(x + 1, y - 2, 14, 15, '#8e8a86');
       R(x + 2, y - 1, 12, 11, '#c4c0bc');

@@ -1,6 +1,7 @@
 // Final do jogo.
-// variant 'wedding' → animação do casamento: a cerimónia na igreja, a festa no solar até de
-//                     madrugada e, por fim, a imagem sobe até ao céu, onde rebenta o fogo de
+// variant 'wedding' → animação do casamento: a cerimónia na igreja (com a família toda nos bancos
+//                     e a Carminho e o Henrique a levar as alianças), a festa na Casa da Beira até
+//                     de madrugada e, por fim, a imagem sobe até ao céu, onde rebenta o fogo de
 //                     artifício à volta dos parabéns pelos anos de casados.
 // variant 'family'  → fim do nível bónus: a família completa, à noite, em frente à casa que a
 //                     Luísa e o Sérgio construíram (a vivenda do nível "A Nossa Casa").
@@ -25,7 +26,13 @@ export class VictoryScene {
     const outfit = variant === 'family' ? 'casual' : 'wedding';
     this.luisa = getCharacter('luisa', outfit);
     this.sergio = getCharacter('sergio', outfit);
-    this.guests = ['pai', 'beatriz', 'tia1', 'tia2'].map((look) => getCharacter(look));
+    const cast = (list) => list.map((look) => getCharacter(look, look === 'alberto' ? 'casa' : 'casual'));   // o Tio Alberto vem sem capacete
+    // nos bancos da igreja: a família da Luísa (atrás, junto à parede) e a do Sérgio (à frente)
+    this.pews = [cast(['avojose', 'maeluisa', 'pailuisa', 'rosarinho', 'catarina', 'antonio', 'alberto']), cast(['pai', 'beatriz', 'tia1', 'tia2'])];
+    // na pista de dança
+    this.guests = cast(['pai', 'beatriz', 'rosarinho', 'maeluisa', 'pailuisa']);
+    this.carminho = getCharacter('carminho');
+    this.henrique = getCharacter('henrique');
     this.padre = getCharacter('padre');
     this.spr = getSprites();
     this.fire = new Fireworks();
@@ -85,14 +92,15 @@ export class VictoryScene {
     }
 
     const gy = Math.round(v.h * 0.8), cx = v.w / 2;
-    if (t < T_YES) this.caption(0, `${WEDDING_DAY}. O grande dia chegou!`, 'check');
+    if (t < 2.6) this.caption(0, `${WEDDING_DAY}. O grande dia chegou!`, 'check');
+    else if (t < T_YES) this.caption(4, 'À frente da noiva, a Carminho e o Henrique levam as alianças.');
     else if (t < T_CHURCH) {
       this.caption(1, '«Sim!» — Marido e mulher!', 'fanfare');
       // pétalas a cair e corações
       if (Math.random() < dt * 22) this.fx.add({ x: Math.random() * v.w, y: -4, vx: (Math.random() - 0.5) * 16, vy: 30 + Math.random() * 25, life: 4, color: [PINK, '#ffffff', '#ffd1e0'][Math.floor(Math.random() * 3)], size: 2 });
       if (Math.random() < dt * 5) this.fx.heart(cx + 20 + Math.random() * 40, gy - 54);
     } else if (t < T_PARTY) {
-      this.caption(2, 'E depois... festa no solar, até de madrugada!', 'win');
+      this.caption(2, 'E depois... festa na Casa da Beira, até de madrugada!', 'win');
       if (Math.random() < dt * 6) this.fx.add({ x: cx - 80 + Math.random() * 160, y: gy - 40, vx: (Math.random() - 0.5) * 20, vy: -22, life: 1.6, color: [GOLD, PINK, '#7be0b0', '#8fd0f5'][Math.floor(Math.random() * 4)], size: 2 });
       if (Math.random() < dt * 3) this.fx.heart(cx - 20 + Math.random() * 40, gy - 54);
     } else {
@@ -162,6 +170,22 @@ export class VictoryScene {
     R(0, gy + 1, ax + 14, 1, GOLD);
     R(0, gy + 9, ax + 14, 1, GOLD);
 
+    // a família, sentada nos bancos dos convidados, virada para o altar
+    const yes = t > T_YES;
+    const seats = Math.max(4, Math.floor((ax - 44) / 24));
+    this.pews.forEach((row, r) => {
+      const base = gy - 10 + r * 8, people = row.slice(0, seats), len = people.length * 24 + 8, x0 = 4 + r * 10;
+      people.forEach((g, i) => {
+        const up = yes ? Math.round(Math.abs(Math.sin(t * 6 + i + r * 2)) * 3) : 0;
+        ctx.drawImage(g.stand.r, x0 + 2 + i * 24, base - 40 - up, 32, 48);
+      });
+      // o banco tapa-os da cintura para baixo
+      R(x0, base - 14, len + 4, 16, '#5a3a20');
+      R(x0, base - 14, len + 4, 2, '#8a5f3a');
+      R(x0, base - 4, len + 4, 1, '#3a2414');
+      R(x0 + len, base - 20, 4, 22, '#6e4a2a');
+    });
+
     // o padre, o noivo à espera e a noiva a entrar pela nave
     ctx.drawImage(this.padre.stand.l, ax + 26, gy - 53, 32, 48);
     const meet = ax - 50;
@@ -173,6 +197,17 @@ export class VictoryScene {
     const frame = walk < 1 ? charFrame(this.luisa, 1, true, false, lx * 0.6 + 400) : this.luisa.stand.r;
     ctx.drawImage(frame, lx, gy - 53 - hop, 32, 48);
     if (t > T_YES) ctx.drawImage(this.spr.heart, ax - 30, gy - 76 + Math.round(Math.sin(t * 3) * 2), 18, 16);
+
+    // os meninos das alianças: a Carminho (aos saltinhos) e o Henrique, à frente da noiva
+    const kw = ease((t - 0.3) / (T_YES - 1.6));
+    const kx = Math.round(-30 + (meet - 34 + 30) * kw);
+    const kidHop = Math.round(Math.abs(Math.sin(t * 9)) * 3);
+    const hImg = kw < 1 ? charFrame(this.henrique, 1, true, false, kx * 0.5 + 300) : this.henrique.stand.r;
+    const cImg = kw < 1 ? charFrame(this.carminho, 1, true, false, kx * 0.5 + 300) : this.carminho.stand.r;
+    ctx.drawImage(hImg, kx - 20, gy + 6 - 32, 32, 32);
+    ctx.drawImage(cImg, kx + 2, gy + 6 - 32 - kidHop, 32, 32);
+    // a almofada com as duas alianças
+    R(kx + 6, gy - 12, 14, 6, INK); R(kx + 7, gy - 11, 12, 4, '#ffffff'); R(kx + 9, gy - 13, 3, 3, GOLD); R(kx + 14, gy - 13, 3, 3, GOLD);
 
     // os convidados, de costas, nos bancos da frente
     const by = gy + 16;
@@ -186,7 +221,7 @@ export class VictoryScene {
     R(0, by + 14, v.w, 2, '#7a5230');
   }
 
-  // ---------- 2. A festa no solar e 3. a subida ao céu ----------
+  // ---------- 2. A festa na Casa da Beira e 3. a subida ao céu ----------
   drawParty(ctx, v, t) {
     const R = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), w, h); };
     const cx = Math.round(v.w / 2);
@@ -256,13 +291,15 @@ export class VictoryScene {
     R(cx + 83, gy - 24, 8, 1, PINK);
     R(cx + 86, gy - 32, 2, 3, PINK);
 
-    // convidados a dançar e, ao centro, os noivos
-    const spots = [-88, -56, 44, 22];
+    // convidados a dançar (com os meninos à frente) e, ao centro, os noivos
+    const spots = [-104, -80, -56, 30, 52];
     this.guests.forEach((g, i) => {
       const hop = Math.round(Math.abs(Math.sin(t * 6 + i * 1.7)) * 4);
       const face = Math.floor(t * 1.5 + i) % 2 ? 'r' : 'l';
       ctx.drawImage(g.stand[face], cx + spots[i] - 16, gy - 48 - hop, 32, 48);
     });
+    ctx.drawImage(this.carminho.stand[Math.floor(t * 3) % 2 ? 'r' : 'l'], cx - 100, gy - 32 - Math.round(Math.abs(Math.sin(t * 9)) * 5), 32, 32);
+    ctx.drawImage(this.henrique.stand[Math.floor(t * 2) % 2 ? 'l' : 'r'], cx + 46, gy - 32 - Math.round(Math.abs(Math.sin(t * 7 + 1)) * 3), 32, 32);
     const spin = Math.floor(t * 1.2) % 2;
     const hop = Math.round(Math.abs(Math.sin(t * 5)) * 3);
     const sway = Math.round(Math.sin(t * 2.5) * 4);

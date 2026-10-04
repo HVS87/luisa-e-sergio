@@ -23,7 +23,7 @@ export default {
     { icon: 'vinho', text: 'O primeiro date... e o esparguete a dois.' },
     { icon: 'banana', text: 'A Madeira e a descida de carro de cesto.' },
     { icon: 'bicicleta', text: 'Tantos quilómetros de bicicleta, sempre a par.' },
-    { icon: 'buxo', text: 'O solar e o seu jardim de buxo.' },
+    { icon: 'buxo', text: 'A Casa da Beira e o seu jardim de buxo.' },
     { icon: 'bola', text: 'A bôla das tias, em Pretarouca.' },
     { icon: 'mascara', text: 'Os dias difíceis, vividos lado a lado.' },
     { icon: 'binoculos', text: 'Madrugadas de binóculos ao pescoço, à espera das aves.' },

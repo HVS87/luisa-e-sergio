@@ -17,15 +17,15 @@
 // No jardim:
 //   .  relva   ,  saibro   B  sebe de buxo   T  buxo talhado   f  japoneira   t  árvore
 //   F  fonte (x = borda da fonte)   s  regador   R  telhado   W  fachada   w  janela   b  brasão
-//   y  a varanda, vista do jardim
+//   =  abertura da casa para a varanda   :  chão da varanda   e  balaustrada (D = escadaria)
 export default {
   id: 'solar',
   type: 'tour',
   title: 'O Solar da Família',
-  story: 'É a vez de a Luísa mostrar as suas raízes: o Solar dos Soares de Albergaria, em Oliveira do Conde, há centenas de anos na família, com os seus jardins históricos de buxo. É lá que mora a Avó Jose, a avó da Luísa.',
+  story: 'É a vez de a Luísa mostrar as suas raízes: o Solar dos Soares de Albergaria, em Oliveira do Conde, há centenas de anos na família, com os seus jardins históricos de buxo. A família chama-lhe simplesmente a Casa da Beira, e é lá que mora a Avó Jose, a avó da Luísa.',
   help: 'Leva a Luísa a mostrar a casa e o jardim ao Sérgio: passa por todos os pontos a brilhar. No ecrã tátil, toca e mantém o dedo no sítio para onde queres ir; no teclado, usa as setas.',
-  outro: 'Visita concluída. O Sérgio ficou rendido ao solar, à Avó Jose... e à guia!',
-  firstHint: 'Luísa: «Bem-vindo ao Solar dos Soares de Albergaria! Anda, vou mostrar-te tudo... e apresentar-te à Avó Jose.»',
+  outro: 'Visita concluída. O Sérgio ficou rendido à Casa da Beira, à Avó Jose... e à guia!',
+  firstHint: 'Luísa: «Bem-vindo à Casa da Beira! É assim que chamamos ao Solar dos Soares de Albergaria. Anda, vou apresentar-te à Avó Jose.»',
   lostText: 'Então e o Sérgio? Perdeu-se no meio dos buxos! Vai buscá-lo.',
   foundText: 'Sérgio: «Isto é um labirinto!» — Encontrado. Agora não largues a mão da guia!',
 
@@ -43,7 +43,7 @@ export default {
     5: { text: 'Luísa: «O brasão dos Soares de Albergaria, em granito, por cima da porta.»' },
     6: { text: 'Luísa: «O jardim de buxo tem centenas de anos. Não te percas!»' },
     7: { text: 'Luísa: «As japoneiras dão flor em pleno inverno, quando tudo o resto dorme.»' },
-    9: { final: true, text: 'Luísa: «E a fonte, no coração do jardim. Bem-vindo à casa da minha família!»' },
+    9: { final: true, text: 'Luísa: «E a fonte, no coração do jardim. Bem-vindo à Casa da Beira!»' },
   },
 
   start: 'casa',
@@ -77,13 +77,16 @@ export default {
         'uuuuuuuuuuuuuuuuuuuuuuuuu',
       ],
     },
-    // Jardim de buxo: sebes em anéis, com a fonte ao centro. Ao fundo, a fachada com a varanda.
+    // Jardim de buxo: sebes em anéis, com a fonte ao centro. Ao fundo, a casa tal como é por
+    // dentro: a abertura larga para a varanda, a varanda com a Avó Jose, a balaustrada e a escadaria.
     jardim: {
       door: 'casa',
       rows: [
         'RRRRRRRRRRRRRRRRRRRRRRRRRRR',
         'WwWWwWWwWWWWWbWWWWWwWWwWWwW',
-        'WwWWwyyyyyyyyDyyyyyyyywWWwW',
+        'WWWWWwWWWW=======WWWWwWWWWW',
+        '::::::::::::::::::::Ym:::::',
+        'eeeeeeeeeeeeeDeeeeeeeeeeeee',
         '.t.........,,,,5.........t.',
         '...f.f.f...,,,,,...f.f.f...',
         'BBBBBBBBBBBB,,,BBBBBBBBBBBB',

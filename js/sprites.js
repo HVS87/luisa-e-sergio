@@ -104,6 +104,52 @@ const SERGIO = {
   },
 };
 
+// Crianças (mais pequenas do que os adultos). k = laços do cabelo (menina) / gola (menino).
+const MENINA = {
+  upper: [
+    '................',
+    '....oooooo......',
+    '...ohhhhhho.....',
+    '.kohhhhhhhhok...',
+    '.kohhssssshok...',
+    '..ohsssesseo....',
+    '..ohssssscso....',
+    '...ossssmmo.....',
+    '....oooooo......',
+    '...otttttto.....',
+    '..osttttttso....',
+    '...otttttto.....',
+    '..oTTTTTTTTo....',
+  ],
+  legs: {
+    stand: ['....oso.oso.....', '....obo.obo.....', '....ooo.ooo.....'],
+    a: ['...oso...oso....', '...obo...obbo...', '...ooo...oooo...'],
+    b: ['.....ososo......', '.....obbbo......', '.....ooooo......'],
+  },
+};
+const MENINO = {
+  upper: [
+    '................',
+    '................',
+    '....oooooo......',
+    '...ohhhhhho.....',
+    '..ohhhhhhhho....',
+    '..ohhsssssso....',
+    '..ohssesseso....',
+    '..ohsssssscso...',
+    '...ossssmmo.....',
+    '....oooooo......',
+    '...ottkktto.....',
+    '..osttttttso....',
+    '...otttttto.....',
+  ],
+  legs: {
+    stand: ['....opo.opo.....', '....obo.obo.....', '....ooo.ooo.....'],
+    a: ['...opo...opo....', '...obo...obbo...', '...ooo...oooo...'],
+    b: ['.....opopo......', '.....obbbo......', '.....ooooo......'],
+  },
+};
+
 const BASE = { o: '#2b1d2e', s: '#f6c9a0', c: '#f09a8c', e: '#2b1d2e', m: '#c2544c' };
 
 // Aspeto de cada personagem: cores base e roupa por ocasião.
@@ -154,6 +200,15 @@ LOOKS.beatriz = { def: LUISA, base: { h: '#3b2a20', H: '#5a4030', v: '#3b2a20', 
 LOOKS.pai = { def: SERGIO, base: { h: '#8a8794', d: '#d9b08c' }, outfits: { casual: { t: '#5a7fb5', k: '#5a7fb5', p: '#4a4458', b: '#2b1d2e' } } };
 // A Avó Jose, avó da Luísa, que mora no solar (nível 5): cabelo branco e xaile.
 LOOKS.avojose = { def: LUISA, base: { h: '#eceaf2', H: '#ffffff', v: '#eceaf2', e: '#55703f' }, outfits: { casual: { t: '#6a5a8a', T: '#b8a8d8', b: '#2b1d2e' } } };
+// A família da Luísa, na Casa da Beira (preparativos e casamento): os pais, as irmãs Rosarinho
+// e Catarina, o irmão António e os sobrinhos Carminho e Henrique (os meninos das alianças).
+LOOKS.maeluisa = { def: LUISA, base: { h: '#9a7a52', H: '#c9a878', v: '#9a7a52', e: '#55703f' }, outfits: { casual: { t: '#2f7f8a', T: '#256670', b: '#2b1d2e' } } };
+LOOKS.pailuisa = { def: SERGIO, base: { h: '#a8a4ac', d: '#f6c9a0' }, outfits: { casual: { t: '#f2f2f7', k: '#f2f2f7', p: '#b09a6e', b: '#5a3a22' } } };
+LOOKS.rosarinho = { def: LUISA, base: { h: '#7a4f2e', H: '#a87446', v: '#7a4f2e', e: '#2b1d2e' }, outfits: { casual: { t: '#4f9a5a', T: '#3f7f48', b: '#2b1d2e' } } };
+LOOKS.catarina = { def: LUISA, base: { h: '#c9985a', H: '#e8c088', v: '#c9985a', e: '#55703f' }, outfits: { casual: { t: '#ff8a6a', T: '#e06a4a', b: '#7a2e2a' } } };
+LOOKS.antonio = { def: SERGIO, base: { h: '#8a5f3a', d: '#f6c9a0' }, outfits: { casual: { t: '#5a8fd0', k: '#5a8fd0', p: '#3b4a7a', b: '#2b1d2e' } } };
+LOOKS.carminho = { def: MENINA, base: { h: '#b07a45', e: '#2b1d2e', k: '#ff5d8f' }, outfits: { casual: { t: '#ffb3d1', T: '#ff8ab8', b: '#ffffff' } } };
+LOOKS.henrique = { def: MENINO, base: { h: '#8a5f3a', e: '#2b1d2e' }, outfits: { casual: { t: '#ffffff', k: '#5a8fd0', p: '#5a8fd0', b: '#2b1d2e' } } };
 // As tias do Sérgio, em Pretarouca (nível 6): uma de cabelo grisalho, outra de lenço na cabeça.
 LOOKS.tia1 = { def: LUISA, base: { h: '#b8b4c0', H: '#d8d4e0', v: '#b8b4c0', e: '#2b1d2e' }, outfits: { casual: { t: '#4a5a8a', T: '#ffffff', b: '#2b1d2e' } } };
 LOOKS.tia2 = { def: LUISA, base: { h: '#5a4030', H: '#5a4030', v: '#5a4030', e: '#2b1d2e' }, outfits: { casual: { t: '#7a3a4a', T: '#ffffff', b: '#2b1d2e', q: '#3a3550', Q: '#55507a', cap: true } } };

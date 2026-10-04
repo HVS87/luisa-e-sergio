@@ -272,7 +272,12 @@ function tourGoals(s) {
 
 function prepGoals(s) {
   const reach = (o) => (o === s.van ? 30 : o === s.stall ? 20 : s.poles.includes(o) ? 14 : s.hooks.includes(o) ? 16 : 22);
-  return s.targets().filter(Boolean).map((o) => ({ x: o.x, y: o.y, r: reach(o), stay: true }));
+  return s.targets().filter(Boolean).map((o) => {
+    if (o === s.carminho) return { x: o.x, y: o.y, r: 6, stay: false };      // os sobrinhos: é preciso chegar mesmo ao pé
+    if (o === s.hide) return { x: o.x, y: o.y, r: 16, stay: false };
+    if (o === s.avo) return { x: o.x, y: o.y, r: 22, stay: false };
+    return { x: o.x, y: o.y, r: reach(o), stay: true };
+  });
 }
 
 // ---------- Testes ----------
@@ -305,7 +310,8 @@ function testData() {
   }
   game.save.data.character = keep;
   const html = document.body.innerText + ' ' + all.map(([, t]) => t).join(' ');
-  check('nenhum tema proibido', !/\bm[ãa]e\b|\bmam[ãa]\b/i.test(html));
+  // a única mãe que aparece no jogo é a da Luísa, e sempre como «Mãe da Luísa»
+  check('nenhum tema proibido', !/(^|[^\wÀ-ú])(m[ãa]e(?![\wÀ-ú])(?! da Luísa)|mam[ãa](?![\wÀ-ú])|sogra)/i.test(html), (html.match(/.{20}(m[ãa]e(?![\wÀ-ú])(?! da Luísa)|mam[ãa]|sogra).{20}/gi) || []).slice(0, 3).join(' | '));
   // (o \b do JavaScript não conhece letras acentuadas: "Vocês" é PT-PT correto)
   const BR = /(^|[^\wÀ-ú])(tela|celular|você|ônibus|registrar|contato|bônus|aterrissa\w*|time de|banheiro|geladeira)(?![\wÀ-ú])/gi;
   check('sem formas do português do Brasil comuns', !BR.test(html), (html.match(BR) || []).join(', '));
@@ -322,6 +328,13 @@ function testData() {
   check('casa: uma fotografia por cada nível anterior', casa.photos.length === ci, `${casa.photos.length} fotografias para ${ci} níveis`);
   check('casa: as fotografias são as recordações do pedido, mais o pedido', ped.memories.every((m) => casa.photos.some((p) => p.icon === m.icon)) && casa.photos.some((p) => p.icon === 'colar'));
   check('casa: uma instrução por cada peça da obra (5)', casa.pieces.length === 5);
+  const prep = LEVELS.find((L) => L.type === 'prep');
+  const family = ['avojose', 'maeluisa', 'pailuisa', 'rosarinho', 'catarina', 'antonio', 'beatriz', 'pai'];
+  const inMap = Object.keys(prep.npcs).filter((ch) => prep.maps.relvado.rows.some((r) => r.includes(ch))).map((ch) => prep.npcs[ch]);
+  check('preparativos: a família toda está no relvado e tem falas', family.every((id) => inMap.includes(id) && prep.folk[id] && prep.folk[id].any), family.filter((id) => !inMap.includes(id) || !prep.folk[id]).join(','));
+  check('preparativos: o nível chama-se «Casa da Beira»', prep.title === 'Casa da Beira');
+  const spoken = collectStrings(LEVELS, 'L', []).map(([, t]) => t).filter((t) => /^(Luísa|Avó Jose|Mãe da Luísa|Pai da Luísa|Rosarinho|Catarina|António|Carminho|Henrique)[^:]*: «/.test(t));
+  check('a família da Luísa chama «Casa da Beira» à casa (nunca «solar» nas falas, salvo ao explicar o nome)', spoken.every((t) => !/\bsolar\b/i.test(t) || /Casa da Beira/.test(t)), spoken.filter((t) => /\bsolar\b/i.test(t) && !/Casa da Beira/.test(t)).join(' | '));
   const mat = LEVELS.find((L) => L.type === 'birth');
   check('maternidade: duas rondas, Xavier e depois a Luisinha', mat.rounds.length === 2 && mat.rounds[0].name === 'Xavier' && mat.rounds[1].toddler);
   const date = LEVELS.find((L) => L.type === 'date');

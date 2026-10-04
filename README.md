@@ -132,7 +132,7 @@ tools/                servidor local e gerador de ícones
 | 9 | `09-noruega.js` | Aurora Boreal | cidade nevada, trenó de huskies e a aurora |
 | 10 | `10-pedido.js` | O Pedido | Natal: jogo de memória com os presentes e o pedido de casamento |
 | 11 | `11-casa.js` | A Nossa Casa | a obra da vivenda junto ao Aqueduto e as fotografias na parede |
-| 12 | `12-preparativos.js` | Os Preparativos (final) | a azáfama da véspera do casamento, no solar |
+| 12 | `12-preparativos.js` | Casa da Beira (final) | a véspera do casamento: a família toda nos preparativos |
 | Bónus | `b1-maternidade.js` | Na Maternidade | o Sérgio apanha o Xavier e, 2 anos depois, a Luisinha |
 
 Os doze níveis da história e o nível bónus estão feitos.
@@ -212,8 +212,13 @@ Avó Jose (a avó da Luísa). É uma visita guiada vista de cima, em dois mapas:
   dossel** (antiga, de madeira esculpida, com cortinas) e a **grande varanda** sobre o jardim,
   o lugar preferido da Avó Jose, que lá está à espera para conhecer o Sérgio. Da varanda
   desce-se por uma escadaria para o jardim.
-- **O jardim histórico de buxo**, com sebes em anéis à volta da fonte, e a fachada com a
-  varanda ao fundo.
+- **O jardim histórico de buxo**, com sebes em anéis à volta da fonte. Ao fundo vê-se a casa
+  tal como é por dentro: a abertura larga para a varanda, a varanda de pedra com a Avó Jose e
+  a sua mesinha, a balaustrada de granito e a escadaria por onde se desce.
+
+Entre a família, a casa é a **Casa da Beira**: é assim que a Luísa e os seus lhe chamam nas
+falas. O nome histórico, Solar dos Soares de Albergaria, fica para a narração, o brasão e a
+capela.
 
 O jogador conduz a Luísa (setas, ou tocar no sítio para
 onde quer ir) e o Sérgio segue-a; em cada ponto a brilhar ela conta-lhe qualquer coisa.
@@ -323,25 +328,41 @@ arcos em ogiva e o Arco Grande. Quem orienta a obra é o Tio Alberto, o tio arqu
 As fotografias vêm de `js/levels/10-pedido.js` (a suite de testes confirma que há uma por cada
 nível anterior); os textos estão em `js/levels/11-casa.js`.
 
-### Nível 12 — "Os Preparativos"
+### Nível 12 — "Casa da Beira"
 
-A véspera do casamento, no relvado do solar. É um corre-corre visto de cima
-(`js/scenes/prep.js`, que estende o motor das visitas):
+A véspera do casamento, no relvado da Casa da Beira (o Solar dos Soares de Albergaria). É um
+corre-corre visto de cima (`js/scenes/prep.js`, que estende o motor das visitas), com a
+família toda a ajudar, cada um na sua tarefa; quem se chega a alguém ouve o que tem a dizer:
 
-1. **Montar a tenda**: ir a cada um dos quatro postes para os levantar.
-2. **Pôr as mesas**: em cada mesa, primeiro a toalha e os pratos (da carrinha), depois as
-   flores (do canteiro). Leva-se uma coisa de cada vez.
-3. **Pendurar as luzes** nos dois ganchos da tenda.
-4. **Levar o bolo**: anda-se mais devagar, e há regadores no caminho.
+1. **Montar a tenda**: ir a cada um dos quatro postes para os levantar, com o Pai da Luísa e
+   o António (o irmão) a segurar.
+2. **Pôr as mesas**: em cada mesa, primeiro a toalha e os pratos (da carrinha, com a
+   Catarina), depois as flores (do canteiro, com a Mãe da Luísa e a Rosarinho). Leva-se uma
+   coisa de cada vez. As cadeiras, que a Beatriz e o Pai do Sérgio vão pondo, aparecem quando
+   a mesa tem toalha.
+3. **Pendurar as luzes** nos dois ganchos da tenda, com o António.
+4. **Os meninos das alianças**: a Carminho, sempre muito animada, anda desde o início a correr
+   à volta da tenda com a almofada das alianças; agora é preciso apanhá-la (foge e pára para
+   rir) e descobrir o Henrique, o mais novo, que se escondeu atrás de uma japoneira (só se vê
+   o cocuruto). Depois levam-se os dois, em fila, pela escadaria até à Avó Jose, que assiste a
+   tudo da varanda, para o ensaio.
+5. **Levar o bolo**: anda-se mais devagar, e há regadores no caminho.
 
 Uma seta indica sempre onde ir a seguir. O dia vai passando (a luz fica dourada e depois
-azul); cada tarefa acabada antes do pôr do sol vale um coração, e depois disso continua-se
-à luz das lanternas, mas sem corações.
+azul); cada tarefa acabada antes do pôr do sol vale um coração (19 ao todo), e depois disso
+continua-se à luz das lanternas, mas sem corações.
+
+Quem está onde, o que cada um diz em cada fase e o percurso da Carminho estão em
+`js/levels/12-preparativos.js` (`npcs`, `folk`, `kids`). No jogo, a mãe da Luísa aparece sempre
+como «Mãe da Luísa» (a suite de testes verifica-o).
 
 ### O final do jogo
 
 Concluído o nível 12, corre a animação do casamento (`js/scenes/victory.js`): a cerimónia
-na igreja, a festa no solar até de madrugada e, por fim, a imagem sobe até ao céu, onde
+na igreja, com a família toda sentada nos bancos (a da Luísa: a Avó Jose, os pais, a
+Rosarinho, a Catarina, o António e o Tio Alberto; a do Sérgio: o pai, a Beatriz e as tias) e a
+Carminho e o Henrique, os meninos das alianças, a entrar à frente da noiva com a almofada;
+depois a festa na Casa da Beira até de madrugada e, por fim, a imagem sobe até ao céu, onde
 rebenta o fogo de artifício à volta de "Parabéns! pelos 4 anos de Casados" e da data
 08-10-22. Um toque salta a animação. A data e o número de anos estão em `js/config.js`.
 

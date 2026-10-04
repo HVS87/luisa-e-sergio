@@ -1,15 +1,19 @@
-// Nível dos preparativos do casamento, no relvado do solar.
+// Nível dos preparativos do casamento, no relvado da Casa da Beira (o solar da família).
 // Usa o motor das visitas vistas de cima (tour.js) e acrescenta as tarefas:
 //   1. montar a tenda: ir a cada um dos postes para os levantar
 //   2. pôr as mesas: toalhas e pratos vêm da carrinha, flores do canteiro
 //   3. pendurar as luzes nos ganchos da tenda
-//   4. levar o bolo (devagar!) até à mesa do bolo
+//   4. os meninos das alianças: apanhar a Carminho, que anda sempre a correr à volta da
+//      tenda, descobrir o Henrique, escondido atrás de uma japoneira, e levá-los à Avó Jose,
+//      à varanda, para o ensaio
+//   5. levar o bolo (devagar!) até à mesa do bolo
+// A família está espalhada pelo relvado, cada um na sua tarefa, e fala quando alguém se chega.
 // Cada tarefa acabada antes do pôr do sol vale um coração.
 import { TILE as T } from '../config.js';
 import { TourScene } from './tour.js';
 import { getCharacter, partnerOf } from '../sprites.js';
 
-const DAY = 230;           // segundos até ao pôr do sol
+const DAY = 290;           // segundos até ao pôr do sol
 const INK = '#2b1d2e', GOLD = '#ffd166', PINK = '#ff5d8f', GREEN = '#5cf08a';
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const NAMES = { toalha: 'a toalha', pratos: 'os pratos', flores: 'as flores', luzes: 'as luzes', bolo: 'o bolo' };
@@ -21,6 +25,8 @@ export class PrepScene extends TourScene {
     const me = game.save.data.character;
     this.lead = getCharacter(me, 'casual');
     this.follow = getCharacter(partnerOf(me), 'casual');
+    this.kidC = getCharacter('carminho');
+    this.kidH = getCharacter('henrique');
   }
 
   setup() {
@@ -46,11 +52,22 @@ export class PrepScene extends TourScene {
         m.grid[y][x] = '.';
       }
     }
-    this.phase = 'tenda';      // tenda → mesas → luzes → bolo
+    this.phase = 'tenda';      // tenda → mesas → luzes → meninos → bolo
     this.carry = null;
     this.day = 0;
     this.sunset = false;
-    this.total = this.poles.length + this.tables.length * 3 + this.hooks.length + 1;
+    // a família: a Avó Jose (na varanda), a escadaria, e os sobrinhos
+    this.avo = m.npcs.find((n) => n.id === 'avojose') || null;
+    const st = m.doors[0];
+    this.stairs = st ? { x: st.x * T + 8, y: (st.y + 1) * T + 12 } : null;
+    const K = this.level.kids, P = ([c, r]) => ({ x: c * T + 8, y: r * T + 12 });
+    this.loop = K.loop.map(P);
+    this.hide = P(K.hide);
+    this.carminho = { ...this.loop[0], wp: 1, dir: 1, facing: 1, dist: 0, moving: true, pause: 0, next: 3, turn: 0, caught: false };
+    this.henrique = { ...P(K.home), facing: -1, dist: 0, moving: false, hidden: false, found: false };
+    this.kidTrail = [];
+    this.said = new Set();     // o que cada pessoa já disse em cada fase
+    this.total = this.poles.length + this.tables.length * 3 + this.hooks.length + 3 + 1;
     this.totalHearts = this.total;
     this.done = 0;
     this.shownGuide = null;
@@ -78,6 +95,10 @@ export class PrepScene extends TourScene {
     if (this.phase === 'tenda') return `A tenda primeiro! Vai a cada poste para o levantar (${up}/${this.poles.length}).`;
     if (this.phase === 'mesas') return this.carry ? `Leva ${NAMES[this.carry]} até à mesa com a seta.` : `As mesas: toalhas e pratos estão na carrinha, flores no canteiro (${set}/${this.tables.length * 3}).`;
     if (this.phase === 'luzes') return this.carry ? 'Pendura as luzes num gancho da tenda.' : `As luzes: traz-as da carrinha (${lit}/${this.hooks.length}).`;
+    if (this.phase === 'meninos') {
+      const n = (this.carminho.caught ? 1 : 0) + (this.henrique.found ? 1 : 0);
+      return n < 2 ? `Os meninos das alianças: apanha a Carminho e descobre onde se escondeu o Henrique (${n}/2).` : 'Leva a Carminho e o Henrique à Avó Jose, na varanda, para o ensaio.';
+    }
     return this.carry ? 'Devagar com o bolo! Atenção aos regadores...' : 'Só falta o bolo: está na carrinha.';
   }
 
@@ -93,6 +114,12 @@ export class PrepScene extends TourScene {
       return out;
     }
     if (this.phase === 'luzes') return this.carry ? this.hooks.filter((h) => !h.lit) : [this.van];
+    if (this.phase === 'meninos') {
+      const out = [];
+      if (!this.carminho.caught) out.push(this.carminho);
+      if (!this.henrique.found) out.push(this.hide);
+      return out.length ? out : [this.avo];
+    }
     return this.carry ? [this.cakeTable] : [this.van];
   }
 
@@ -130,6 +157,8 @@ export class PrepScene extends TourScene {
       this.sunset = true;
       this.hint('O sol pôs-se! O resto faz-se à luz das lanternas (mas já sem corações).', 4);
     }
+    this.stepKids(dt);
+    this.talk();
 
     if (this.phase === 'tenda') {
       for (const pole of this.poles) {
@@ -140,7 +169,7 @@ export class PrepScene extends TourScene {
       if (this.poles.every((q) => q.up)) {
         this.phase = 'mesas';
         this.game.audio.play('win');
-        this.hint('A tenda está de pé! Agora, as mesas.', 3);
+        this.hint(this.level.toMesas, 5);
       }
     } else if (this.phase === 'mesas') {
       if (!this.carry) {
@@ -154,7 +183,7 @@ export class PrepScene extends TourScene {
       if (this.tables.every((q) => q.stage === 3)) {
         this.phase = 'luzes';
         this.game.audio.play('win');
-        this.hint('As mesas estão lindas! Faltam as luzes.', 3);
+        this.hint(this.level.toLuzes, 4);
       }
     } else if (this.phase === 'luzes') {
       if (!this.carry && this.near(this.van, 34)) this.pick('luzes');
@@ -163,9 +192,22 @@ export class PrepScene extends TourScene {
         if (h) { h.lit = true; this.carry = null; this.task(h.x, h.y); }
       }
       if (this.hooks.every((q) => q.lit)) {
+        this.phase = 'meninos';
+        this.game.audio.play('win');
+        this.henrique.x = this.hide.x;
+        this.henrique.y = this.hide.y;
+        this.henrique.hidden = true;
+        this.hint(this.level.toMeninos, 5);
+      }
+    } else if (this.phase === 'meninos') {
+      const c = this.carminho, h = this.henrique;
+      if (!c.caught && this.near(c, 13)) { c.caught = true; this.task(c.x, c.y); this.hint(this.level.carminho, 3); }
+      if (!h.found && this.near(this.hide, 19)) { h.found = true; h.hidden = false; this.task(h.x, h.y); this.hint(this.level.henrique, 3); }
+      if (c.caught && h.found && this.near(this.avo, 30)) {
+        this.task(this.avo.x, this.avo.y);
         this.phase = 'bolo';
         this.game.audio.play('win');
-        this.hint('Que bonito! Agora, o mais delicado: o bolo.', 3);
+        this.hint(this.level.ensaio + ' ' + this.level.toBolo, 7);
       }
     } else if (this.phase === 'bolo') {
       if (!this.carry && this.near(this.van, 34)) this.pick('bolo');
@@ -179,6 +221,47 @@ export class PrepScene extends TourScene {
         this.game.audio.play('fanfare');
         this.game.ui.setHint(this.level.ready);
       }
+    }
+  }
+
+  // Os sobrinhos: a Carminho corre à volta da tenda (e foge, no ensaio); depois de apanhados,
+  // os dois seguem atrás do casal, em fila.
+  stepKids(dt) {
+    const c = this.carminho, h = this.henrique, p = this.p, chase = this.phase === 'meninos';
+    if (p.moving) { this.kidTrail.push({ x: p.x, y: p.y }); if (this.kidTrail.length > 70) this.kidTrail.shift(); }
+    const follow = (k, lag) => {
+      const s = this.kidTrail[this.kidTrail.length - 1 - lag];
+      const d = s ? Math.hypot(s.x - k.x, s.y - k.y) : 0;
+      k.moving = d > 0.3;
+      if (k.moving) { if (Math.abs(s.x - k.x) > 0.3) k.facing = s.x > k.x ? 1 : -1; k.dist += Math.min(d, 3); k.x = s.x; k.y = s.y; }
+    };
+    if (c.caught) follow(c, 24);
+    else if (c.pause > 0) { c.pause -= dt; c.moving = false; }
+    else {
+      const n = this.loop.length, w = this.loop[c.wp], dx = w.x - c.x, dy = w.y - c.y, d = Math.hypot(dx, dy), sp = (chase ? 56 : 46) * dt;
+      if (d <= sp) { c.x = w.x; c.y = w.y; c.wp = (c.wp + c.dir + n) % n; }
+      else { c.x += (dx / d) * sp; c.y += (dy / d) * sp; c.dist += sp; if (Math.abs(dx) > 1) c.facing = dx > 0 ? 1 : -1; }
+      c.moving = true;
+      c.next -= dt;
+      if (c.next <= 0) { c.pause = chase ? 1.4 : 0.8; c.next = 3 + Math.random() * 2; this.fx.heart(c.x, c.y - 18, GOLD); }
+      // no ensaio, dá meia-volta quando vê alguém a vir de frente para a apanhar
+      if (c.turn > 0) c.turn -= dt;
+      else if (chase && Math.hypot(p.x - c.x, p.y - c.y) < 34 && dx * (p.x - c.x) + dy * (p.y - c.y) > 0) { c.dir *= -1; c.wp = (c.wp + c.dir + n) % n; c.turn = 2; }
+    }
+    if (h.found) follow(h, 40);
+  }
+
+  // Quem está a ajudar diz qualquer coisa quando alguém se chega (uma vez por fase).
+  talk() {
+    if (this.hintT > 0) return;
+    for (const n of this.map.npcs) {
+      const f = (this.level.folk || {})[n.id], key = n.id + ':' + this.phase;
+      if (!f || this.said.has(key)) continue;
+      const close = this.near(n, 26) || (n === this.avo && this.near(this.stairs, 26));
+      if (!close) continue;
+      this.said.add(key);
+      this.hint(f[this.phase] || f.any, 4);
+      return;
     }
   }
 
@@ -233,6 +316,19 @@ export class PrepScene extends TourScene {
       for (let k = 0; k < 6; k++) { R(s.x - 10 + k * 4, s.y - 17 + (k % 2) * 2, 3, 3, cols[k % 4]); R(s.x - 9 + k * 4, s.y - 14 + (k % 2) * 2, 1, 3, '#3f8f5a'); }
     } });
     for (const h of this.hooks) ents.push({ y: h.y - 14, draw: () => { R(h.x - 1, h.y - 24, 2, 6, '#8a93a7'); R(h.x - 2, h.y - 19, 4, 2, '#8a93a7'); } });
+    // a Carminho (aos saltinhos, com a almofada das alianças) e o Henrique
+    const camX = Math.round(this.camX), camY = Math.round(this.camY);
+    const c = this.carminho, hk = this.henrique;
+    ents.push({ y: c.y, draw: () => {
+      const hop = Math.round(Math.abs(Math.sin(t * 9)) * 3);
+      this.drawPerson(ctx, this.kidC, { ...c, y: c.y - hop }, camX, camY, false);
+      R(c.x + c.facing * 5 - 3, c.y - 9 - hop, 7, 4, '#ffffff'); R(c.x + c.facing * 5 - 1, c.y - 10 - hop, 2, 2, GOLD); R(c.x + c.facing * 5 + 1, c.y - 10 - hop, 2, 2, GOLD);
+    } });
+    if (hk.hidden) ents.push({ y: hk.y - 13, draw: () => {
+      // só se vê o cocuruto a espreitar por cima da japoneira
+      ctx.drawImage(this.kidH.stand.r, 0, 2, 16, 6, Math.round(hk.x - camX) - 8, Math.round(hk.y - camY) - 17 + Math.round(Math.sin(t * 3) * 1.5), 16, 6);
+    } });
+    else ents.push({ y: hk.y, draw: () => this.drawPerson(ctx, this.kidH, hk, camX, camY, false) });
   }
 
   drawTable(R, tb, t) {
@@ -247,6 +343,8 @@ export class PrepScene extends TourScene {
       R(x - 13, y - 11, 26, 9, '#ffffff');
       R(x - 13, y - 4, 26, 2, '#e8dcc0');
     }
+    // as cadeiras (da Beatriz e do Pai do Sérgio) aparecem quando a mesa tem toalha
+    if (tb.stage >= 1) for (const dx of [-19, 15]) { R(x + dx, y - 12, 4, 9, '#5a3a20'); R(x + dx, y - 6, 4, 2, '#9a6a3c'); }
     if (tb.stage >= 2) for (const dx of [-9, -3, 3, 9]) { R(x + dx - 2, y - 10, 4, 3, '#cfe6f0'); R(x + dx - 1, y - 10, 2, 1, '#ffffff'); }
     if (tb.stage >= 3) { R(x - 2, y - 15, 4, 5, '#3f8f5a'); R(x - 4, y - 18, 3, 3, PINK); R(x, y - 19, 3, 3, '#ffffff'); R(x + 2, y - 17, 3, 3, GOLD); }
   }
