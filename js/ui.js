@@ -178,7 +178,7 @@ export class UI {
     $('#v-title').textContent = family ? 'Família completa!' : 'Parabéns!';
     $('#v-line').textContent = family
       ? 'Luísa, Sérgio, Xavier e a pequena Luísa'
-      : 'pelos ' + ANOS_CASADOS + ' anos de Casados';
+      : 'pelos ' + ANOS_CASADOS + ' anos de casados';
     $('#v-bonus').hidden = family;
     this.setLevelMode(false, false);
     // Deixa o fogo de artifício brilhar um pouco antes de mostrar os botões.

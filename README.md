@@ -375,7 +375,7 @@ na igreja, com a família toda sentada nos bancos (a da Luísa: a Avó Jose, os 
 Rosarinho, a Catarina, o António e o Tio Alberto; a do Sérgio: o pai, o André, a Beatriz e as tias) e a
 Carminho e o Henrique, os meninos das alianças, a entrar à frente da noiva com a almofada;
 depois a festa na Casa da Beira até de madrugada e, por fim, a imagem sobe até ao céu, onde
-rebenta o fogo de artifício à volta de "Parabéns! pelos 4 anos de Casados" e da data
+rebenta o fogo de artifício à volta de "Parabéns! pelos 4 anos de casados" e da data
 08-10-22. Um toque salta a animação. A data e o número de anos estão em `js/config.js`.
 
 ### Nível bónus — "Na Maternidade"
