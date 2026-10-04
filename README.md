@@ -250,16 +250,26 @@ A pandemia de COVID-19 vivida por dois médicos. É um jogo de arcada por vagas:
 o Sérgio, de bata, touca e máscara, andam lado a lado pela enfermaria (arrastar o dedo ou
 setas) e o desinfetante dispara sozinho contra os vírus que descem em direção às camas.
 
-- Cada vírus que passa aumenta a **pressão sobre o hospital**; se chegar ao máximo, a vaga
-  recomeça (bem mais fácil a cada tentativa e, à segunda, segue-se em frente).
+- São **seis vagas**, cada uma mais apertada: as três primeiras (março de 2020, outono de
+  2020 e janeiro de 2021), a vacinação, a variante Delta e a variante Ómicron. Ao todo descem
+  mais de 500 vírus, e de vez em quando chegam em surtos, vários lado a lado.
+- Há seis tipos de vírus: os verdes, os cor de laranja (rápidos), as variantes roxas (grandes,
+  aguentam três golpes), os azuis da Delta (descem aos ziguezagues), os cor-de-rosa da Ómicron
+  (pequenos e muito rápidos) e os verde-água, que ao rebentar se desfazem em dois pequenos.
+- Cada vírus que passa aumenta a **pressão sobre o hospital**, que alivia devagar; se chegar
+  ao máximo, a vaga recomeça 30% mais lenta (e, à terceira vez, segue-se em frente).
 - O **cansaço** dos turnos faz disparar mais devagar; os cafés que caem recuperam energia e
   as caixas de equipamento de proteção criam uma barreira temporária.
 - Os vírus dourados largam corações, que é preciso apanhar.
 - Entre vagas há momentos do confinamento: as palmas à janela às 22h, a videochamada com a
-  família e a chegada da vacina. Na última vaga os tiros são vacinas que atravessam tudo.
+  família e a chegada da vacina. Nas três últimas vagas os tiros são vacinas, que atravessam
+  tudo o que apanham. As palmas à janela não têm vírus: é só bater palmas.
+- Os disparos têm contorno escuro e cores vivas, para se verem bem contra a parede clara.
 
-As vagas e os textos definem-se em `js/levels/07-covid.js`; o jogo está em
-`js/scenes/covid.js`.
+As vagas e os textos definem-se em `js/levels/07-covid.js` (`n` vírus, `every` segundos
+entre eles, `speed` a velocidade, `burst` o tamanho dos surtos, `mix` os tipos); o jogo e
+os tipos de vírus (`TYPES`) estão em `js/scenes/covid.js`, com as constantes da rede de
+segurança (`PRESS_DRAIN`, `MAX_FAILS`, `EASE_STEP`).
 
 ### Nível 8 — "Birdwatching"
 
@@ -338,8 +348,8 @@ família toda a ajudar, cada um na sua tarefa; quem se chega a alguém ouve o qu
    o António (o irmão) a segurar.
 2. **Pôr as mesas**: em cada mesa, primeiro a toalha e os pratos (da carrinha, com a
    Catarina), depois as flores (do canteiro, com a Mãe da Luísa e a Rosarinho). Leva-se uma
-   coisa de cada vez. As cadeiras, que a Beatriz e o Pai do Sérgio vão pondo, aparecem quando
-   a mesa tem toalha.
+   coisa de cada vez. As cadeiras, que a Beatriz, o André (o irmão do Sérgio) e o Pai do
+   Sérgio vão pondo, aparecem quando a mesa tem toalha.
 3. **Pendurar as luzes** nos dois ganchos da tenda, com o António.
 4. **Os meninos das alianças**: a Carminho, sempre muito animada, anda desde o início a correr
    à volta da tenda com a almofada das alianças; agora é preciso apanhá-la (foge e pára para
@@ -360,7 +370,7 @@ como «Mãe da Luísa» (a suite de testes verifica-o).
 
 Concluído o nível 12, corre a animação do casamento (`js/scenes/victory.js`): a cerimónia
 na igreja, com a família toda sentada nos bancos (a da Luísa: a Avó Jose, os pais, a
-Rosarinho, a Catarina, o António e o Tio Alberto; a do Sérgio: o pai, a Beatriz e as tias) e a
+Rosarinho, a Catarina, o António e o Tio Alberto; a do Sérgio: o pai, o André, a Beatriz e as tias) e a
 Carminho e o Henrique, os meninos das alianças, a entrar à frente da noiva com a almofada;
 depois a festa na Casa da Beira até de madrugada e, por fim, a imagem sobe até ao céu, onde
 rebenta o fogo de artifício à volta de "Parabéns! pelos 4 anos de Casados" e da data
@@ -393,8 +403,9 @@ O objetivo é ser desafiante mas nunca impedir ninguém de chegar ao fim:
 - Nas plataformas não há vidas: quem cai volta ao último ponto de passagem. Os carros de
   cesto e o trenó andam a 125 px/s, e há pontos de passagem antes da ponte da levada e a
   meio do trenó da Noruega.
-- Na pandemia, se o hospital chegar ao limite, a vaga recomeça 40% mais lenta; à segunda
-  vez, segue-se em frente.
+- A pandemia é o nível mais exigente (três a quatro minutos de vagas cada vez mais rápidas),
+  mas, se o hospital chegar ao limite, a vaga recomeça 30% mais lenta; à terceira vez,
+  segue-se em frente.
 - Os minijogos repetem as tentativas falhadas sem castigo (a anestesia, os pratos do date,
   as aves que voltam, o bebé que ressalta no chão almofadado).
 

@@ -28,9 +28,9 @@ export class VictoryScene {
     this.sergio = getCharacter('sergio', outfit);
     const cast = (list) => list.map((look) => getCharacter(look, look === 'alberto' ? 'casa' : 'casual'));   // o Tio Alberto vem sem capacete
     // nos bancos da igreja: a família da Luísa (atrás, junto à parede) e a do Sérgio (à frente)
-    this.pews = [cast(['avojose', 'maeluisa', 'pailuisa', 'rosarinho', 'catarina', 'antonio', 'alberto']), cast(['pai', 'beatriz', 'tia1', 'tia2'])];
+    this.pews = [cast(['avojose', 'maeluisa', 'pailuisa', 'rosarinho', 'catarina', 'antonio', 'alberto']), cast(['pai', 'andre', 'beatriz', 'tia1', 'tia2'])];
     // na pista de dança
-    this.guests = cast(['pai', 'beatriz', 'rosarinho', 'maeluisa', 'pailuisa']);
+    this.guests = cast(['pai', 'andre', 'beatriz', 'rosarinho', 'maeluisa', 'pailuisa']);
     this.carminho = getCharacter('carminho');
     this.henrique = getCharacter('henrique');
     this.padre = getCharacter('padre');
@@ -172,12 +172,13 @@ export class VictoryScene {
 
     // a família, sentada nos bancos dos convidados, virada para o altar
     const yes = t > T_YES;
-    const seats = Math.max(4, Math.floor((ax - 44) / 24));
     this.pews.forEach((row, r) => {
-      const base = gy - 10 + r * 8, people = row.slice(0, seats), len = people.length * 24 + 8, x0 = 4 + r * 10;
-      people.forEach((g, i) => {
+      // cabem todos: em ecrãs estreitos sentam-se mais juntinhos
+      const x0 = 4 + r * 10, gap = Math.max(13, Math.min(24, Math.floor((ax - 50 - x0) / row.length)));
+      const base = gy - 10 + r * 8, len = (row.length - 1) * gap + 32;
+      row.forEach((g, i) => {
         const up = yes ? Math.round(Math.abs(Math.sin(t * 6 + i + r * 2)) * 3) : 0;
-        ctx.drawImage(g.stand.r, x0 + 2 + i * 24, base - 40 - up, 32, 48);
+        ctx.drawImage(g.stand.r, x0 + 2 + i * gap, base - 40 - up, 32, 48);
       });
       // o banco tapa-os da cintura para baixo
       R(x0, base - 14, len + 4, 16, '#5a3a20');
@@ -292,7 +293,7 @@ export class VictoryScene {
     R(cx + 86, gy - 32, 2, 3, PINK);
 
     // convidados a dançar (com os meninos à frente) e, ao centro, os noivos
-    const spots = [-104, -80, -56, 30, 52];
+    const spots = [-118, -98, -78, -56, 30, 52];
     this.guests.forEach((g, i) => {
       const hop = Math.round(Math.abs(Math.sin(t * 6 + i * 1.7)) * 4);
       const face = Math.floor(t * 1.5 + i) % 2 ? 'r' : 'l';

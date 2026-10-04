@@ -3,7 +3,7 @@
 // Visto de cima (js/scenes/prep.js, que estende o motor das visitas). A família toda ajuda:
 //   1. a tenda            — o Pai da Luísa e o António seguram os postes
 //   2. as mesas           — a Catarina trata da carrinha (toalhas e pratos); a Mãe da Luísa e a
-//                           Rosarinho fazem os arranjos de flores; a Beatriz e o Pai do Sérgio, as cadeiras
+//                           Rosarinho fazem os arranjos de flores; a Beatriz, o André e o Pai do Sérgio, as cadeiras
 //   3. as luzes           — com o António
 //   4. os meninos das alianças — apanhar a Carminho (sempre animada, a correr à volta da tenda),
 //                           descobrir o Henrique (escondido atrás de uma japoneira) e levá-los à
@@ -17,7 +17,7 @@
 //   &  carrinha (toalhas, pratos, luzes e bolo)   J  canteiro das flores   s  regador
 //   =  abertura da casa para a varanda   :  chão da varanda   e  balaustrada   D  escadaria
 //   Pessoas (ver `npcs`):  @ Avó Jose · N Mãe da Luísa · p Pai da Luísa · z Rosarinho · X Catarina
-//                          a António · Y Beatriz · Z Pai do Sérgio
+//                          a António · Y Beatriz · Z Pai do Sérgio · A André (irmão do Sérgio)
 export default {
   id: 'preparativos',
   type: 'prep',
@@ -38,7 +38,7 @@ export default {
 
   // Quem está a ajudar (letras no mapa) e o que diz quando alguém se chega ao pé, conforme a
   // fase (tenda, mesas, luzes, meninos, bolo); `any` serve para as outras fases.
-  npcs: { '@': 'avojose', N: 'maeluisa', p: 'pailuisa', z: 'rosarinho', X: 'catarina', a: 'antonio', Y: 'beatriz', Z: 'pai' },
+  npcs: { '@': 'avojose', N: 'maeluisa', p: 'pailuisa', z: 'rosarinho', X: 'catarina', a: 'antonio', Y: 'beatriz', Z: 'pai', A: 'andre' },
   folk: {
     avojose: {
       any: 'Avó Jose (da varanda): «Daqui vejo tudo! Está a ficar uma beleza, meus queridos.»',
@@ -68,7 +68,11 @@ export default {
       bolo: 'Catarina: «O bolo! Devagarinho... nem quero olhar!»',
       any: 'Catarina: «Eu trato da carrinha: é só pedir.»',
     },
-    beatriz: { any: 'Beatriz: «Eu e o pai tratamos das cadeiras. Mano, despachem a tenda e as mesas!»' },
+    beatriz: { any: 'Beatriz: «Eu, o André e o pai tratamos das cadeiras. Mano, despachem a tenda e as mesas!»' },
+    andre: {
+      meninos: 'André: «A Carminho? Passou por aqui a correr, com a almofada debaixo do braço!»',
+      any: 'André: «Mano, as cadeiras são connosco. Amanhã só tens de aparecer... e dizer que sim!»',
+    },
     pai: { any: 'Pai do Sérgio: «As cadeiras são connosco. Amanhã é o grande dia!»' },
   },
 
@@ -96,7 +100,7 @@ export default {
         '.........Q..U......B..........',
         '...................s..........',
         '....I..........I...B..NzJ.....',
-        '.YZ................B....f.f...',
+        '.YZA...............B....f.f...',
         '..L................B..........',
         'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
       ],

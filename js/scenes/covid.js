@@ -1,7 +1,9 @@
 // Nível da pandemia de COVID-19: a Luísa e o Sérgio, médicos, na linha da frente.
 // Jogo de arcada por vagas: os dois andam lado a lado pela enfermaria e desinfetam
-// os vírus antes que cheguem às camas. Entre vagas há momentos do confinamento
-// (palmas à janela, videochamada com a família) e, no fim, chega a vacina.
+// os vírus antes que cheguem às camas. São seis vagas, cada uma mais apertada: as três
+// primeiras, a vacinação e as variantes Delta (aos ziguezagues) e Ómicron (pequenos, muitos,
+// e os grandes desfazem-se em dois). Entre vagas há momentos do confinamento (palmas à
+// janela, videochamada com a família, a chegada da vacina).
 //
 // Controlos: arrastar o dedo (ou setas ◀ ▶) para mover a dupla; o desinfetante sai sozinho.
 import { LEVELS } from '../levels/index.js';
@@ -27,12 +29,20 @@ const VIRUS = [
   '..s...g...s..',
   '......s......',
 ];
-// Tipos de vírus: tempo que demoram a chegar às camas, golpes que aguentam e pressão que causam.
+// Tipos de vírus: tempo que demoram a chegar às camas (cross), golpes que aguentam (hp), raio,
+// pressão que causam, tamanho e, nalguns, o balanço lateral (sway, em fração da largura) e em
+// quantos pequenos se desfazem ao rebentar (split).
 const TYPES = {
   n: { cross: 9.5, hp: 1, r: 7, press: 10, scale: 1, pal: { g: '#3f9a4a', G: '#6fd06a', s: '#c2384a', e: INK, m: INK } },
   fast: { cross: 6, hp: 1, r: 7, press: 7, scale: 1, pal: { g: '#c2543a', G: '#ff8a4b', s: '#ffd166', e: INK, m: INK } },
   big: { cross: 13, hp: 3, r: 13, press: 18, scale: 2, pal: { g: '#6a4a9a', G: '#a58ae0', s: '#ff5d8f', e: INK, m: INK } },
+  zig: { cross: 8, hp: 1, r: 7, press: 10, scale: 1, sway: 0.13, swayF: 2.6, pal: { g: '#2f6fb0', G: '#6fb0f0', s: '#ffd166', e: INK, m: INK } },
+  mini: { cross: 5.4, hp: 1, r: 5, press: 5, scale: 0.7, pal: { g: '#b03060', G: '#ff6f9f', s: '#ffffff', e: INK, m: INK } },
+  split: { cross: 11, hp: 2, r: 11, press: 14, scale: 1.6, split: 2, pal: { g: '#1f7a7a', G: '#3fc0b0', s: '#ff6f9f', e: INK, m: INK } },
 };
+const PRESS_DRAIN = 1.6;   // pressão que o hospital alivia por segundo
+const MAX_FAILS = 3;       // à terceira vez que o hospital chega ao limite, segue-se em frente
+const EASE_STEP = 0.3;     // quanto abranda a vaga de cada vez que recomeça
 
 export class CovidScene {
   constructor(game, index) {
@@ -83,6 +93,7 @@ export class CovidScene {
     this.cafeT = 7;
     this.epiDone = false;
     this.doneT = 0;
+    this.extra = 0;            // vírus nascidos de outros (não contam para o total da vaga)
   }
 
   enter() { this.game.ui.showStory(this.index); }
@@ -158,6 +169,12 @@ export class CovidScene {
     this.game.ui.showComplete(this.index, this.got, this.total);
   }
 
+  // Posição horizontal de um vírus neste instante (com o balanço lateral do seu tipo).
+  uOf(vi) {
+    const tp = TYPES[vi.type];
+    return clamp(vi.u + Math.sin(this.t * (tp.swayF || 2) + vi.ph) * (tp.sway || 0.03), 0.04, 0.96);
+  }
+
   layout(v) {
     const FW = Math.min(v.w, 260);
     return { fx0: Math.floor((v.w - FW) / 2), FW, y0: 34, yBed: v.h - 26 };
@@ -215,10 +232,10 @@ export class CovidScene {
 
     // Cansaço: turnos sem fim gastam a energia; com pouca energia dispara-se mais devagar
     this.energy = Math.max(0, this.energy - 0.026 * dt);
-    this.pressure = Math.max(0, this.pressure - 2.2 * dt);
+    this.pressure = Math.max(0, this.pressure - PRESS_DRAIN * dt);
     if (this.shield > 0) this.shield -= dt;
 
-    // Disparar (desinfetante; na última vaga, vacinas que atravessam vários vírus)
+    // Disparar (desinfetante; depois de chegar a vacina, vacinas que atravessam vários vírus)
     this.fireT -= dt;
     if (this.fireT <= 0) {
       this.fireT = w.vaccine ? 0.2 : this.energy > 0.22 ? 0.34 : 0.64;
@@ -232,9 +249,15 @@ export class CovidScene {
     if (this.spawned < w.n && this.spawnT <= 0) {
       this.spawnT = w.every * this.ease;
       const bag = Object.entries(w.mix).flatMap(([k, n]) => Array(n).fill(k));
-      const type = bag[Math.floor(Math.random() * bag.length)];
-      this.viruses.push({ id: this.spawned, u: 0.08 + Math.random() * 0.84, f: 0, type, hp: TYPES[type].hp, ph: Math.random() * 6, gold: this.goldAt.has(this.spawned), flash: 0 });
-      this.spawned++;
+      // de vez em quando chega um surto: vários vírus lado a lado, e depois um pequeno respiro
+      const group = w.burst && this.spawned > 0 && this.spawned % 9 === 0 ? Math.min(w.burst, w.n - this.spawned) : 1;
+      const u0 = 0.08 + Math.random() * (0.84 - (group - 1) * 0.12);
+      for (let k = 0; k < group; k++) {
+        const type = bag[Math.floor(Math.random() * bag.length)];
+        this.viruses.push({ id: this.spawned, u: u0 + k * 0.12, f: 0, type, hp: TYPES[type].hp, ph: Math.random() * 6, gold: this.goldAt.has(this.spawned), flash: 0 });
+        this.spawned++;
+      }
+      if (group > 1) this.spawnT += w.every * this.ease * (group - 1) * 0.6;
       // a meio da vaga chega uma caixa de equipamento de proteção
       if (!this.epiDone && this.spawned >= w.n / 2) { this.epiDone = true; this.drops.push({ u: 0.15 + Math.random() * 0.7, f: 0, kind: 'epi' }); }
     }
@@ -248,7 +271,7 @@ export class CovidScene {
       if (s.g < -0.05) { this.shots.splice(i, 1); continue; }
       for (const vi of this.viruses) {
         if (vi.hp <= 0 || s.hit.has(vi.id)) continue;
-        const tp = TYPES[vi.type], vx = X(vi.u + Math.sin(this.t * 2 + vi.ph) * 0.03);
+        const tp = TYPES[vi.type], vx = X(this.uOf(vi));
         if (Math.abs(X(s.u) - vx) > tp.r + 2 || Math.abs(Y(s.g) - Y(vi.f)) > tp.r + 4) continue;
         vi.hp--;
         vi.flash = 0.12;
@@ -264,13 +287,13 @@ export class CovidScene {
       const vi = this.viruses[i], tp = TYPES[vi.type];
       if (vi.hp <= 0) { this.viruses.splice(i, 1); continue; }
       if (vi.flash > 0) vi.flash -= dt;
-      vi.f += dt / (tp.cross * this.ease);
-      if (this.shield > 0 && vi.f >= shieldF) { this.pop(vi, X(vi.u), Y(vi.f)); this.viruses.splice(i, 1); continue; }
+      vi.f += (dt * (w.speed || 1)) / (tp.cross * this.ease);
+      if (this.shield > 0 && vi.f >= shieldF) { vi.hp = 0; this.pop(vi, X(this.uOf(vi)), Y(vi.f)); continue; }
       if (vi.f >= 1) {
         this.viruses.splice(i, 1);
         this.pressure += tp.press;
         this.game.audio.play('buzz');
-        this.fx.burst(X(vi.u), L.yBed - 4, 10, [RED, '#ffffff'], 50);
+        this.fx.burst(X(this.uOf(vi)), L.yBed - 4, 10, [RED, '#ffffff'], 50);
         if (vi.gold) this.heartsLeft--;
       }
     }
@@ -300,12 +323,12 @@ export class CovidScene {
       } else if (d.f > 1.06) this.drops.splice(i, 1);
     }
 
-    // Hospital no limite: a vaga recomeça mais lenta (à segunda, segue-se em frente)
+    // Hospital no limite: a vaga recomeça mais lenta (à terceira, segue-se em frente)
     if (this.pressure >= 100) {
       this.fails++;
-      this.ease = 1 + this.fails * 0.4;
+      this.ease = 1 + this.fails * EASE_STEP;
       this.game.audio.play('hurt');
-      if (this.fails >= 2) { this.hint('Foi no limite, mas aguentaram. Em frente!', 3); this.nextPhase(); return; }
+      if (this.fails >= MAX_FAILS) { this.hint('Foi no limite, mas aguentaram. Em frente!', 3); this.nextPhase(); return; }
       this.state = 'fail';
       this.timer = 0;
       this.hint('O hospital ficou no limite... Respira fundo. Ninguém desiste!', 3);
@@ -324,8 +347,12 @@ export class CovidScene {
 
   pop(vi, x, y) {
     const tp = TYPES[vi.type];
-    this.fx.burst(x, y, vi.type === 'big' ? 16 : 9, [tp.pal.G, '#ffffff', '#bfe6ff'], 55);
+    this.fx.burst(x, y, tp.scale > 1 ? 16 : 9, [tp.pal.G, '#ffffff', '#bfe6ff'], 55);
     this.game.audio.play('stomp');
+    // as variantes que se desfazem: saem dois pequenos, um para cada lado
+    for (let k = 0; k < (tp.split || 0); k++) {
+      this.viruses.push({ id: 1000 + this.extra++, u: clamp(vi.u + (k ? 0.07 : -0.07), 0.06, 0.94), f: Math.max(0, vi.f - 0.03), type: 'mini', hp: 1, ph: Math.random() * 6, gold: false, flash: 0 });
+    }
     if (vi.gold) this.drops.push({ u: vi.u, f: vi.f, kind: 'heart', id: vi.id });
   }
 
@@ -348,14 +375,23 @@ export class CovidScene {
     // Tiros
     for (const s of this.shots) {
       const x = X(s.u), y = Y(s.g);
-      if (s.pierce) { R(x - 1, y - 6, 3, 7, '#eaf8ff'); R(x - 1, y - 3, 3, 4, '#7be0b0'); R(x, y - 10, 1, 4, '#8a93a7'); R(x - 2, y + 1, 5, 1, '#8a93a7'); }
-      else { R(x - 1, y - 4, 2, 5, '#8fd0f5'); R(x - 1, y - 4, 2, 2, '#ffffff'); }
+      // contorno escuro e cores vivas, para se distinguirem bem da parede clara da enfermaria
+      if (s.pierce) {
+        R(x, y - 13, 1, 5, INK);                                   // agulha
+        R(x - 2, y - 9, 5, 11, INK); R(x - 1, y - 8, 3, 9, '#ffffff');
+        R(x - 1, y - 5, 3, 6, '#12a07a');                          // a vacina
+        R(x - 3, y + 2, 7, 2, INK);                                // êmbolo
+        R(x - 1, y + 5, 3, 3, 'rgba(18,160,122,0.35)');
+      } else {
+        R(x - 2, y - 6, 4, 9, INK); R(x - 1, y - 5, 2, 7, '#1f7fe0'); R(x - 1, y - 5, 2, 2, '#ffffff');
+        R(x - 1, y + 4, 2, 3, 'rgba(31,127,224,0.4)');             // rasto
+      }
     }
 
     // Vírus
     for (const vi of this.viruses) {
       const tp = TYPES[vi.type], img = this.virus[vi.type];
-      const x = X(vi.u + Math.sin(t * 2 + vi.ph) * 0.03), y = Y(vi.f), sz = 13 * tp.scale;
+      const x = X(this.uOf(vi)), y = Y(vi.f), sz = Math.round(13 * tp.scale);
       if (vi.gold) { R(x - sz / 2 - 2, y - sz / 2 - 2, sz + 4, sz + 4, 'rgba(255,209,102,0.45)'); }
       if (vi.flash > 0) ctx.globalAlpha = 0.5;
       ctx.drawImage(img, x - Math.floor(sz / 2), y - Math.floor(sz / 2) + Math.round(Math.sin(t * 6 + vi.ph)), sz, sz);
@@ -483,7 +519,7 @@ export class CovidScene {
         ctx.rect(x, y, tw, th);
         ctx.clip();
         const wave = Math.round(Math.sin(t * 6 + i) * 2);
-        if (who === 'solar') drawHouseIcon(ctx, x + tw / 2, y + th - 2);
+        if (who === 'solar') { drawHouseIcon(ctx, x + tw / 2, y + th - 2); ctx.drawImage(getCharacter('avojose').stand.l, Math.round(x + tw / 2 + 6), y + th - 27); }
         else if (who === 'nos') {
           ctx.drawImage(this.luisa.stand.r, x + tw / 2 - 30, y + th - 44, 32, 48);
           ctx.drawImage(this.sergio.stand.l, x + tw / 2 - 2, y + th - 44, 32, 48);
@@ -536,7 +572,7 @@ export class CovidScene {
   }
 }
 
-// O solar da família da Luísa, para o quadradinho da videochamada.
+// A Casa da Beira (o solar da família da Luísa), para o quadradinho da videochamada.
 function drawHouseIcon(ctx, x, baseY) {
   const r = (dx, dy, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x + dx), Math.round(baseY + dy), w, h); };
   r(-26, -30, 52, 30, '#f2ece0');

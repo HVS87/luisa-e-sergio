@@ -209,6 +209,8 @@ LOOKS.catarina = { def: LUISA, base: { h: '#c9985a', H: '#e8c088', v: '#c9985a',
 LOOKS.antonio = { def: SERGIO, base: { h: '#8a5f3a', d: '#f6c9a0' }, outfits: { casual: { t: '#5a8fd0', k: '#5a8fd0', p: '#3b4a7a', b: '#2b1d2e' } } };
 LOOKS.carminho = { def: MENINA, base: { h: '#b07a45', e: '#2b1d2e', k: '#ff5d8f' }, outfits: { casual: { t: '#ffb3d1', T: '#ff8ab8', b: '#ffffff' } } };
 LOOKS.henrique = { def: MENINO, base: { h: '#8a5f3a', e: '#2b1d2e' }, outfits: { casual: { t: '#ffffff', k: '#5a8fd0', p: '#5a8fd0', b: '#2b1d2e' } } };
+// O André, irmão do Sérgio (preparativos e casamento).
+LOOKS.andre = { def: SERGIO, base: { h: '#3b2a20', s: '#eebb8e', d: '#eebb8e' }, outfits: { casual: { t: '#a8324a', k: '#a8324a', p: '#3a3f55', b: '#2b1d2e' } } };
 // As tias do Sérgio, em Pretarouca (nível 6): uma de cabelo grisalho, outra de lenço na cabeça.
 LOOKS.tia1 = { def: LUISA, base: { h: '#b8b4c0', H: '#d8d4e0', v: '#b8b4c0', e: '#2b1d2e' }, outfits: { casual: { t: '#4a5a8a', T: '#ffffff', b: '#2b1d2e' } } };
 LOOKS.tia2 = { def: LUISA, base: { h: '#5a4030', H: '#5a4030', v: '#5a4030', e: '#2b1d2e' }, outfits: { casual: { t: '#7a3a4a', T: '#ffffff', b: '#2b1d2e', q: '#3a3550', Q: '#55507a', cap: true } } };

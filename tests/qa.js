@@ -139,7 +139,7 @@ const BOTS = {
     const L = s.layout(game.view);
     const heart = s.drops.find((d) => d.kind === 'heart' && d.f > 0.55);
     const vi = [...s.viruses].sort((a, b) => b.f - a.f)[0];
-    const u = heart ? heart.u : vi ? vi.u : 0.5;
+    const u = heart ? heart.u : vi ? s.uOf(vi) : 0.5;
     I.pointerX = (L.fx0 + u * L.FW) / game.view.w;
     I.pointerY = 0.9;
   },
@@ -329,7 +329,7 @@ function testData() {
   check('casa: as fotografias são as recordações do pedido, mais o pedido', ped.memories.every((m) => casa.photos.some((p) => p.icon === m.icon)) && casa.photos.some((p) => p.icon === 'colar'));
   check('casa: uma instrução por cada peça da obra (5)', casa.pieces.length === 5);
   const prep = LEVELS.find((L) => L.type === 'prep');
-  const family = ['avojose', 'maeluisa', 'pailuisa', 'rosarinho', 'catarina', 'antonio', 'beatriz', 'pai'];
+  const family = ['avojose', 'maeluisa', 'pailuisa', 'rosarinho', 'catarina', 'antonio', 'beatriz', 'pai', 'andre'];
   const inMap = Object.keys(prep.npcs).filter((ch) => prep.maps.relvado.rows.some((r) => r.includes(ch))).map((ch) => prep.npcs[ch]);
   check('preparativos: a família toda está no relvado e tem falas', family.every((id) => inMap.includes(id) && prep.folk[id] && prep.folk[id].any), family.filter((id) => !inMap.includes(id) || !prep.folk[id]).join(','));
   check('preparativos: o nível chama-se «Casa da Beira»', prep.title === 'Casa da Beira');
