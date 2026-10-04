@@ -6,7 +6,7 @@ export default {
   id: 'encontro',
   type: 'operation',
   title: 'Como se Conheceram',
-  story: 'A Luísa é anestesista e o Sérgio é cirurgião ortopédico. Foi a trabalhar juntos no bloco operatório, à volta de um doente cheio de ossos para tirar, que tudo começou...',
+  story: 'A Luísa é anestesista e o Sérgio é ortopedista. Foi a trabalhar juntos no bloco operatório, à volta de um doente cheio de ossos para tirar, que tudo começou...',
   help: 'Sérgio: toca no ecrã (ou Espaço) quando o marcador passar na zona verde do osso. Se falhares, o doente acorda! Luísa: mantém premido para injetar a anestesia e larga na zona verde.',
   outro: 'Operação concluída. E assim nasceu uma bela equipa!',
 

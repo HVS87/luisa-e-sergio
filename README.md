@@ -140,7 +140,7 @@ Os doze níveis da história e o nível bónus estão feitos.
 
 ### Nível 1 — minijogo "Operação"
 
-A Luísa (anestesista) e o Sérgio (cirurgião ortopédico) conheceram-se a trabalhar juntos.
+A Luísa (anestesista) e o Sérgio (ortopedista) conheceram-se a trabalhar juntos.
 O Sérgio retira cinco ossos ao doente, com serrote ou martelo: é preciso carregar quando o
 marcador passa na zona verde do osso, três vezes por osso. Se falhar, o doente acorda a
 espernear e passa a ser a vez da Luísa: manter premido para empurrar o êmbolo da seringa

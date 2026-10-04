@@ -99,7 +99,7 @@ const GAMES = {
           if (g.i >= 2) {
             const ok = g.res.every((r) => r === 'ok');
             g.i = 1;
-            s.done(ok, ok ? `Dois copos no ponto. Mãos de ${s.meL ? 'anestesista' : 'cirurgião'}!` : s.tipsy ? 'Copos cheios até cima... isto vai subir à cabeça!' : 'Servido. Mais ou menos...');
+            s.done(ok, ok ? `Dois copos no ponto. Mãos de ${s.meL ? 'anestesista' : 'ortopedista'}!` : s.tipsy ? 'Copos cheios até cima... isto vai subir à cabeça!' : 'Servido. Mais ou menos...');
           } else {
             const lo = rnd(0.45, 0.62);
             g.zone = [lo, lo + 0.19];
