@@ -300,7 +300,8 @@ arcos em ogiva e o Arco Grande. Quem orienta a obra é o Tio Alberto, o tio arqu
 (`js/scenes/house.js`):
 
 1. **A obra**: a grua passa de um lado para o outro com cada peça (fundações, rés-do-chão,
-   laje, primeiro andar com varanda e telhado de telha) e toca-se para a largar em cima da
+   laje, primeiro andar com varanda e telhado de telha; por fora a casa é azul-clara, com
+   caixilhos brancos) e toca-se para a largar em cima da
    planta azul. À primeira e bem ao centro vale um coração; fora da planta, a peça volta a
    subir. A grua vai ficando mais rápida. A meio, o Tio Alberto conta que o Aqueduto resistiu
    ao terramoto de 1755 e que o Arco Grande tem mais de 65 metros.
@@ -349,7 +350,10 @@ Depois do casamento há um nível bónus (`js/scenes/birth.js`, textos em
 
 O chão é todo almofadado: se o bebé cair, ressalta e há nova oportunidade (à terceira, é a
 parteira que o apanha). Apanhar à primeira vale 3 corações, depois de um ressalto 2, e
-depois de dois 1. No fim aparece o ecrã "Família completa!".
+depois de dois 1. No fim aparece o ecrã "Família completa!": a família, à noite, em frente à
+casa que construíram no nível 11 (azul-clara, de janelas acesas), com o Aqueduto ao luar no
+horizonte e fogo de artifício. O desenho da vivenda é partilhado (`drawVilla` em
+`js/scenes/house.js`).
 
 ### Dificuldade
 

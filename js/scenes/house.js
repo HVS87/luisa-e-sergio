@@ -31,6 +31,48 @@ const TILT = 14, STRAIGHT = 4.5;         // balanço dos quadros e tolerância p
 const SKY = ['#5aaeea', '#74bdf0', '#93cdf3', '#b5ddf5', '#d8ecf3'];
 const PHOTO_BG = ['#cfe8f5', '#ffe2c8', '#d8f0d0', '#f5e0f0', '#fff1c4'];
 
+// Cores da vivenda, que por fora é azul-clara, com caixilhos brancos: de dia (na obra) e de
+// noite (no final da família, com as janelas acesas).
+const DAY = { wall: '#bfe0f5', wallD: '#9fc8e4', glass: '#6fa8d4', shine: '#ffffff', frame: '#ffffff', slab: '#a7a39c', slabL: '#c8c4bc', slabD: '#8f8b84', door: '#8a5a34', roof: '#c75a3a', roofD: '#a8462e', roofE: '#8a3a26', rail: INK };
+const NIGHT = { wall: '#7f9cc8', wallD: '#6884b0', glass: '#ffd98a', shine: '#fff3c4', frame: '#d0d8ec', slab: '#6f6c88', slabL: '#8a87a2', slabD: '#5a5772', door: '#5a3f2e', roof: '#8a4438', roofD: '#6e352e', roofE: '#522824', rail: INK };
+
+// Peça n da vivenda (ver PIECES), com o fundo em `bottom`, centrada em cx; W é a largura da casa.
+export function drawVillaPiece(R, n, cx, bottom, W, night = false) {
+  const C = night ? NIGHT : DAY;
+  const p = PIECES[n], w = Math.round(W * p.w), x = Math.round(cx - w / 2), y = bottom - p.h;
+  if (n === 0 || n === 2) {
+    R(x, y, w, p.h, C.slab); R(x, y, w, 1, C.slabL);
+    for (let k = x + 6; k < x + w; k += 12) R(k, y + 1, 1, p.h - 1, C.slabD);
+  } else if (n === 1) {
+    R(x, y, w, p.h, C.wall); R(x, y + p.h - 2, w, 2, C.wallD);
+    // porta de madeira e janelas grandes para o jardim
+    R(x + 10, y + 8, 12, p.h - 8, C.door); R(x + 19, y + 17, 2, 2, GOLD);
+    for (const wx of [x + 30, x + w - 34]) { R(wx, y + 6, 24, 16, C.frame); R(wx + 1, y + 7, 22, 14, C.glass); R(wx + 12, y + 7, 1, 14, C.frame); R(wx + 3, y + 9, 4, 2, C.shine); }
+  } else if (n === 3) {
+    R(x, y, w, p.h, C.wall); R(x, y + p.h - 2, w, 2, C.wallD);
+    for (let k = 0; k < 3; k++) { const wx = x + 10 + k * Math.round((w - 32) / 2); R(wx, y + 5, 12, 13, C.frame); R(wx + 1, y + 6, 10, 11, C.glass); R(wx + 2, y + 7, 3, 2, C.shine); }
+    // varanda virada para o Aqueduto
+    const bx = x + Math.round(w / 2) - 14;
+    R(bx, y + p.h - 4, 28, 1, C.rail);
+    for (let k = 0; k <= 28; k += 4) R(bx + k, y + p.h - 9, 1, 5, C.rail);
+    R(bx, y + p.h - 9, 28, 1, C.rail);
+  } else {
+    // telhado de telha, com chaminé
+    for (let r = 0; r < p.h; r++) {
+      const inset = Math.round((r / p.h) * (w * 0.32));
+      R(x + inset, bottom - 1 - r, w - inset * 2, 1, r % 3 === 0 ? C.roofD : C.roof);
+    }
+    R(x + Math.round(w * 0.68), y - 2, 6, 9, C.roofD); R(x + Math.round(w * 0.68) - 1, y - 3, 8, 2, C.roofE);
+  }
+}
+
+// A vivenda inteira, assente em `bottom`. Devolve a altura total.
+export const VILLA_H = PIECES.reduce((sum, p) => sum + p.h, 0);
+export function drawVilla(R, cx, bottom, W, night = false) {
+  let y = bottom;
+  for (let n = 0; n < PIECES.length; n++) { drawVillaPiece(R, n, cx, y, W, night); y -= PIECES[n].h; }
+}
+
 export class HouseScene {
   constructor(game, index) {
     this.game = game;
@@ -341,7 +383,7 @@ export class HouseScene {
     for (let x = g.cx - g.W / 2; x < g.cx + g.W / 2; x += 4) R(x, gy - total, 2, 1, 'rgba(79,143,224,0.75)');
     // a casa, peça a peça
     let y = gy;
-    for (let n = 0; n < this.placed; n++) { this.drawPiece(R, n, g.cx, y, g.W); y -= PIECES[n].h; }
+    for (let n = 0; n < this.placed; n++) { drawVillaPiece(R, n, g.cx, y, g.W); y -= PIECES[n].h; }
     // piscina (em corte) e jardim
     this.drawPool(R, g);
     if (this.garden > 0) this.drawGarden(R, g);
@@ -377,36 +419,6 @@ export class HouseScene {
       }
       R(a - 1, spring, 1, base - spring, SHADE);
       x = b;
-    }
-  }
-
-  // Peça n da casa, com o fundo em `bottom`, centrada em cx.
-  drawPiece(R, n, cx, bottom, W) {
-    const p = PIECES[n], w = Math.round(W * p.w), x = Math.round(cx - w / 2), y = bottom - p.h;
-    const WALL = '#f6f2ea', WALLD = '#dcd6ca', GLASS = '#8fd0f5', FRAME = '#4a4a5a';
-    if (n === 0 || n === 2) {
-      R(x, y, w, p.h, '#a7a39c'); R(x, y, w, 1, '#c8c4bc');
-      for (let k = x + 6; k < x + w; k += 12) R(k, y + 1, 1, p.h - 1, '#8f8b84');
-    } else if (n === 1) {
-      R(x, y, w, p.h, WALL); R(x, y + p.h - 2, w, 2, WALLD);
-      // porta de madeira e janelas grandes para o jardim
-      R(x + 10, y + 8, 12, p.h - 8, '#8a5a34'); R(x + 19, y + 17, 2, 2, GOLD);
-      for (const wx of [x + 30, x + w - 34]) { R(wx, y + 6, 24, 16, FRAME); R(wx + 1, y + 7, 22, 14, GLASS); R(wx + 12, y + 7, 1, 14, FRAME); R(wx + 3, y + 9, 4, 2, '#ffffff'); }
-    } else if (n === 3) {
-      R(x, y, w, p.h, WALL); R(x, y + p.h - 2, w, 2, WALLD);
-      for (let k = 0; k < 3; k++) { const wx = x + 10 + k * Math.round((w - 32) / 2); R(wx, y + 5, 12, 13, FRAME); R(wx + 1, y + 6, 10, 11, GLASS); R(wx + 2, y + 7, 3, 2, '#ffffff'); }
-      // varanda virada para o Aqueduto
-      const bx = x + Math.round(w / 2) - 14;
-      R(bx, y + p.h - 4, 28, 1, INK);
-      for (let k = 0; k <= 28; k += 4) R(bx + k, y + p.h - 9, 1, 5, INK);
-      R(bx, y + p.h - 9, 28, 1, INK);
-    } else {
-      // telhado de telha, com chaminé
-      for (let r = 0; r < p.h; r++) {
-        const inset = Math.round((r / p.h) * (w * 0.32));
-        R(x + inset, bottom - 1 - r, w - inset * 2, 1, r % 3 === 0 ? '#a8462e' : '#c75a3a');
-      }
-      R(x + Math.round(w * 0.68), y - 2, 6, 9, '#a8462e'); R(x + Math.round(w * 0.68) - 1, y - 3, 8, 2, '#8a3a26');
     }
   }
 
@@ -454,10 +466,10 @@ export class HouseScene {
     if (this.state === 'crane') {
       const bottom = top - 16;
       R(hx, jy + 6, 1, bottom - p.h - jy - 6, INK);
-      this.drawPiece(R, this.i, hx, bottom, g.W);
+      drawVillaPiece(R, this.i, hx, bottom, g.W);
       R(hx - pw / 2, bottom - p.h - 1, pw, 1, 'rgba(43,29,46,0.5)');
     } else if (this.fall) {
-      this.drawPiece(R, this.i, this.fall.x, this.fall.y + p.h, g.W);
+      drawVillaPiece(R, this.i, this.fall.x, this.fall.y + p.h, g.W);
     }
   }
 

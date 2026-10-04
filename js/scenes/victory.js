@@ -2,11 +2,13 @@
 // variant 'wedding' → animação do casamento: a cerimónia na igreja, a festa no solar até de
 //                     madrugada e, por fim, a imagem sobe até ao céu, onde rebenta o fogo de
 //                     artifício à volta dos parabéns pelos anos de casados.
-// variant 'family'  → fim do nível bónus (família completa).
+// variant 'family'  → fim do nível bónus: a família completa, à noite, em frente à casa que a
+//                     Luísa e o Sérgio construíram (a vivenda do nível "A Nossa Casa").
 import { TILE as T, WEDDING_DAY } from '../config.js';
 import { stars, disc, hills, hash } from '../themes.js';
 import { getCharacter, charFrame, getSprites, drawCrib, drawArch } from '../sprites.js';
 import { Fireworks, Particles } from '../fx.js';
+import { drawVilla, VILLA_H } from './house.js';
 
 const SKY = ['#070920', '#0d1238', '#161c52', '#232a6e', '#34327f', '#4a3a8a'];
 const INK = '#2b1d2e', GOLD = '#ffd166', PINK = '#ff5d8f', CREAM = '#fff6e6';
@@ -269,31 +271,81 @@ export class VictoryScene {
     ctx.drawImage(this.spr.heart, cx - 9 + sway, gy - 70 + Math.round(Math.sin(t * 3) * 2), 18, 16);
   }
 
-  // ---------- Fim dos níveis bónus ----------
+  // ---------- Fim do nível bónus: a família em frente à casa nova ----------
   drawFamily(ctx, v, t) {
     const gy = this.groundY(v), cx = Math.round(v.w / 2);
+    const hz = gy - 18;                       // o relvado estende-se até aqui, lá atrás
+    const R = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
     const n = SKY.length;
     for (let i = 0; i < n; i++) {
-      const y0 = Math.floor((i * gy) / n);
-      ctx.fillStyle = SKY[i];
-      ctx.fillRect(0, y0, v.w, i === n - 1 ? v.h - y0 : Math.ceil(gy / n) + 1);
+      const y0 = Math.floor((i * hz) / n);
+      R(0, y0, v.w, i === n - 1 ? v.h - y0 : Math.ceil(hz / n) + 1, SKY[i]);
     }
-    stars(ctx, v.w, gy * 0.85, t, 21, 70);
-    disc(ctx, Math.round(v.w * 0.84), Math.round(gy * 0.16), 9, '#fff6d6');
+    stars(ctx, v.w, hz * 0.85, t, 21, 70);
+    disc(ctx, Math.round(v.w * 0.84), Math.round(hz * 0.16), 9, '#fff6d6');
     this.fire.draw(ctx);
-    hills(ctx, v.w, v.h, gy, 0, 0, 26, 9, '#141a45', 2);
-    hills(ctx, v.w, v.h, gy, 60, 1, 10, 6, '#0f1436', 6);
-    ctx.fillStyle = '#1f6a4a';
-    ctx.fillRect(0, gy, v.w, v.h - gy);
-    ctx.fillStyle = '#3f9a66';
-    ctx.fillRect(0, gy, v.w, 3);
-    ctx.fillStyle = '#17503a';
-    for (let x = 0; x < v.w; x += 7) ctx.fillRect(x + ((x * 3) % 5), gy + 8 + ((x * 7) % 12), 2, 1);
+    hills(ctx, v.w, v.h, hz, 0, 0, 26, 9, '#141a45', 2);
+    this.nightAqueduct(R, v, hz);
+    // o jardim: relvado ao fundo (mais escuro) e à frente, onde está a família
+    R(0, hz, v.w, gy - hz, '#1a5a40');
+    R(0, hz, v.w, 2, '#2f7f58');
+    R(0, gy, v.w, v.h - gy, '#1f6a4a');
+    R(0, gy, v.w, 3, '#3f9a66');
+    for (let x = 0; x < v.w; x += 7) R(x + ((x * 3) % 5), gy + 8 + ((x * 7) % 12), 2, 1, '#17503a');
+
+    // a casa, com as janelas acesas: em ecrãs altos desenha-se a dobrar
+    const base = hz + 8;
+    const S = v.w >= 244 && base - VILLA_H * 2 > v.h * 0.42 ? 2 : 1;
+    const W = Math.min(120, Math.floor((v.w - 8) / (1.14 * S)));   // o telhado (o mais largo) cabe no ecrã
+    const RS = (x, y, w, h, c) => R(cx + (x - cx) * S, base + (y - base) * S, w * S, h * S, c);
+    drawVilla(RS, cx, base, W, true);
+    // luz das janelas no relvado
+    R(cx - (W * S) / 2 + 8 * S, base, (W - 16) * S, 2, 'rgba(255,217,138,0.25)');
+    // oliveira e limoeiro, e a piscina ao luar (se couber ao lado da casa)
+    const tree = (x, h, leaf, fruit) => {
+      R(x, base - h, 2 * S, h, '#4a3524');
+      R(x - 5 * S, base - h - 6 * S, 12 * S, 7 * S, leaf); R(x - 3 * S, base - h - 9 * S, 8 * S, 3 * S, leaf);
+      if (fruit) { R(x - 3 * S, base - h - 3 * S, 2 * S, 2 * S, fruit); R(x + 3 * S, base - h - 5 * S, 2 * S, 2 * S, fruit); }
+    };
+    const half = (W * S) / 2;
+    if (cx - half - 10 * S > 4) tree(cx - half - 9 * S, 16 * S, '#4a6a4a', null);
+    if (cx + half + 12 * S < v.w - 4) tree(cx + half + 8 * S, 14 * S, '#2f6a3f', '#e8c84a');
+    const px = cx + half + 20 * S, pw = Math.min(46, v.w - px - 6);
+    if (pw >= 22) {
+      R(px - 2, base + 2, pw + 4, 7, '#c8d4e0');
+      R(px, base + 3, pw, 5, '#2f6fb0');
+      R(px + 3 + Math.round(Math.sin(t * 1.5) * 2), base + 4, Math.round(pw * 0.4), 1, '#9fd0f5');
+    }
+
+    // a família, à frente
     const hop = Math.round(Math.abs(Math.sin(t * 4)) * 2);
     ctx.drawImage(this.luisa.stand.r, cx - 34, gy - 48 - hop, 32, 48);
     ctx.drawImage(this.sergio.stand.l, cx + 2, gy - 48 - hop, 32, 48);
     ctx.drawImage(this.spr.heart, cx - 9, gy - 70 + Math.round(Math.sin(t * 3) * 2), 18, 16);
     drawCrib(ctx, cx - 64, gy, '#8fc4ff', 2);
     drawCrib(ctx, cx + 64, gy, '#ff9fc6', 2);
+  }
+
+  // O Aqueduto das Águas Livres ao luar, no horizonte (só a pedra: os arcos deixam ver o céu).
+  nightAqueduct(R, v, hz) {
+    const deck = hz - 44, STONE = '#4a4f92', EDGE = '#6a70b0';
+    R(0, deck - 4, v.w, 6, STONE);
+    R(0, deck - 4, v.w, 1, EDGE);
+    const big = Math.round(v.w * 0.2);
+    let x = -8;
+    while (x < v.w + 8) {
+      const isBig = Math.abs(x + 17 - big) < 14;
+      const span = isBig ? 34 : 18, spring = deck + (isBig ? 14 : 18), apex = isBig ? 12 : 8;
+      const a = x + 5;
+      R(x, deck + 2, 5, hz - deck - 2, STONE);                 // pilar
+      R(x, deck + 2, 1, hz - deck - 2, EDGE);
+      R(a, deck + 2, span, spring - apex - deck - 2, STONE);    // pedra por cima do arco
+      for (let r = 1; r <= apex; r++) {                         // os dois lados da ogiva
+        const hw = (span / 2) * Math.pow(1 - r / apex, 0.55), side = span / 2 - hw;
+        R(a, spring - r, side, 1, STONE);
+        R(a + span - side, spring - r, side, 1, STONE);
+      }
+      x = a + span;
+    }
   }
 }
