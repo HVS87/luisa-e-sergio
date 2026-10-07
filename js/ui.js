@@ -69,8 +69,14 @@ export class UI {
   }
 
   // Linha de instruções por baixo do HUD (usada pelos minijogos).
-  setHint(text) {
-    $('#hint').textContent = this.local(text || '');
+  setHint(text) { this.setText('#hint', this.local(text || '')); }
+
+  // Põe o texto e a classe .on quando há texto (o CSS mostra o elemento por essa classe; ver
+  // style.css: no Safari, :empty nem sempre é reavaliado quando o texto muda).
+  setText(sel, text) {
+    const el = $(sel);
+    el.textContent = text;
+    el.classList.toggle('on', text !== '');
   }
 
   // A jogar com teclado, «Toca para...» passa a «Carrega em Espaço para...» (e também «Toca quando...»,
@@ -174,7 +180,7 @@ export class UI {
     this.show('victory');
   }
 
-  setCaption(text) { $('#v-caption').textContent = this.local(text || ''); }
+  setCaption(text) { this.setText('#v-caption', this.local(text || '')); }
 
   // Momento da animação que espera por um toque: a legenda pulsa e some o «Toca para avançar».
   setCue(on) { document.querySelector('[data-screen="victory"]').classList.toggle('cue', !!on); }
@@ -183,7 +189,7 @@ export class UI {
     const family = variant === 'family';
     document.querySelector('[data-screen="victory"]').classList.remove('cutscene');
     this.setCaption('');
-    $('#v-date').textContent = family ? '' : WEDDING_DATE;
+    this.setText('#v-date', family ? '' : WEDDING_DATE);
     $('#v-title').textContent = family ? 'Família completa!' : 'Parabéns!';
     $('#v-line').textContent = family
       ? 'Luísa, Sérgio, Xavier e a pequena Luísa'

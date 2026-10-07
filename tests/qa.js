@@ -933,6 +933,13 @@ async function testInteractions() {
   // instruções «Toca para...» adaptam-se ao teclado
   game.ui.setHint('Toca para continuar.');
   check('teclado: «Toca para...» passa a «Carrega em Espaço para...»', $('#hint').textContent === 'Carrega em Espaço para continuar.');
+  document.body.classList.add('in-level');
+  const shown = getComputedStyle($('#hint')).display !== 'none';
+  game.ui.setHint('');
+  const hidden = getComputedStyle($('#hint')).display === 'none';
+  game.ui.setHint('Carrega em Espaço para continuar.');
+  document.body.classList.remove('in-level');
+  check('instruções: visíveis quando têm texto e escondidas quando não têm (sem depender de :empty)', shown && hidden && $('#hint').classList.contains('on'));
   game.ui.setHint('Toca quando os dois corações se encontrarem ao centro! Toca a um ritmo certo. Toca nos presentes (ou usa as setas e o Espaço).');
   check('teclado: «Toca quando» e «Toca a um ritmo» também passam a «Carrega em Espaço»; as outras ficam', $('#hint').textContent === 'Carrega em Espaço quando os dois corações se encontrarem ao centro! Carrega em Espaço a um ritmo certo. Toca nos presentes (ou usa as setas e o Espaço).', $('#hint').textContent);
   I.setTouch(true);

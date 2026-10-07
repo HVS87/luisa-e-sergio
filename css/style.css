@@ -57,6 +57,7 @@ body {
   position: absolute;
   left: 0;
   top: 0;
+  z-index: 0;
   display: block;
   image-rendering: crisp-edges;
   image-rendering: pixelated;
@@ -276,6 +277,8 @@ body.wide [data-screen="story"] .panel { width: min(46em, 100%); gap: 0.7em; pad
   padding: calc(var(--sat) + 0.6em) calc(var(--sar) + 0.8em) 0 calc(var(--sal) + 0.8em);
   pointer-events: none;
   z-index: 6;
+  -webkit-transform: translateZ(0);   /* camada própria: no iPhone, o canvas acelerado não a tapa */
+  transform: translateZ(0);
   text-shadow: 0.12em 0.12em 0 var(--ink);
 }
 body.in-level .hud { display: flex; }
@@ -289,8 +292,10 @@ body.in-level .hud { display: flex; }
   position: absolute;
   top: calc(var(--gy) + var(--sat) + 0.6em + 50px);
   left: calc(var(--gx) + var(--gw) / 2);
-  transform: translateX(-50%);
+  -webkit-transform: translate3d(-50%, 0, 0);   /* centrada e numa camada própria (ver .hud) */
+  transform: translate3d(-50%, 0, 0);
   display: none;
+  width: -webkit-max-content;
   width: max-content;
   max-width: calc(var(--gw) - 1.6em);
   padding: 0.6em 0.9em;
@@ -302,7 +307,9 @@ body.in-level .hud { display: flex; }
   pointer-events: none;
   z-index: 6;
 }
-body.in-level .hint:not(:empty) { display: block; }
+/* a classe .on é posta pelo ui.js quando há texto: o Safari nem sempre reavalia :empty quando o
+   texto muda por JavaScript, e as instruções ficavam escondidas */
+body.in-level .hint.on { display: block; }
 /* legenda grande ao centro, sobre o ecrã a negro ("1 ano depois...") */
 body.caption .hint { top: calc(var(--gy) + var(--gh) * 0.42); font-size: 1em; background: none; color: var(--gold); }
 
@@ -332,12 +339,12 @@ body.caption .hint { top: calc(var(--gy) + var(--gh) * 0.42); font-size: 1em; ba
 }
 .victory-actions.ready { visibility: visible; }
 .v-date { margin-top: 0.6em; font-size: 1.25em; letter-spacing: 0.12em; color: var(--pink); text-shadow: 0.12em 0.12em 0 var(--ink); }
-.v-date:empty { display: none; }
+.v-date:not(.on) { display: none; }
 /* Durante a animação final só se vê a legenda */
 .v-caption, .v-skip { display: none; }
 .cutscene .victory-text, .cutscene .victory-actions { display: none; }
 .cutscene .v-caption { display: block; max-width: calc(100% - 1.6em); padding: 0.6em 0.9em; font-size: 0.62em; line-height: 1.6; text-align: center; background: rgba(26, 20, 51, 0.88); }
-.cutscene .v-caption:empty { display: none; }
+.cutscene .v-caption:not(.on) { display: none; }
 .cue .v-caption { color: var(--gold, #ffd166); animation: cue-pulse 0.9s ease-in-out infinite; }
 .cue .v-skip { visibility: hidden; }
 @keyframes cue-pulse { 50% { transform: scale(1.08); } }
@@ -358,6 +365,8 @@ body.wide .v-title { font-size: 2em; margin: 0.35em 0 0.3em; }
   justify-content: space-between;
   pointer-events: none;
   z-index: 5;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 body.ctl-bar #touch {
   left: 0;

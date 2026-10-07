@@ -3,7 +3,7 @@
 // uma cópia); sem rede, usa-se a cópia guardada. As fontes do Google ficam em cache.
 // Ao mudar a lista de ficheiros, mudar também o nome da cache (a suite ?qa verifica que todos
 // os módulos do jogo estão aqui).
-const CACHE = 'luisa-sergio-v3';
+const CACHE = 'luisa-sergio-v4';
 const CORE = [
   './', 'index.html', 'css/style.css', 'manifest.webmanifest',
   'assets/icon-192.png', 'assets/icon-512.png', 'assets/icon-180.png',
