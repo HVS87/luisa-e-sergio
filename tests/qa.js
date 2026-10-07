@@ -833,6 +833,9 @@ async function testInteractions() {
   check('casamento: tocar a meio avança até ao beijo', ws.cue === 'beijo' && /beijar a noiva/.test($('#v-caption').textContent), `${ws.cue} / ${$('#v-caption').textContent}`);
   const tk = ws.t;
   frames(60 * 40, null);
+  window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', repeat: true, bubbles: true }));
+  frames(1, null);
+  check('casamento: Espaço mantido (repetição) não salta o beijo', ws.cue === 'beijo' && !ws.done.has('beijo'));
   check('casamento: sem tocar, a animação espera pelo beijo', ws.cue === 'beijo' && ws.t === tk && $('[data-screen=victory]').classList.contains('cue'));
   check('casamento: com teclado, a legenda diz «Carrega em Espaço»', I.touch || /^Carrega em Espaço para beijar/.test($('#v-caption').textContent), $('#v-caption').textContent);
   touch();
@@ -852,6 +855,11 @@ async function testInteractions() {
   const nr = ws.fire.rockets.length;
   touch();
   check('ecrã final: cada toque lança mais um foguete', ws.fire.rockets.length === nr + 1);
+  game.showVictory('family');
+  const fam = game.scene;
+  touch();
+  const rk = fam.fire.rockets[fam.fire.rockets.length - 1];
+  check('família: um toque lança um foguete a partir do relvado', !!rk && rk.y === fam.groundY(game.view), rk && rk.y + ' vs ' + fam.groundY(game.view));
   game.showVictory('wedding');
   game.scene.t = 3;
   key('keydown', 'Escape');

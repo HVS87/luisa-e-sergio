@@ -59,7 +59,7 @@ export class VictoryScene {
     // Tocar no ecrã (ou Espaço/Enter): nos momentos de toque faz a ação; no resto da animação
     // avança até ao momento seguinte; no ecrã final lança mais um foguete.
     this.onTap = (e) => {
-      if (e && e.type === 'keydown' && e.code !== 'Space' && e.code !== 'Enter') return;
+      if (e && e.type === 'keydown' && ((e.code !== 'Space' && e.code !== 'Enter') || e.repeat)) return;   // tecla mantida não conta
       this.tap();
     };
     window.addEventListener('pointerdown', this.onTap);
@@ -85,8 +85,10 @@ export class VictoryScene {
       return;
     }
     if (this.revealed) {
-      const v = this.game.view;
-      this.fire.launch(v.w, v.h, v.h * 0.06, v.h * (this.variant === 'wedding' ? 0.52 : 0.45));
+      // do mesmo sítio e para a mesma faixa do céu que o fogo de artifício automático
+      const v = this.game.view, gy = this.groundY(v);
+      if (this.variant === 'wedding') this.fire.launch(v.w, v.h, v.h * 0.06, v.h * 0.52);
+      else this.fire.launch(v.w, gy, v.h * 0.06, gy * 0.72);
       return;
     }
     if (this.t > 1.5 && !this.done.has('beijo')) this.t = T_KISS;
