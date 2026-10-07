@@ -1,5 +1,5 @@
-// Ícones das recordações (14x14 píxeis): usados nos presentes do pedido e nas fotografias
-// que se penduram na casa nova. R(x, y, w, h, cor) desenha um retângulo; t anima a aurora.
+// Ícones das recordações (14x14 píxeis): usados nos presentes do pedido e nos quadros
+// que se penduram na casa nova (as fotografias e a aguarela do guarda-rios). R(x, y, w, h, cor) desenha um retângulo; t anima a aurora.
 const INK = '#2b1d2e', PINK = '#ff5d8f', GOLD = '#ffd166';
 
 export function drawMemory(R, kind, x, y, t = 0) {
@@ -18,6 +18,12 @@ export function drawMemory(R, kind, x, y, t = 0) {
     R(x, y, 14, 14, '#07102e');
     for (let k = 0; k < 7; k++) { const h = 4 + ((k * 5) % 4); R(x + k * 2, y + 8 - h + Math.round(Math.sin(t * 3 + k)), 2, h, 'rgba(120,255,170,0.85)'); R(x + k * 2, y + 5 - h, 2, 3, 'rgba(150,120,255,0.7)'); }
     R(x, y + 11, 14, 3, '#dfe9f7');
+  }
+  else if (kind === 'aguarela') {
+    // a aguarela do guarda-rios, pintada pela Luísa no observatório
+    R(x, y, 14, 14, '#fffaf0'); R(x, y, 14, 1, '#e8dcc0');
+    R(x + 3, y + 4, 7, 5, '#2a8fe0'); R(x + 4, y + 3, 5, 2, '#2a8fe0'); R(x + 4, y + 7, 5, 3, '#f08a3c');
+    R(x + 10, y + 5, 3, 1, INK); R(x + 5, y + 4, 1, 1, '#ffffff'); R(x + 6, y + 10, 1, 3, '#6b5238');
   }
   else if (kind === 'colar') {
     // o colar do pedido: fio de contas douradas com um coração pendurado

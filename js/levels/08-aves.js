@@ -6,7 +6,7 @@ export default {
   type: 'birds',
   title: 'Birdwatching',
   story: 'Despertador antes do nascer do sol, binóculos ao pescoço e guia de campo na mochila: a Luísa e o Sérgio adoram observar aves. Quantas espécies conseguem registar esta manhã?',
-  help: 'Arrasta o dedo (ou usa as setas) para apontar os binóculos. Ao longe as aves são só silhuetas: mantém uma na mira até a Luísa a identificar. As notas de música denunciam onde elas estão!',
+  help: 'Arrasta o dedo (ou usa as setas) para apontar os binóculos. Ao longe as aves são só silhuetas: mantém uma na mira até a Luísa a identificar. As notas de música denunciam onde elas estão! No fim, a Luísa pinta três das aves: toca quando o pincel estiver na cor certa.',
   outro: 'Que bela manhã de passarada!',
 
   baseHint: 'Aponta os binóculos às silhuetas e mantém-nas na mira. Segue as notas de música!',
@@ -32,4 +32,29 @@ export default {
 
   // Ordem de chegada das visitas (o pardal é só para atrapalhar: não conta).
   order: ['flamingo', 'garca', 'poupa', 'pardal', 'pernilongo', 'guardarios', 'abelharuco', 'colhereiro', 'pardal', 'aguia', 'mocho'],
+
+  // A pintura: no fim da manhã, a Luísa (que desenha e pinta muito bem) pinta três das aves que
+  // viram, pela ordem de `priority` (primeiro as identificadas). Cada ave tem duas partes a pintar:
+  // o pincel vai passando pelas cores da paleta e toca-se na certa (`keys` são as letras do desenho
+  // em js/scenes/birds.js que ganham cor). Sem enganos, cada aguarela vale um coração. A do
+  // guarda-rios fica depois pendurada na sala da casa nova (nível 11).
+  painting: {
+    intro: 'Luísa: «Antes de irmos, deixa-me pintar algumas!» Toca quando o pincel estiver na cor certa.',
+    step: 'A pintar [ave]: [parte], a [cor]. Toca quando o pincel estiver nessa cor!',
+    wrong: 'Luísa: «Hã... essa cor não é bem.» Outra vez!',
+    right: 'Luísa: «Ficou igualzinho!»',
+    done: 'Três aguarelas para a parede lá de casa. Que bela manhã!',
+    priority: ['guardarios', 'flamingo', 'poupa', 'abelharuco', 'mocho', 'pernilongo', 'cegonha', 'aguia', 'colhereiro'],
+    birds: {
+      guardarios: [{ keys: 'bc', color: 'azul', part: 'as costas' }, { keys: 'r', color: 'laranja', part: 'o peito' }],
+      flamingo: [{ keys: 'pPr', color: 'rosa', part: 'as penas' }, { keys: 'k', color: 'preto', part: 'a ponta do bico' }],
+      poupa: [{ keys: 'n', color: 'laranja', part: 'o corpo e a crista' }, { keys: 'k', color: 'preto', part: 'as riscas das asas' }],
+      abelharuco: [{ keys: 'n', color: 'castanho', part: 'as costas' }, { keys: 'y', color: 'amarelo', part: 'a garganta' }],
+      mocho: [{ keys: 'n', color: 'castanho', part: 'as penas' }, { keys: 'y', color: 'amarelo', part: 'os olhos' }],
+      pernilongo: [{ keys: 'r', color: 'rosa', part: 'as pernas' }, { keys: 'k', color: 'preto', part: 'as asas' }],
+      cegonha: [{ keys: 'r', color: 'laranja', part: 'o bico e as patas' }, { keys: 'k', color: 'preto', part: 'as pontas das asas' }],
+      aguia: [{ keys: 'd', color: 'castanho', part: 'as asas' }, { keys: 'e', color: 'amarelo', part: 'o olho' }],
+      colhereiro: [{ keys: 'y', color: 'amarelo', part: 'o bico' }, { keys: 'k', color: 'preto', part: 'as patas' }],
+    },
+  },
 };

@@ -1,9 +1,12 @@
 // Minijogo "Operação": o Sérgio retira ossos ao doente com serrote e martelo;
 // quando falha, o doente acorda aos saltos e a Luísa tem de lhe dar mais anestesia.
+// A meio da operação o doente entra em paragem cardíaca: a Luísa carrega o desfibrilhador e
+// dá-lhe dois choques; depois, na segunda parte, a zona verde anda de um lado para o outro.
 //
 // Controlo único (tocar no ecrã, clicar, Espaço ou Enter):
 //  - Sérgio: carregar quando o marcador passa na zona verde do osso (3 vezes por osso);
-//  - Luísa:  manter premido para encher a seringa e largar dentro da zona verde.
+//  - Luísa:  manter premido para encher a seringa (ou carregar o desfibrilhador) e largar
+//            dentro da zona verde.
 import { LEVELS } from '../levels/index.js';
 import { getCharacter } from '../sprites.js';
 import { Particles } from '../fx.js';
@@ -12,15 +15,19 @@ import { Particles } from '../fx.js';
 const SW = 240, SH = 146, FLOOR = 96;
 const TRACK0 = 30, TRACK1 = 210, TRACK = TRACK1 - TRACK0, PCY = 126;   // painel de raio-X
 const HITS = 3;            // golpes certeiros necessários por osso
+const SHOCKS = 2;          // choques do desfibrilhador até o coração voltar a bater
+const ARREST = new Set(['arrestIntro', 'defib', 'defibFail', 'shock', 'revived']);   // a paragem cardíaca
 const FILL_RATE = 0.48;    // velocidade a que a seringa enche (por segundo)
 
 // Onde fica a "janela" de cada osso no corpo do doente: [x, y, largura, altura, é num membro que esperneia?]
 const SLOTS = {
   umero: [70, 69, 20, 8, true],
+  clavicula: [68, 60, 14, 6, false],
   costela: [95, 61, 16, 8, false],
   femur: [126, 70, 24, 8, false],
   rotula: [156, 68, 10, 10, true],
   tibia: [169, 71, 20, 8, true],
+  calcaneo: [189, 72, 8, 8, true],
 };
 
 const C = {
@@ -38,6 +45,7 @@ export class OperationScene {
     this.index = index;
     this.level = LEVELS[index];
     this.bones = this.level.bones;
+    this.total = this.bones.length + 1;      // os ossos e a reanimação
     this.luisa = getCharacter('luisa', 'scrubs');
     this.sergio = getCharacter('sergio', 'scrubs');
     this.t = 0;
@@ -55,6 +63,7 @@ export class OperationScene {
 
   setup() {
     this.state = 'intro';   // intro → cut ⇄ (pain → anes ⇄ anesFail → calm) → removed → ... → won → done
+                            // a meio: arrestIntro → defib ⇄ defibFail → shock (×2) → revived → cut
     this.i = 0;             // osso atual
     this.got = 0;           // ossos retirados sem falhar (corações)
     this.timer = 0;
@@ -64,6 +73,8 @@ export class OperationScene {
     this.holding = false;
     this.zone = [0.5, 0.7];
     this.removed = [];
+    this.shocks = 0;
+    this.defibClean = true;
     this.fx = new Particles();
     this.sx = this.slotX(0);
     this.startBone();
@@ -92,14 +103,17 @@ export class OperationScene {
     do { c = x0 + w / 2 + Math.random() * (x1 - x0 - w); }
     while (this.band && x1 - x0 - w > 30 && Math.abs(c - (this.band[0] + this.band[1] / 2)) < 16 && ++tries < 20);
     this.band = [Math.round(c - w / 2), w];
+    this.bdir = Math.random() < 0.5 ? -1 : 1;
   }
+
+  get arrest() { return ARREST.has(this.state); }
 
   begin() {
     this.state = 'cut';
     this.paused = false;
     this.lock = 0.3;
     this.game.input.reset();
-    this.game.ui.setHud(this.got, this.bones.length, this.level.title);
+    this.game.ui.setHud(this.got, this.total, this.level.title);
     this.game.ui.setLevelMode(true, true);
     this.hintBone();
   }
@@ -138,7 +152,7 @@ export class OperationScene {
     const pressed = I.actionPressed && this.lock <= 0;
     if (this.anim > 0) this.anim -= dt;
 
-    const target = this.state === 'won' || this.state === 'done' ? 78 : this.slotX(Math.min(this.i, this.bones.length - 1));
+    const target = this.state === 'won' || this.state === 'done' ? 78 : this.arrest ? 150 : this.slotX(Math.min(this.i, this.bones.length - 1));
     this.sx += (target - this.sx) * Math.min(1, dt * 6);
 
     switch (this.state) {
@@ -147,6 +161,12 @@ export class OperationScene {
         if (this.anim <= 0) {
           this.m += this.dir * b.speed * dt;
           if (this.m >= 1) { this.m = 1; this.dir = -1; } else if (this.m <= 0) { this.m = 0; this.dir = 1; }
+          if (b.drift) {
+            // 2.ª parte: a zona verde anda de um lado para o outro dentro do osso
+            const x0 = 120 - b.size / 2, x1 = 120 + b.size / 2 - this.band[1];
+            this.band[0] += this.bdir * b.drift * dt;
+            if (this.band[0] >= x1) { this.band[0] = x1; this.bdir = -1; } else if (this.band[0] <= x0) { this.band[0] = x0; this.bdir = 1; }
+          }
         }
         if (pressed) this.strike();
         break;
@@ -206,13 +226,62 @@ export class OperationScene {
             this.game.ui.setLevelMode(true, false);
             audio.play('win');
             this.hint('Operação concluída! Que bela equipa!');
-          } else {
+          } else if (this.i === this.level.arrestAfter) this.startArrest();
+          else {
             this.band = null;
             this.startBone();
             this.state = 'cut';
             this.lock = 0.2;
             this.hintBone();
           }
+        }
+        break;
+      case 'arrestIntro':
+        this.timer -= dt;
+        if (Math.floor(this.timer * 2.5) !== Math.floor((this.timer + dt) * 2.5)) audio.play('buzz');   // o alarme
+        if (this.timer <= 0) this.armDefib(this.level.defibHint);
+        break;
+      case 'defib':
+        if (I.action && (this.holding || pressed)) {
+          if (!this.holding) audio.play('inject');
+          this.holding = true;
+          this.fill += FILL_RATE * 1.15 * dt;
+          if (this.fill >= 1) this.defibFail(this.level.defibHigh);
+        } else if (this.holding) {
+          this.holding = false;
+          if (this.fill >= this.zone[0] && this.fill <= this.zone[1]) this.shock();
+          else this.defibFail(this.fill < this.zone[0] ? this.level.defibLow : this.level.defibHigh);
+        }
+        break;
+      case 'defibFail':
+        this.timer -= dt;
+        if (this.timer <= 0) this.armDefib(this.level.defibHint);
+        break;
+      case 'shock':
+        this.timer -= dt;
+        if (this.timer <= 0) {
+          if (this.shocks >= SHOCKS) {
+            this.state = 'revived';
+            this.timer = 2.4;
+            audio.play('check');
+            if (this.defibClean) {
+              this.got++;
+              this.fx.heart(80, 40);
+              this.fx.heart(88, 46, '#ffd166');
+              this.game.ui.setHud(this.got, this.total, this.level.title);
+            }
+            this.hint(this.level.revived + (this.defibClean ? ' Perfeito!' : ''));
+          } else this.armDefib(this.level.defibAgain);
+        }
+        break;
+      case 'revived':
+        this.timer -= dt;
+        if (this.timer <= 0) {
+          this.band = null;
+          this.startBone();
+          this.state = 'cut';
+          this.lock = 0.3;
+          this.hint(this.level.resume);
         }
         break;
       case 'won':
@@ -250,6 +319,45 @@ export class OperationScene {
     }
   }
 
+  // A paragem cardíaca: alarme, e depois a Luísa com o desfibrilhador (dois choques)
+  startArrest() {
+    this.state = 'arrestIntro';
+    this.timer = 1.8;
+    this.lock = 0.5;
+    this.shocks = 0;
+    this.defibClean = true;
+    this.game.audio.play('hurt');
+    this.hint(this.level.alarm);
+  }
+
+  armDefib(text) {
+    this.state = 'defib';
+    this.fill = 0;
+    this.holding = false;
+    const lo = 0.5 + Math.random() * 0.25;
+    this.zone = [lo, lo + 0.18];
+    this.hint(text);
+  }
+
+  defibFail(msg) {
+    this.state = 'defibFail';
+    this.timer = 1;
+    this.holding = false;
+    this.defibClean = false;
+    this.game.audio.play('hurt');
+    this.hint(msg);
+  }
+
+  shock() {
+    this.shocks++;
+    this.state = 'shock';
+    this.timer = 0.9;
+    this.holding = false;
+    this.game.audio.play('boom');
+    this.fx.burst(98, 66, 14, [C.gold, '#ffffff', '#ff8a3c'], 70);
+    this.hint(this.level.shock);
+  }
+
   anesFail(msg) {
     this.state = 'anesFail';
     this.timer = 1;
@@ -268,16 +376,16 @@ export class OperationScene {
       this.got++;
       this.fx.heart(this.sx, 20);
       this.fx.heart(this.sx + 6, 26, '#ffd166');
-      this.game.ui.setHud(this.got, this.bones.length, this.level.title);
+      this.game.ui.setHud(this.got, this.total, this.level.title);
     }
     this.hint(`${b.name} ${b.fem ? 'removida' : 'removido'}!` + (this.clean ? ' Perfeito!' : ''));
   }
 
   finish() {
     this.state = 'done';
-    this.game.save.complete(this.level.id, this.got, this.bones.length);
+    this.game.save.complete(this.level.id, this.got, this.total);
     this.game.ui.setLevelMode(false, false);
-    this.game.ui.showComplete(this.index, this.got, this.bones.length);
+    this.game.ui.showComplete(this.index, this.got, this.total);
   }
 
   // ---------- Desenho ----------
@@ -293,7 +401,8 @@ export class OperationScene {
     // Luísa (junto à cabeça do doente) e Sérgio (junto ao osso), atrás da mesa
     const hop = awake ? Math.round(Math.abs(Math.sin(t * 12)) * 2) : 0;
     const joy = this.state === 'won' || this.state === 'done' ? Math.round(Math.abs(Math.sin(t * 6)) * 3) : 0;
-    const lx = this.state === 'anes' || this.state === 'anesFail' ? 16 : 12;
+    const defib = this.state === 'defib' || this.state === 'defibFail' || this.state === 'shock';
+    const lx = this.state === 'anes' || this.state === 'anesFail' ? 16 : defib ? 62 : 12;   // com as pás, debruçada sobre o peito
     ctx.drawImage(this.luisa.stand.r, ox + lx, oy + 22 - hop - joy, 32, 48);
     const bob = this.state === 'cut' && this.anim > 0 ? 1 : 0;
     ctx.drawImage(this.sergio.stand.l, ox + Math.round(this.sx) - 16, oy + 22 - hop - joy + bob, 32, 48);
@@ -364,15 +473,21 @@ export class OperationScene {
     R(4, 34, 8, 7, '#8fd0f5');
     R(7, 41, 1, 30, '#bfe9ff');
 
-    // Monitor: batimento calmo a dormir, disparado quando acorda
+    // Monitor: batimento calmo a dormir, disparado quando acorda, linha reta na paragem cardíaca
     R(200, 22, 32, 24, C.ink);
     R(202, 24, 28, 16, '#0f2a2a');
+    const flat = this.arrest && this.state !== 'revived';
     const sp = awake ? 70 : 22, amp = awake ? 6 : 4;
-    const col = awake ? '#ff5d5d' : C.green;
-    for (let x = 0; x < 28; x++) {
-      const ph = mod(x + Math.floor(t * sp), 14);
-      const d = ph === 6 ? -amp : ph === 7 ? Math.round(amp * 0.6) : 0;
-      R(202 + x, 33 + Math.min(0, d), 1, Math.abs(d) + 1, col);
+    const col = awake || flat ? '#ff5d5d' : C.green;
+    if (flat) {
+      if (this.state === 'shock' && this.timer > 0.5) for (let x = 0; x < 28; x++) R(202 + x, 33 - Math.round(Math.max(0, 7 - Math.abs(x - 14)) * 0.9), 1, 1, C.gold);
+      else if (Math.floor(t * 4) % 2) R(202, 33, 28, 1, col);
+    } else {
+      for (let x = 0; x < 28; x++) {
+        const ph = mod(x + Math.floor(t * sp), 14);
+        const d = ph === 6 ? -amp : ph === 7 ? Math.round(amp * 0.6) : 0;
+        R(202 + x, 33 + Math.min(0, d), 1, Math.abs(d) + 1, col);
+      }
     }
     R(203, 42, 3, 2, col);
     R(208, 42, 3, 2, C.gold);
@@ -392,8 +507,9 @@ export class OperationScene {
   }
 
   drawPatient(R, t, awake) {
+    const shocking = this.state === 'shock' && this.timer > 0.55;   // o choque faz o doente dar um salto
     const dx = awake ? Math.round(Math.sin(t * 38) * 1.5) : 0;
-    const dy = awake ? -Math.round(Math.abs(Math.sin(t * 21)) * 2) : 0;
+    const dy = awake ? -Math.round(Math.abs(Math.sin(t * 21)) * 2) : shocking ? -4 : 0;
     const P = (x, y, w, h, c) => R(x + dx, y + dy, w, h, c);
     const breath = awake ? 0 : Math.max(0, Math.round(Math.sin(t * 2)));
 
@@ -483,8 +599,13 @@ export class OperationScene {
       }
     });
 
-    // A dormir: Zzz a subir. Acordado: pontos de exclamação.
-    if (awake) {
+    // As pás do desfibrilhador no peito, ligadas ao aparelho
+    if (this.state === 'defib' || this.state === 'defibFail' || this.state === 'shock') {
+      for (const px of [84, 101]) { P(px, 63, 9, 7, C.ink); P(px + 1, 64, 7, 5, shocking ? C.gold : '#ff8a3c'); P(px + 3, 57, 2, 6, C.ink); }
+    }
+
+    // A dormir: Zzz a subir. Acordado: pontos de exclamação. Na paragem: nada.
+    if (this.arrest) { /* sem Zzz */ } else if (awake) {
       if (blink) {
         R(48, 42, 2, 7, C.red);
         R(48, 51, 2, 2, C.red);
@@ -504,17 +625,19 @@ export class OperationScene {
   }
 
   drawTools(R, t, awake) {
-    // Seringa da Luísa
-    const injecting = this.state === 'anes' || this.state === 'anesFail' || this.state === 'calm';
-    const sx = injecting ? 58 : 45;
-    const sy = injecting ? 40 + Math.round(this.fill * 6) : 40;
-    R(sx - 1, sy - 4, 5, 1, C.steelD);
-    R(sx + 1, sy - 4, 1, 4, C.steelD);
-    R(sx, sy, 3, 10, '#eaf8ff');
-    R(sx, sy + 3 + Math.round(this.fill * 5), 3, 7 - Math.round(this.fill * 5), '#7be0b0');
-    R(sx + 1, sy + 10, 1, 5, C.steelD);
+    // Seringa da Luísa (na paragem cardíaca ela está com as pás)
+    if (!this.arrest) {
+      const injecting = this.state === 'anes' || this.state === 'anesFail' || this.state === 'calm';
+      const sx = injecting ? 58 : 45;
+      const sy = injecting ? 40 + Math.round(this.fill * 6) : 40;
+      R(sx - 1, sy - 4, 5, 1, C.steelD);
+      R(sx + 1, sy - 4, 1, 4, C.steelD);
+      R(sx, sy, 3, 10, '#eaf8ff');
+      R(sx, sy + 3 + Math.round(this.fill * 5), 3, 7 - Math.round(this.fill * 5), '#7be0b0');
+      R(sx + 1, sy + 10, 1, 5, C.steelD);
+    }
 
-    if (this.state === 'won' || this.state === 'done' || this.state === 'intro') return;
+    if (this.state === 'won' || this.state === 'done' || this.state === 'intro' || this.arrest) return;
 
     // Ferramenta do Sérgio por cima do osso atual
     const b = this.bones[Math.min(this.i, this.bones.length - 1)];
@@ -563,6 +686,37 @@ export class OperationScene {
     R(20, 110, 200, 32, '#fff6e6');
     R(22, 112, 196, 28, '#10323d');
     for (let y = 113; y < 140; y += 3) R(22, y, 196, 1, '#143b47');
+
+    if (this.arrest) {
+      if (this.state === 'revived') {
+        // o traçado do coração, de volta
+        for (let x = 0; x < 196; x++) {
+          const ph = mod(x - Math.floor(t * 60), 40);
+          const d = ph === 18 ? -9 : ph === 19 ? 4 : ph === 17 ? -3 : 0;
+          R(22 + x, 127 + Math.min(0, d), 1, Math.abs(d) + 1, C.green);
+        }
+        return;
+      }
+      // O desfibrilhador: a carga sobe enquanto se mantém premido; largar no verde dá o choque
+      const fw = Math.round(this.fill * 126);
+      const [lo, hi] = this.zone;
+      const shock = this.state === 'shock';
+      R(50, 118, 130, 16, '#eaf8ff');
+      R(52, 120, 126, 12, '#2a5665');
+      R(52, 120, fw, 12, shock ? C.gold : this.state === 'defibFail' ? '#ff8a8a' : '#ffb347');
+      for (let k = 1; k < 10; k++) R(52 + Math.round(k * 12.6), 120, 1, 3, '#6f93a8');
+      const zx = 52 + Math.round(lo * 126), zw = Math.round((hi - lo) * 126);
+      R(zx, 115, zw, 22, 'rgba(92,240,138,0.4)');
+      R(zx, 115, 1, 22, C.green);
+      R(zx + zw - 1, 115, 1, 22, C.green);
+      R(zx, 115, zw, 1, C.green);
+      R(zx, 136, zw, 1, C.green);
+      // o raio, a piscar enquanto se carrega
+      if (!this.holding || Math.floor(t * 8) % 2) { R(34, 115, 4, 9, C.gold); R(30, 122, 8, 3, C.gold); R(32, 125, 4, 10, C.gold); }
+      // choques dados / necessários
+      for (let k = 0; k < SHOCKS; k++) R(212 - k * 6, 114, 4, 4, k >= SHOCKS - this.shocks ? C.gold : '#2a5665');
+      return;
+    }
 
     if (awake || this.state === 'calm') {
       // Seringa: o êmbolo avança enquanto se mantém premido
@@ -624,8 +778,8 @@ export class OperationScene {
       for (const cx of this.cracks) {
         for (let j = 0; j < 9; j++) R(cx + (j % 2), PCY - 4 + j, 1, 1, C.ink);
       }
-      // Zona verde
-      const [bx, bw] = this.band;
+      // Zona verde (na 2.ª parte anda de um lado para o outro)
+      const bx = Math.round(this.band[0]), bw = this.band[1];
       R(bx, 113, bw, 26, 'rgba(92,240,138,0.38)');
       R(bx, 113, 1, 26, C.green);
       R(bx + bw - 1, 113, 1, 26, C.green);

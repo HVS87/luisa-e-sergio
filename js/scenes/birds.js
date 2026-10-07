@@ -5,8 +5,10 @@
 // veem-se as cores. Mantendo uma ave na mira durante um instante, fica identificada e
 // entra no caderno de campo: cada espécie vale um coração. As aves chegam uma a uma, ficam
 // algum tempo e vão-se embora; as que escaparem voltam uma segunda vez no fim.
+// Depois, a Luísa pinta três das aves: o pincel vai passando pela paleta e toca-se na cor certa
+// para cada parte do desenho (duas por ave); sem enganos, cada aguarela vale um coração.
 //
-// Controlos: arrastar o dedo (ou as setas) para mover os binóculos.
+// Controlos: arrastar o dedo (ou as setas) para mover os binóculos; tocar para pintar.
 // Os nomes, pistas e curiosidades estão em js/levels/08-aves.js; os desenhos estão aqui.
 import { LEVELS } from '../levels/index.js';
 import { getCharacter, makeSprite, flip } from '../sprites.js';
@@ -14,6 +16,12 @@ import { Particles } from '../fx.js';
 
 const INK = '#2b1d2e', GOLD = '#ffd166', SHADE = '#4a4263';
 const LENS = 28, SEP = 16;     // raio de cada lente e meia distância entre elas
+// A paleta da Luísa e o tempo que o pincel fica em cada cor
+const PALETTE = [
+  { id: 'rosa', c: '#ff7fa5' }, { id: 'azul', c: '#2a8fe0' }, { id: 'laranja', c: '#f08a3c' }, { id: 'amarelo', c: '#ffd23e' },
+  { id: 'verde', c: '#3f9e5a' }, { id: 'castanho', c: '#8a6a48' }, { id: 'preto', c: '#2b2b3a' },
+];
+const BRUSH_STEP = 0.5, SKETCH = '#d8d2c6', SKETCH_LINE = '#8a8494';
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 // ---------- Desenhos das aves (viradas para a direita) ----------
@@ -288,14 +296,17 @@ export class BirdsScene {
     this.art = getArt();
     this.sergio = getCharacter('sergio', 'campo');
     this.luisa = getCharacter('luisa', 'campo');
-    this.total = this.species.length;
+    this.palette = PALETTE;
+    this.sheets = new Map();
+    this.total = this.species.length + (this.level.painting ? 3 : 0);   // as espécies e as três aguarelas
     this.t = 0;
     this.paused = false;
     this.setup();
   }
 
   setup() {
-    this.state = 'intro';      // intro → play → end → done
+    this.state = 'intro';      // intro → play → end → paint → gallery → done
+    this.paint = null;
     this.got = 0;
     this.found = new Set();
     this.birds = [];
@@ -336,7 +347,7 @@ export class BirdsScene {
   }
 
   togglePause() {
-    if (this.state !== 'play') return;
+    if (this.state !== 'play' && this.state !== 'paint') return;
     this.paused = !this.paused;
     this.game.input.reset();
     this.game.ui.setLevelMode(true, !this.paused);
@@ -414,7 +425,11 @@ export class BirdsScene {
     for (const n of this.notes) { n.life -= dt; n.y -= 14 * dt; n.x += Math.sin(n.life * 7) * 8 * dt; }
     this.notes = this.notes.filter((n) => n.life > 0);
 
-    if (this.hintT > 0) { this.hintT -= dt; if (this.hintT <= 0 && this.state === 'play') this.idleHint(); }
+    if (this.hintT > 0) {
+      this.hintT -= dt;
+      if (this.hintT <= 0 && this.state === 'play') this.idleHint();
+      else if (this.hintT <= 0 && this.state === 'paint' && this.paint.showT <= 0) this.stepHint();
+    }
 
     if (this.state === 'play') {
       // As aves vão chegando: mais depressa se já não houver nenhuma por identificar
@@ -432,7 +447,94 @@ export class BirdsScene {
           this.say(this.level.again);
         } else this.finale();
       }
-    } else if (this.state === 'end' && this.timer > 5.5) this.finish();
+    } else if (this.state === 'end' && this.timer > 5.5) {
+      if (this.level.painting) this.startPainting(); else this.finish();
+    } else if (this.state === 'paint') this.stepPaint(dt, I);
+    else if (this.state === 'gallery' && this.timer > 3.2) this.finish();
+  }
+
+  // ---------- A pintura ----------
+  // Três aves, primeiro as que ficaram no caderno; em cada uma, duas partes a pintar.
+  startPainting() {
+    const P = this.level.painting;
+    const pick = P.priority.filter((id) => this.found.has(id)).concat(P.priority.filter((id) => !this.found.has(id))).slice(0, 3);
+    this.paint = { birds: pick, k: 0, step: 0, brush: 0, t: 0, clean: true, showT: 0, lock: 0.6, painted: pick.map(() => '') };
+    this.state = 'paint';
+    this.timer = 0;
+    this.game.input.reset();
+    this.game.ui.setLevelMode(true, true);
+    this.game.audio.play('check');
+    this.say(P.intro, 3.5);
+  }
+
+  curStep() { const p = this.paint; return this.level.painting.birds[p.birds[p.k]][p.step]; }
+
+  // O pincel está na cor certa para a parte da vez? (usado também pela suite de testes)
+  brushOk() { const p = this.paint; return !!p && p.k < p.birds.length && p.showT <= 0 && PALETTE[p.brush].id === this.curStep().color; }
+
+  stepHint() {
+    const p = this.paint, s = this.curStep(), sp = this.info(p.birds[p.k]);
+    this.hintT = 0;
+    this.game.ui.setHint(this.level.painting.step.replace('[ave]', `${sp.art === 'uma' ? 'a' : 'o'} ${sp.name}`).replace('[parte]', s.part).replace('[cor]', s.color));
+  }
+
+  stepPaint(dt, I) {
+    const p = this.paint, P = this.level.painting;
+    if (p.lock > 0) p.lock -= dt;
+    if (p.showT > 0) {
+      // a aguarela acabada fica um instante à vista
+      p.showT -= dt;
+      if (p.showT > 0) return;
+      p.k++;
+      p.step = 0;
+      p.clean = true;
+      if (p.k >= p.birds.length) {
+        this.state = 'gallery';
+        this.timer = 0;
+        this.joy = 3;
+        this.game.ui.setLevelMode(true, false);
+        this.game.audio.play('fanfare');
+        this.game.ui.setHint(P.done);
+      } else this.stepHint();
+      return;
+    }
+    p.t += dt;
+    p.brush = Math.floor(p.t / BRUSH_STEP) % PALETTE.length;
+    if (!I.actionPressed || p.lock > 0) return;
+    const st = this.curStep();
+    if (PALETTE[p.brush].id !== st.color) {
+      p.clean = false;
+      p.lock = 0.5;
+      this.game.audio.play('buzz');
+      this.say(P.wrong, 1.5);
+      return;
+    }
+    p.painted[p.k] += st.keys;
+    p.step++;
+    p.lock = 0.4;
+    this.game.audio.play('pop');
+    if (p.step < this.level.painting.birds[p.birds[p.k]].length) { this.stepHint(); return; }
+    // aguarela acabada
+    p.showT = 1.7;
+    if (p.clean) {
+      this.got++;
+      this.joy = 1.2;
+      this.game.ui.setHud(this.got, this.total, this.level.title);
+      this.game.audio.play('heart');
+      this.fx.heart(this.game.view.w / 2, 40);
+    } else this.game.audio.play('check');
+    this.say(P.right, 2);
+  }
+
+  // O desenho de uma ave na folha: só as partes já pintadas têm cor; o resto é um esboço a lápis.
+  sheetImg(id, keys) {
+    const key = id + ':' + keys;
+    if (this.sheets.has(key)) return this.sheets.get(key);
+    const a = ART[id], rows = a.frames[0], pal = {};
+    for (const ch of rows.join('')) if (ch !== '.') pal[ch] = keys.includes(ch) ? a.pal[ch] : ch === 'o' ? SKETCH_LINE : SKETCH;
+    const img = makeSprite(rows, pal);
+    this.sheets.set(key, img);
+    return img;
   }
 
   stepBird(b, dt, G) {
@@ -561,6 +663,8 @@ export class BirdsScene {
       }
     }
 
+    if (this.state === 'paint' || this.state === 'gallery') this.drawPainting(ctx, v, G, R);
+
     // Os binóculos: contorno, e lá dentro a paisagem ampliada para o dobro, a cores
     if (playing) {
       this.lensPath(ctx, lx, ly, LENS + 2);
@@ -599,6 +703,34 @@ export class BirdsScene {
     R(57, by - 20 - hop, 11, 9, INK); R(58, by - 19 - hop, 9, 7, '#c2384a'); R(59, by - 18 - hop, 7, 2, '#ffffff');
 
     this.drawNotebook(ctx, v, G, R);
+  }
+
+  // A folha de aguarela com a ave da vez, a paleta e o pincel; no fim, as três aguarelas lado a lado.
+  drawPainting(ctx, v, G, R) {
+    const p = this.paint, cx = Math.round(v.w / 2);
+    const sheet = (x, y, w, h, id, keys, scale) => {
+      R(x + 2, y + 3, w, h, 'rgba(43,29,46,0.25)');
+      R(x - 1, y - 1, w + 2, h + 2, INK); R(x, y, w, h, '#fffaf0'); R(x, y, w, 2, '#e8dcc0');
+      const img = this.sheetImg(id, keys);
+      ctx.drawImage(img, Math.round(x + (w - img.width * scale) / 2), Math.round(y + (h - img.height * scale) / 2), img.width * scale, img.height * scale);
+    };
+    if (this.state === 'gallery') {
+      const w = 56, h = 44, gap = 8, x0 = cx - Math.round((p.birds.length * (w + gap) - gap) / 2), y = Math.round(G.hy - 14);
+      p.birds.forEach((id, i) => sheet(x0 + i * (w + gap), y + Math.round(Math.sin(this.t * 3 + i) * 2), w, h, id, p.painted[i], 2));
+      return;
+    }
+    const w = 120, h = 84, x = cx - 60, y = v.portrait ? 44 : 30;
+    sheet(x, y, w, h, p.birds[p.k], p.painted[p.k], 3);
+    // a paleta e o pincel a passar pelas cores
+    const n = PALETTE.length, bw = 14, px0 = cx - Math.round((n * bw) / 2), py = y + h + 10;
+    R(px0 - 3, py - 3, n * bw + 6, 16, INK); R(px0 - 2, py - 2, n * bw + 4, 14, '#e8dcc0');
+    PALETTE.forEach((c, i) => {
+      R(px0 + i * bw + 2, py, 10, 10, c.c);
+      if (i === p.brush && p.showT <= 0) {
+        const b = Math.round(Math.abs(Math.sin(this.t * 8)) * 2), hx = px0 + i * bw + 5;
+        R(hx + 1, py - 16 - b, 2, 10, '#c98f52'); R(hx, py - 6 - b, 4, 3, '#8a93a7'); R(hx + 1, py - 3 - b, 2, 2, c.c);
+      }
+    });
   }
 
   // As duas lentes: reunião de dois círculos, linha a linha, para ficar bem "pixelizado".

@@ -20,18 +20,21 @@ const SOLID = new Set('BTFxtWwRbPCAkmonvdMGgOEKcYZjueq='.split(''));
 // Cenas que podem continuar o nível depois da visita (`then` no ficheiro do nível).
 const NEXT = { oven: OvenScene };
 
+// um pouco maior do que as pessoas, para se ver bem a vir pelo caminho
 const COW = [
-  '...............w..w.',
-  '...............bbbb.',
-  '.bbbbbbbbbbbbbbbbbbb',
-  'bbbbbbbbbbbbbbbbbbkb',
-  'bbbbBBbbbbbbbbbbbbbb',
-  'bbbbBBBbbbbbbbbbbpp.',
-  'tbbbbbbbbbbbbbbb....',
-  't.bbbbbbbbbbbbb.....',
-  '..bb.bb....bb.bb....',
-  '..bb.bb....bb.bb....',
-  '..kk.kk....kk.kk....',
+  '...................w...w..',
+  '...................bbbbb..',
+  '..bbbbbbbbbbbbbbbbbbbbbbb.',
+  '.bbbbbbbbbbbbbbbbbbbbbbkbb',
+  '.bbbBBBbbbbbbbBBbbbbbbbbbb',
+  'bbbbBBBBbbbbbbBBbbbbbbbpp.',
+  'tbbbbBBbbbbbbbbbbbbbbbb...',
+  't.bbbbbbbbbbbbbbbbbbbbb...',
+  't..bbbbbbbbbbbbbbbbbbb....',
+  '...bbb.bb.pp..bbb.bbb.....',
+  '...bbb.bb.pp..bbb.bbb.....',
+  '...bbb.bb.....bbb.bbb.....',
+  '...kkk.kk.....kkk.kkk.....',
 ];
 // Blocos altos, desenhados por cima do chão e ordenados com as personagens.
 const FLOORS = { '.': 'grass', ',': 'gravel', '_': 'wood', ':': 'stone', r: 'rug' };
@@ -359,7 +362,7 @@ export class TourScene {
     // o par: a seguir o jogador, ou perdido noutro mapa (e então não se desenha aqui)
     if (!this.sergioLost || m.id === this.lostMap) ents.push({ y: this.c.y, draw: () => this.drawPerson(ctx, this.follow, this.c, camX, camY, this.sergioLost) });
     for (const n of m.npcs) ents.push({ y: n.y, draw: () => this.drawPerson(ctx, n.frames, { x: n.x, y: n.y, facing: this.p.x < n.x ? -1 : 1, moving: false, dist: 0 }, camX, camY, false) });
-    for (const cow of m.cows) ents.push({ y: cow.y, draw: () => { ctx.fillStyle = 'rgba(0,0,0,0.22)'; ctx.fillRect(Math.round(cow.x - camX) - 8, Math.round(cow.y - camY) - 1, 17, 3); ctx.drawImage(this.cowImg[cow.dir > 0 ? 'r' : 'l'], Math.round(cow.x - camX) - 10, Math.round(cow.y - camY) - 10 - (cow.wait > 0 ? 0 : Math.floor(t * 6) % 2)); } });
+    for (const cow of m.cows) ents.push({ y: cow.y, draw: () => { ctx.fillStyle = 'rgba(0,0,0,0.22)'; ctx.fillRect(Math.round(cow.x - camX) - 11, Math.round(cow.y - camY) - 1, 23, 3); ctx.drawImage(this.cowImg[cow.dir > 0 ? 'r' : 'l'], Math.round(cow.x - camX) - 13, Math.round(cow.y - camY) - 12 - (cow.wait > 0 ? 0 : Math.floor(t * 6) % 2)); } });
     for (const h of m.hearts) if (!h.got) ents.push({ y: h.y + 4, draw: () => ctx.drawImage(this.spr.heart, Math.round(h.x - camX) - 4, Math.round(h.y - camY) - 6 + Math.round(Math.sin(t * 4 + h.x) * 1.5)) });
     for (const poi of m.pois) if (!poi.done) ents.push({ y: poi.y, draw: () => this.drawSpark(R, poi, t) });
     if (this.extraEnts) this.extraEnts(ents, ctx, R, t);

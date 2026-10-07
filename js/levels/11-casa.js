@@ -1,7 +1,8 @@
 // Nível 11 — a casa nova: uma vivenda de dois andares, com jardim e piscina, em Campolide,
 // mesmo junto ao Aqueduto das Águas Livres. Quem orienta a obra é o Tio Alberto, tio da
 // Luísa e arquiteto (ver js/scenes/house.js). No fim penduram-se na sala as fotografias das
-// memórias dos níveis anteriores: as mesmas recordações do pedido, mais o próprio pedido.
+// memórias dos níveis anteriores (as mesmas recordações do pedido, mais o próprio pedido) e a
+// aguarela do guarda-rios que a Luísa pintou no observatório (nível 8).
 import pedido from './10-pedido.js';
 
 export default {
@@ -54,9 +55,8 @@ export default {
   crooked: 'Ficou um pouco torto... mas tem a sua graça.',
   ending: 'Tio Alberto: «Agora sim: já não é uma obra, é a vossa casa.»',
 
-  // As fotografias da parede: uma por cada nível anterior (as recordações do pedido e o pedido).
-  photos: [
-    ...pedido.memories,
-    { icon: 'colar', text: 'O pedido, junto à árvore de Natal: ela disse que sim!' },
-  ],
+  // Os quadros da parede: uma fotografia por cada nível anterior (as recordações do pedido e o
+  // pedido) e, a seguir à das aves, a aguarela do guarda-rios pintada pela Luísa.
+  photos: pedido.memories.flatMap((m) => (m.icon === 'binoculos' ? [m, { icon: 'aguarela', text: 'A aguarela do guarda-rios, pintada pela Luísa no observatório.' }] : [m]))
+    .concat([{ icon: 'colar', text: 'O pedido, junto à árvore de Natal: ela disse que sim!' }]),
 };

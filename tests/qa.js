@@ -91,7 +91,7 @@ const BOTS = {
     if (s.state === 'cut' && s.lock <= 0 && s.anim <= 0) {
       const x = 30 + s.m * 180, [b0, bw] = s.band;
       if (x > b0 + 3 && x < b0 + bw - 3) { I.action = true; I.actionPressed = true; }
-    } else if (s.state === 'anes') {
+    } else if (s.state === 'anes' || s.state === 'defib') {
       const mid = (s.zone[0] + s.zone[1]) / 2;
       if (s.fill < mid) { I.action = true; I.actionPressed = !s.holding; }
     }
@@ -144,6 +144,7 @@ const BOTS = {
     I.pointerY = 0.9;
   },
   BirdsScene(s) {
+    if (s.state === 'paint') { if (s.paint.lock <= 0 && s.brushOk()) { I.action = true; I.actionPressed = true; } return; }
     const b = s.birds.find((x) => !x.found && !x.hidden && x.state === 'here' && !x.way.joke);
     if (!b) return;
     const img = s.art[b.id][0].r;
@@ -326,9 +327,13 @@ function testData() {
   const sp = new Set(aves.species.map((s) => s.id));
   check('aves: a ordem só usa espécies do caderno (ou o pardal)', aves.order.every((id) => sp.has(id) || id === 'pardal'), aves.order.join(','));
   check('aves: todas as espécies visitantes aparecem', aves.species.slice(1).every((s) => aves.order.includes(s.id)));
+  const pal = ['rosa', 'azul', 'laranja', 'amarelo', 'verde', 'castanho', 'preto'];
+  check('aves: a pintura tem três ou mais aves do caderno, cada uma com duas partes e cores da paleta', aves.painting.priority.length >= 3 && aves.painting.priority.every((id) => sp.has(id) && aves.painting.birds[id] && aves.painting.birds[id].length === 2 && aves.painting.birds[id].every((p) => pal.includes(p.color) && p.keys && p.part)));
+  const enc = LEVELS[0];
+  check('encontro: sete ossos, paragem cardíaca a meio e a zona verde a andar na 2.ª parte', enc.bones.length === 7 && enc.arrestAfter > 0 && enc.arrestAfter < enc.bones.length && enc.bones.slice(enc.arrestAfter).every((b) => b.drift > 0) && enc.bones.slice(0, enc.arrestAfter).every((b) => !b.drift));
   const casa = LEVELS.find((L) => L.type === 'house'), ci = LEVELS.indexOf(casa);
-  check('casa: uma fotografia por cada nível anterior', casa.photos.length === ci, `${casa.photos.length} fotografias para ${ci} níveis`);
-  check('casa: as fotografias são as recordações do pedido, mais o pedido', ped.memories.every((m) => casa.photos.some((p) => p.icon === m.icon)) && casa.photos.some((p) => p.icon === 'colar'));
+  check('casa: uma fotografia por cada nível anterior, mais a aguarela das aves', casa.photos.length === ci + 1, `${casa.photos.length} quadros para ${ci} níveis`);
+  check('casa: os quadros são as recordações do pedido, o pedido e a aguarela do guarda-rios', ped.memories.every((m) => casa.photos.some((p) => p.icon === m.icon)) && casa.photos.some((p) => p.icon === 'colar') && casa.photos.some((p) => p.icon === 'aguarela'));
   check('casa: uma instrução por cada peça da obra (5)', casa.pieces.length === 5);
   check('casa: três plantas, cada uma com estaca e instrução', casa.plants.length === 3 && casa.plants.every((p) => p.kind && /: «/.test(p.line)) && /\[cor\]/.test(casa.paintWrong));
   const prep = LEVELS.find((L) => L.type === 'prep');

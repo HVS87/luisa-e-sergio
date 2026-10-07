@@ -148,15 +148,22 @@ Os doze níveis da história e o nível bónus estão feitos.
 
 ### Nível 1 — minijogo "Operação"
 
-A Luísa (anestesista) e o Sérgio (ortopedista) conheceram-se a trabalhar juntos.
-O Sérgio retira cinco ossos ao doente, com serrote ou martelo: é preciso carregar quando o
-marcador passa na zona verde do osso, três vezes por osso. Se falhar, o doente acorda a
-espernear e passa a ser a vez da Luísa: manter premido para empurrar o êmbolo da seringa
-e largar dentro da zona verde. Cada osso retirado sem falhas vale um coração.
+A Luísa (anestesista) e o Sérgio (ortopedista) conheceram-se a trabalhar juntos. O nível é
+um minijogo inspirado no clássico "Operação", em duas partes (`js/scenes/operation.js`):
 
-Os ossos, a velocidade do marcador e a largura da zona verde definem-se em
-`js/levels/01-encontro.js`; a lógica e o cenário estão em `js/scenes/operation.js`.
-Um nível escolhe o tipo de jogo com `type` (`operation`, `date`, `bike`, `tour`, `covid`, `birds`, `proposal`, `house`, `prep`, `birth`; por omissão, plataformas).
+1. **Primeira parte** (úmero, costela, fémur): um marcador vai e vem no raio-X e o Sérgio
+   tem de tocar quando ele passa na zona verde, três vezes por osso. Se falhar, o doente
+   acorda aos saltos e a Luísa tem de lhe dar mais anestesia (manter premido para encher a
+   seringa e largar na zona verde).
+2. **A paragem cardíaca**: a meio, o monitor fica em linha reta e o doente entra em paragem
+   cardíaca. A Luísa pega nas pás do desfibrilhador: mantém-se premido para carregar e
+   larga-se na zona verde para dar o choque; são precisos dois. Sem nenhuma carga falhada,
+   vale um coração.
+3. **Segunda parte** (clavícula, rótula, tíbia, calcâneo): igual à primeira, mas a zona verde
+   anda de um lado para o outro dentro do osso (`drift`), e o marcador é mais rápido.
+
+Cada osso retirado sem acordar o doente vale um coração (8 ao todo). Os ossos, as
+velocidades e os textos estão em `js/levels/01-encontro.js`.
 
 ### Nível 2 — "O Primeiro Date"
 
@@ -302,6 +309,14 @@ Uma manhã num observatório de aves (`js/scenes/birds.js`). O Sérgio aponta os
 Os nomes, pistas, curiosidades e a ordem de chegada estão em `js/levels/08-aves.js`; os
 desenhos e o comportamento de cada ave, em `js/scenes/birds.js`.
 
+No fim da manhã há mais uma parte, **a pintura**: a Luísa (que desenha e pinta muito bem)
+pinta três das aves que viram, primeiro as que ficaram no caderno. Em cada aguarela há duas
+partes a pintar: o pincel vai passando pelas cores da paleta e toca-se quando está na cor
+certa (a parte e a cor vêm na linha de instruções). Sem enganos, cada aguarela vale um
+coração (três, além das dez espécies). A aguarela do guarda-rios fica depois pendurada na sala
+da casa nova, no nível 11. As partes e as cores de cada ave estão em `painting`, em
+`js/levels/08-aves.js`.
+
 ### Nível 9 — "Aurora Boreal"
 
 A viagem à Noruega para ver a aurora boreal, em duas partes:
@@ -352,7 +367,8 @@ arcos em ogiva e o Arco Grande. Quem orienta a obra é o Tio Alberto, o tio arqu
    longe, «aí passa a canalização» e volta a tentar. A Luísa rega cada planta e, no fim, o
    jardim cresce.
 5. **As fotografias**: dentro de casa, penduram-se na sala as fotografias dos momentos dos
-   níveis anteriores (as mesmas recordações do pedido, mais o próprio pedido). Cada quadro
+   níveis anteriores (as mesmas recordações do pedido, mais o próprio pedido e a aguarela do guarda-rios que a
+   Luísa pintou no nível 8). Cada quadro
    balança; tocar quando está direito vale um coração, e os outros ficam um pouco tortos.
 
 As fotografias vêm de `js/levels/10-pedido.js` (a suite de testes confirma que há uma por cada
@@ -417,6 +433,10 @@ depois de dois 1. No fim aparece o ecrã "Família completa!": a família, à no
 casa que construíram no nível 11 (azul-clara, de janelas acesas), com o Aqueduto ao luar no
 horizonte e fogo de artifício. O desenho da vivenda é partilhado (`drawVilla` em
 `js/scenes/house.js`).
+
+A Luísa está numa cama de partos (cabeceira alta, almofada, lençol azul com os joelhos
+levantados, grades e rodas, e o suporte do soro à cabeceira), com a parteira de pé ao lado,
+de toalha nas mãos, a ajudar.
 
 ### Dificuldade
 

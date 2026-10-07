@@ -160,8 +160,8 @@ export class BirthScene {
         this.state = 'fly';
         this.timer = 0;
         this.game.audio.play('pop');
-        this.launch(v, 84, g.gy - 40, r.toddler ? 1.9 : 2.2);
-        this.fx.burst(86, g.gy - 38, 14, ['#ffffff', GOLD, r.blanket], 70);
+        this.launch(v, 76, g.gy - 54, r.toddler ? 1.9 : 2.2);
+        this.fx.burst(78, g.gy - 52, 14, ['#ffffff', GOLD, r.blanket], 70);
         this.game.ui.setHint(`Lá vai ${r.article} ${r.name}! Apanha!`);
       }
     } else if (this.state === 'fly') {
@@ -284,29 +284,36 @@ export class BirthScene {
     R(cxr - 12, gy - 8, 3, 8, '#8a5a34');
     R(cxr + 9, gy - 8, 3, 8, '#8a5a34');
 
-    // A parteira, atrás da maca
-    const busy = st === 'push';
-    ctx.drawImage(this.midwife.stand.r, 28, gy - 78 - (busy ? Math.floor(t * 6) % 2 : 0), 32, 48);
+    // O suporte do soro, à cabeceira
+    R(1, gy - 82, 2, 78, '#8a93a7'); R(0, gy - 82, 5, 2, '#8a93a7'); R(0, gy - 5, 8, 2, '#8a93a7');
+    R(5, gy - 79, 8, 12, '#eaf8ff'); R(5, gy - 73, 8, 6, '#8fd0f5'); R(8, gy - 67, 1, 26, '#bfe9ff');
 
-    // A maca, com a Luísa deitada (cabeça na almofada, joelhos levantados debaixo do lençol)
-    R(4, gy - 24, 86, 6, INK);
-    R(5, gy - 23, 84, 4, '#d8dce6');
-    R(8, gy - 18, 3, 18, '#8a93a7');
-    R(82, gy - 18, 3, 18, '#8a93a7');
-    R(5, gy - 3, 8, 3, INK);
-    R(80, gy - 3, 8, 3, INK);
-    R(6, gy - 34, 26, 11, '#ffffff');
+    // A parteira, de pé ao lado da cama (atrás, para a cama lhe tapar as pernas), com uma toalha
+    // nas mãos, a ajudar
+    const busy = st === 'push', bob = busy ? Math.floor(t * 6) % 2 : 0;
+    ctx.drawImage(this.midwife.stand.l, 40, gy - 70 - bob, 32, 48);
+    R(50, gy - 52 - bob, 12, 7, INK); R(51, gy - 51 - bob, 10, 5, '#ffffff'); R(51, gy - 49 - bob, 10, 1, '#ffd1e0');
+
+    // A cama de partos: cabeceira alta, colchão com almofada, grades e rodas
+    const bx = 6, bw = 90, top = gy - 34;
+    R(bx, gy - 58, 7, 36, INK); R(bx + 1, gy - 57, 5, 34, '#8a93a7'); R(bx + 2, gy - 56, 3, 32, '#b8c4d6');   // cabeceira
+    R(bx + bw - 3, gy - 46, 5, 24, INK); R(bx + bw - 2, gy - 45, 3, 22, '#8a93a7');                            // pés da cama
+    R(bx + 5, top, bw - 8, 12, INK); R(bx + 6, top + 1, bw - 10, 10, '#ffffff'); R(bx + 6, top + 8, bw - 10, 3, '#d8dce6');   // colchão
+    R(bx + 7, top - 6, 24, 9, INK); R(bx + 8, top - 5, 22, 7, '#ffffff');                                       // almofada
+    R(bx + 5, gy - 22, bw - 8, 3, '#6a7480');                                                                     // estrado
+    R(bx + 9, gy - 19, 4, 15, '#8a93a7'); R(bx + bw - 13, gy - 19, 4, 15, '#8a93a7');                            // pernas
+    for (const wx of [bx + 7, bx + bw - 15]) { R(wx, gy - 5, 8, 5, INK); R(wx + 2, gy - 4, 4, 3, '#4a4458'); }   // rodas
+
+    // A Luísa deitada: a cabeça na almofada e o corpo debaixo do lençol azul, com os joelhos levantados
     const push = busy ? Math.round(Math.abs(Math.sin(t * 9)) * 2) : 0;
-    ctx.drawImage(this.luisa.stand.r, 2, 3, 12, 11, 8, gy - 54 + push, 24, 22);
-    R(30, gy - 38, 54, 15, '#a8dcf7');
-    R(30, gy - 38, 54, 2, '#cfeeff');
-    R(58, gy - 50 - push, 20, 14, '#a8dcf7');
-    R(58, gy - 50 - push, 20, 2, '#cfeeff');
-    R(82, gy - 40, 6, 17, '#8fc8e8');
+    ctx.drawImage(this.luisa.stand.r, 2, 3, 12, 11, bx + 9, top - 26 + push, 24, 22);
+    R(bx + 30, top - 7, 34, 9, '#a8dcf7'); R(bx + 30, top - 7, 34, 2, '#cfeeff');                     // o tronco
+    R(bx + 60, top - 21 - push, 20, 23, '#a8dcf7'); R(bx + 60, top - 21 - push, 20, 2, '#cfeeff');   // os joelhos
+    R(bx + 56, top - 15 - push, 4, 17, '#8fc8e8'); R(bx + 80, top - 12, 5, 14, '#8fc8e8');          // o lençol a cair
     if (busy) {           // gotas de esforço
-      R(34, gy - 58 - (Math.floor(t * 8) % 4), 2, 3, '#8fd0f5');
-      R(26, gy - 62 + (Math.floor(t * 8 + 2) % 4), 2, 3, '#8fd0f5');
-    } else if (st === 'caught' || st === 'end') ctx.drawImage(this.spr.heart, 16, gy - 70 + Math.round(Math.sin(t * 4) * 2));
+      R(bx + 34, top - 30 - (Math.floor(t * 8) % 4), 2, 3, '#8fd0f5');
+      R(bx + 26, top - 34 + (Math.floor(t * 8 + 2) % 4), 2, 3, '#8fd0f5');
+    } else if (st === 'caught' || st === 'end') ctx.drawImage(this.spr.heart, bx + 14, top - 44 + Math.round(Math.sin(t * 4) * 2));
 
     // O Xavier, que já anda (segunda ronda)
     if (this.kid) {
@@ -340,7 +347,7 @@ export class BirthScene {
       R(b.tx - sw / 2 + 2, gy + 5, sw - 4, 1, 'rgba(43,29,46,0.5)');
       this.drawBaby(R, b.x, b.y, r.blanket, Math.floor(t * 8) % 4);
     } else if (hold) this.drawBaby(R, sx, gy - 17, r.blanket, 0);
-    else if (st === 'caught' && this.nurse) this.drawBaby(R, 44, gy - 46, r.blanket, 0);
+    else if (st === 'caught' && this.nurse) this.drawBaby(R, 56, gy - 56, r.blanket, 0);   // nos braços da parteira
     // quem já nasceu fica no berço (o Xavier só enquanto não anda)
     this.held.forEach((h, i) => { if (!(this.kid && h === this.rounds[0]) && !(st === 'end' && i === this.held.length - 1)) this.drawBaby(R, cxr, gy - 22, h.blanket, 0); });
 
