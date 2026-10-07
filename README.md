@@ -139,17 +139,17 @@ tools/                servidor local e a página que desenha o logótipo (logo.h
 
 | # | Ficheiro | Capítulo | Ambiente |
 |---|----------|----------|----------|
-| 1 | `01-encontro.js` | Como se Conheceram | minijogo "Operação" no bloco operatório |
+| 1 | `01-encontro.js` | Como se Conheceram | minijogo "Operação" no bloco operatório, com uma paragem cardíaca a meio |
 | 2 | `02-date.js` | O Primeiro Date | microjogos num restaurante |
 | 3 | `03-madeira.js` | Na Madeira | plataformas: Funchal, levada, carro de cesto, Santana |
 | 4 | `04-ciclismo.js` | De Bicicleta | viagem de bicicleta: serra, planície e costa |
 | 5 | `05-solar.js` | A Casa da Beira | visita vista de cima: interior do solar e jardim de buxo |
-| 6 | `06-pretarouca.js` | Pretarouca | passeio pela aldeia de granito + forno de lenha |
+| 6 | `06-pretarouca.js` | Pretarouca | passeio pela aldeia de granito, com neve, + forno de lenha |
 | 7 | `07-covid.js` | Na Linha da Frente | arcada por vagas numa enfermaria, durante a pandemia |
-| 8 | `08-aves.js` | Birdwatching | binóculos e caderno de campo num observatório de aves |
+| 8 | `08-aves.js` | Birdwatching | binóculos e caderno de campo num observatório de aves + a Luísa pinta aguarelas |
 | 9 | `09-noruega.js` | Aurora Boreal | cidade nevada, trenó de huskies e a aurora |
 | 10 | `10-pedido.js` | O Pedido | Natal: jogo de memória com os presentes e o pedido de casamento |
-| 11 | `11-casa.js` | A Nossa Casa | a obra da vivenda junto ao Aqueduto e as fotografias na parede |
+| 11 | `11-casa.js` | A Nossa Casa | a obra da vivenda junto ao Aqueduto, a tinta, a piscina, o jardim e os quadros na parede |
 | 12 | `12-preparativos.js` | Preparativos do Casamento (final) | a véspera do casamento: a família toda nos preparativos |
 | Bónus | `b1-maternidade.js` | Na Maternidade | o Sérgio apanha o Xavier e, 2 anos depois, a Luisinha |
 
@@ -172,7 +172,8 @@ um minijogo inspirado no clássico "Operação", em duas partes (`js/scenes/oper
 3. **Segunda parte** (clavícula, rótula, tíbia, calcâneo): igual à primeira, mas a zona verde
    anda de um lado para o outro dentro do osso (`drift`), e o marcador é mais rápido.
 
-Cada osso retirado sem acordar o doente vale um coração (8 ao todo). Os ossos, as
+Cada osso retirado sem acordar o doente vale um coração (7) e a reanimação sem nenhuma
+carga falhada vale outro: 8 ao todo. Os ossos, as
 velocidades e os textos estão em `js/levels/01-encontro.js`.
 
 ### Nível 2 — "O Primeiro Date"
