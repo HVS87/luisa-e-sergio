@@ -318,7 +318,7 @@ export class BikeScene {
       this.timer = 0;
       this.taps = 0;
       if (ev.kind === 'furo') { this.game.audio.play('buzz'); this.hint('Furo! Toca depressa (▲ ou ▶) para encher o pneu!', 30); }
-      else { this.game.audio.play('check'); this.hint('Paragem para o café e um pastel de nata. É sagrada!', 4); }
+      else { this.game.audio.play('check'); this.hint('Pausa para o café e um cinnamon roll. É sagrada!', 4); }
     }
 
     if (this.bx >= this.length - 150) {
@@ -572,7 +572,8 @@ export class BikeScene {
     R(x + 52, y - 9, 12, 2, '#fff6e6');
     R(x + 57, y - 7, 2, 7, '#8a93a7');
     R(x + 54, y - 13, 3, 4, '#ffffff');
-    R(x + 59, y - 12, 4, 3, '#ffd166');
+    // o cinnamon roll, ao lado da chávena: a espiral de massa e a cobertura branca
+    R(x + 58, y - 13, 6, 4, '#b0723a'); R(x + 59, y - 12, 3, 1, '#7a4a22'); R(x + 61, y - 11, 1, 1, '#7a4a22'); R(x + 59, y - 13, 4, 1, '#fff6e6');
     if (Math.floor(t * 3) % 2) R(x + 55, y - 16, 1, 2, '#ffffff');
   }
 

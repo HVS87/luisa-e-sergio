@@ -224,8 +224,8 @@ vento de frente) e quem vai na roda recupera, por isso é preciso revezarem-se.
 | ▲ | Espaço | saltar buracos e ovelhas |
 | ◀ | seta esquerda / A | trocar quem vai à frente |
 
-Pelo caminho há bidões (energia), um furo (toques rápidos para encher o pneu) e a paragem
-sagrada no café. Se a energia de quem puxa chega a zero, "bate o homem da marreta" e a
+Pelo caminho há bidões (energia), um furo (toques rápidos para encher o pneu) e a pausa
+sagrada no café, para um café e um cinnamon roll. Se a energia de quem puxa chega a zero, "bate o homem da marreta" e a
 velocidade cai até trocarem. O percurso define-se troço a troço em `route`, no ficheiro
 `js/levels/04-ciclismo.js`; a lógica e o desenho estão em `js/scenes/bike.js`.
 
