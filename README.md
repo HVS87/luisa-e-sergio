@@ -313,7 +313,8 @@ desenhos e o comportamento de cada ave, em `js/scenes/birds.js`.
 No fim da manhã há mais uma parte, **a pintura**: a Luísa (que desenha e pinta muito bem)
 pinta três das aves que viram, primeiro as que ficaram no caderno. Os desenhos das aguarelas são
 próprios, maiores e com sombreado (`PAINT_ART`, em `js/scenes/birds.js`), com manchas de aguarela
-por trás e a assinatura da Luísa ao canto. Em cada aguarela há três
+por trás e a assinatura da Luísa ao canto; a folha fica sempre abaixo da caixa de instruções,
+e cá em baixo a Luísa pinta ao cavalete, com a mesma aguarela na tábua. Em cada aguarela há três
 partes a pintar: o pincel vai passando pelas cores da paleta e toca-se quando está na cor
 certa (a parte e a cor vêm na linha de instruções). Sem enganos, cada aguarela vale um
 coração (três, além das dez espécies). A aguarela do guarda-rios fica depois pendurada na sala
