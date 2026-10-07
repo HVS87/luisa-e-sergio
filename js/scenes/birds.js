@@ -296,7 +296,6 @@ export class BirdsScene {
     this.art = getArt();
     this.sergio = getCharacter('sergio', 'campo');
     this.luisa = getCharacter('luisa', 'campo');
-    this.palette = PALETTE;
     this.sheets = new Map();
     this.total = this.species.length + (this.level.painting ? 3 : 0);   // as espécies e as três aguarelas
     this.t = 0;
