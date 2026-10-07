@@ -29,14 +29,18 @@ const WHEEL = [
   ['...ooooo...', '..o.....o..', '.o...s...o.', 'o....s....o', 'o....s....o', 'o.sssosss.o', 'o....s....o', 'o....s....o', '.o...s...o.', '..o.....o..', '...ooooo...'],
   ['...ooooo...', '..o.....o..', '.os.....so.', 'o..s...s..o', 'o...s.s...o', 'o....o....o', 'o...s.s...o', 'o..s...s..o', '.os.....so.', '..o.....o..', '...ooooo...'],
 ];
+// um pouco maior do que o resto do cenário, para se ver bem a tempo de saltar
 const SHEEP = [
-  '..wwwwwww.....',
-  '.wwwwwwwwwkk..',
-  'wwwwwwwwwwkkk.',
-  'wWWwwwwwwwkk..',
-  '.WWWwwwww.....',
-  '..k.k..k.k....',
-  '..k.k..k.k....',
+  '...wwwwwww........',
+  '..wwwwwwwwww..kk..',
+  '.wwwwwwwwwwwwkkkk.',
+  'wwwwwwwwwwwwwkekkk',
+  'wWwwwwwwwwwwwwkkk.',
+  'wWWwwwwwwwwwww.k..',
+  '.WWWwwwwwwwwww....',
+  '..WWWWWWWWWWW.....',
+  '...k.k....k.k.....',
+  '...k.k....k.k.....',
 ];
 
 function line(ctx, x0, y0, x1, y1, w, color) {
@@ -57,7 +61,7 @@ export class BikeScene {
     this.spr = getSprites();
     const pal = { o: INK, s: '#aab2c5' };
     this.wheels = WHEEL.map((rows) => makeSprite(rows, pal));
-    this.sheep = makeSprite(SHEEP, { w: '#ffffff', W: '#d8dce6', k: '#2b1d2e' });
+    this.sheep = makeSprite(SHEEP, { w: '#ffffff', W: '#d8dce6', k: '#2b1d2e', e: '#ffffff' });
     this.t = 0;
     this.paused = false;
     this.build();
@@ -420,8 +424,15 @@ export class BikeScene {
     for (const o of this.obstacles) {
       if (o.x < camX - 20 || o.x > camX + v.w + 20) continue;
       const y = sy(o.x);
-      if (o.kind === 'ovelha') ctx.drawImage(this.sheep, Math.round(o.x - camX) - 7, y - 7 - (o.hit ? 3 : 0));
-      else { R(o.x - 7, y, 14, 3, INK); R(o.x - 5, y + 1, 10, 2, '#15101c'); R(o.x - 8, y - 1, 3, 1, '#7a7f90'); R(o.x + 6, y - 1, 2, 1, '#7a7f90'); }
+      if (o.kind === 'ovelha') ctx.drawImage(this.sheep, Math.round(o.x - camX) - 9, y - 10 - (o.hit ? 3 : 0));
+      else {
+        // buraco no alcatrão, com a orla de pedras soltas à volta
+        R(o.x - 10, y, 20, 4, INK);
+        R(o.x - 8, y + 1, 16, 3, '#15101c');
+        R(o.x - 12, y - 1, 4, 2, '#7a7f90');
+        R(o.x + 8, y - 1, 4, 2, '#7a7f90');
+        R(o.x - 3, y - 1, 2, 1, '#9aa0b0');
+      }
     }
 
     // Corações e bidões

@@ -7,7 +7,7 @@ export default {
   story: 'A Luísa e o Sérgio adoram ciclismo e fazem viagens inteiras só de bicicleta, com os alforges atrás. A etapa de hoje é das boas: da serra até ao mar!',
   help: '▶ (manter) pedalar · ▲ saltar · ◀ trocar quem vai à frente. No teclado: seta direita, Espaço e seta esquerda. Quem puxa cansa-se e quem vai na roda recupera: revezem-se, como uma boa equipa!',
   controls: '▶ pedala · ▲ salta · ◀ troca quem vai à frente',
-  arrival: 'Chegada ao mar, mesmo a tempo do pôr do sol!',
+  arrival: 'Chegada à costa, mesmo a tempo de um pôr do sol romântico sobre o mar!',
   outro: 'Mais uma viagem para a coleção. Juntos vão a todo o lado!',
 
   // O percurso, troço a troço:

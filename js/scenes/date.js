@@ -9,7 +9,7 @@
 //   back(s, g, R, t)    (opcional) desenho atrás da mesa
 //   draw(s, g, R, t)    desenho por cima da mesa e no painel inferior
 import { LEVELS } from '../levels/index.js';
-import { getCharacter, getSprites, partnerOf } from '../sprites.js';
+import { getCharacter, getSprites, partnerOf, charFrame } from '../sprites.js';
 import { Particles } from '../fx.js';
 
 const SW = 240, SH = 146, FLOOR = 100;
@@ -20,6 +20,11 @@ const GZ = 'rgba(92,240,138,0.38)';
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const mod = (a, n) => ((a % n) + n) % n;
 const rnd = (a, b) => a + Math.random() * (b - a);
+// O empregado a passar no pezinho: quanto já andou (p de 0 a 1), o desvio a partir do meio e o pé no ar.
+const waiterStep = (g) => {
+  const p = clamp(1 - g.wt / 0.75, 0, 1);
+  return { p, dx: Math.round((p - 0.5) * 28), leg: Math.floor(p * 6) % 2 };
+};
 
 // Temas de conversa: os bons dizem-se, os maus engolem-se.
 const TOPICS = {
@@ -413,12 +418,24 @@ const GAMES = {
       const wx = s.ux(0.46);
       if (g.ws === 'warn' && Math.floor(t * 10) % 2) R(wx - 16, 135, 32, 3, 'rgba(0,0,0,0.5)');
       if (g.ws === 'stomp') {
-        R(wx - 10, 112, 7, 22, INK);
-        R(wx + 3, 112, 7, 22, INK);
-        R(wx - 13, 133, 11, 4, INK);
-        R(wx + 2, 133, 11, 4, INK);
+        const fx = wx + waiterStep(g).dx, step = waiterStep(g).leg;
+        R(fx - 10, 112, 7, 22 - step, INK);
+        R(fx + 3, 112, 7, 22 - (1 - step), INK);
+        R(fx - 13, 133 - step, 11, 4, INK);
+        R(fx + 2, 133 - (1 - step), 11, 4, INK);
       }
       for (let k = 0; k < 5; k++) R(s.M(174, 6) + (s.meL ? k * 8 : -k * 8), 119, 6, 5, k < Math.floor((g.contact / 2.6) * 5) ? PINK : SLATE);
+    },
+    // depois de os pés piscarem, o empregado passa de corpo inteiro à frente da mesa, ao meio,
+    // com o tabuleiro no ar
+    front(s, g, R) {
+      if (g.ws !== 'stomp') return;
+      const { dx, p } = waiterStep(g), cx = s.ux(0.46) + dx;
+      s.ctx.drawImage(charFrame(s.waiter, 1, true, false, p * 40), s.ox + cx - 16, s.oy + 56, 32, 48);
+      R(cx + 6, 66, 20, 2, '#b8bcc8');            // tabuleiro
+      R(cx + 8, 63, 7, 3, '#ffffff');             // prato
+      R(cx + 18, 59, 3, 7, '#ffd1e0');            // copo
+      R(cx + 18, 59, 3, 2, WINE);
     },
   },
 
@@ -813,6 +830,7 @@ export class DateScene {
       R(119, 62 + (Math.floor(t * 9) % 2), 2, 5, GOLD);
       R(119, 65, 2, 2, '#ff8a4b');
     }
+    if (def.front) def.front(this, g, R, t);
 
     // Painel inferior (onde se joga cada microjogo)
     R(18, 108, 204, 36, INK);
