@@ -94,7 +94,7 @@ export class BirthScene {
 
   geo(v) {
     const gy = Math.round(v.h * (v.portrait ? 0.66 : 0.8));
-    const x0 = 100, x1 = v.w - 18;       // por onde o Sérgio pode andar
+    const x0 = 108, x1 = v.w - 18;       // por onde o Sérgio pode andar (à direita da cama)
     return { gy, x0, x1, X: (f) => x0 + f * (x1 - x0) };
   }
 
@@ -160,8 +160,8 @@ export class BirthScene {
         this.state = 'fly';
         this.timer = 0;
         this.game.audio.play('pop');
-        this.launch(v, 76, g.gy - 54, r.toddler ? 1.9 : 2.2);
-        this.fx.burst(78, g.gy - 52, 14, ['#ffffff', GOLD, r.blanket], 70);
+        this.launch(v, 80, g.gy - 58, r.toddler ? 1.9 : 2.2);
+        this.fx.burst(82, g.gy - 56, 14, ['#ffffff', GOLD, r.blanket], 70);
         this.game.ui.setHint(`Lá vai ${r.article} ${r.name}! Apanha!`);
       }
     } else if (this.state === 'fly') {
@@ -284,36 +284,7 @@ export class BirthScene {
     R(cxr - 12, gy - 8, 3, 8, '#8a5a34');
     R(cxr + 9, gy - 8, 3, 8, '#8a5a34');
 
-    // O suporte do soro, à cabeceira
-    R(1, gy - 82, 2, 78, '#8a93a7'); R(0, gy - 82, 5, 2, '#8a93a7'); R(0, gy - 5, 8, 2, '#8a93a7');
-    R(5, gy - 79, 8, 12, '#eaf8ff'); R(5, gy - 73, 8, 6, '#8fd0f5'); R(8, gy - 67, 1, 26, '#bfe9ff');
-
-    // A parteira, de pé ao lado da cama (atrás, para a cama lhe tapar as pernas), com uma toalha
-    // nas mãos, a ajudar
-    const busy = st === 'push', bob = busy ? Math.floor(t * 6) % 2 : 0;
-    ctx.drawImage(this.midwife.stand.l, 40, gy - 70 - bob, 32, 48);
-    R(50, gy - 52 - bob, 12, 7, INK); R(51, gy - 51 - bob, 10, 5, '#ffffff'); R(51, gy - 49 - bob, 10, 1, '#ffd1e0');
-
-    // A cama de partos: cabeceira alta, colchão com almofada, grades e rodas
-    const bx = 6, bw = 90, top = gy - 34;
-    R(bx, gy - 58, 7, 36, INK); R(bx + 1, gy - 57, 5, 34, '#8a93a7'); R(bx + 2, gy - 56, 3, 32, '#b8c4d6');   // cabeceira
-    R(bx + bw - 3, gy - 46, 5, 24, INK); R(bx + bw - 2, gy - 45, 3, 22, '#8a93a7');                            // pés da cama
-    R(bx + 5, top, bw - 8, 12, INK); R(bx + 6, top + 1, bw - 10, 10, '#ffffff'); R(bx + 6, top + 8, bw - 10, 3, '#d8dce6');   // colchão
-    R(bx + 7, top - 6, 24, 9, INK); R(bx + 8, top - 5, 22, 7, '#ffffff');                                       // almofada
-    R(bx + 5, gy - 22, bw - 8, 3, '#6a7480');                                                                     // estrado
-    R(bx + 9, gy - 19, 4, 15, '#8a93a7'); R(bx + bw - 13, gy - 19, 4, 15, '#8a93a7');                            // pernas
-    for (const wx of [bx + 7, bx + bw - 15]) { R(wx, gy - 5, 8, 5, INK); R(wx + 2, gy - 4, 4, 3, '#4a4458'); }   // rodas
-
-    // A Luísa deitada: a cabeça na almofada e o corpo debaixo do lençol azul, com os joelhos levantados
-    const push = busy ? Math.round(Math.abs(Math.sin(t * 9)) * 2) : 0;
-    ctx.drawImage(this.luisa.stand.r, 2, 3, 12, 11, bx + 9, top - 26 + push, 24, 22);
-    R(bx + 30, top - 7, 34, 9, '#a8dcf7'); R(bx + 30, top - 7, 34, 2, '#cfeeff');                     // o tronco
-    R(bx + 60, top - 21 - push, 20, 23, '#a8dcf7'); R(bx + 60, top - 21 - push, 20, 2, '#cfeeff');   // os joelhos
-    R(bx + 56, top - 15 - push, 4, 17, '#8fc8e8'); R(bx + 80, top - 12, 5, 14, '#8fc8e8');          // o lençol a cair
-    if (busy) {           // gotas de esforço
-      R(bx + 34, top - 30 - (Math.floor(t * 8) % 4), 2, 3, '#8fd0f5');
-      R(bx + 26, top - 34 + (Math.floor(t * 8 + 2) % 4), 2, 3, '#8fd0f5');
-    } else if (st === 'caught' || st === 'end') ctx.drawImage(this.spr.heart, bx + 14, top - 44 + Math.round(Math.sin(t * 4) * 2));
+    this.drawBed(ctx, R, gy, st, t);
 
     // O Xavier, que já anda (segunda ronda)
     if (this.kid) {
@@ -347,7 +318,7 @@ export class BirthScene {
       R(b.tx - sw / 2 + 2, gy + 5, sw - 4, 1, 'rgba(43,29,46,0.5)');
       this.drawBaby(R, b.x, b.y, r.blanket, Math.floor(t * 8) % 4);
     } else if (hold) this.drawBaby(R, sx, gy - 17, r.blanket, 0);
-    else if (st === 'caught' && this.nurse) this.drawBaby(R, 56, gy - 56, r.blanket, 0);   // nos braços da parteira
+    else if (st === 'caught' && this.nurse) this.drawBaby(R, 60, gy - 54, r.blanket, 0);   // nos braços da parteira
     // quem já nasceu fica no berço (o Xavier só enquanto não anda)
     this.held.forEach((h, i) => { if (!(this.kid && h === this.rounds[0]) && !(st === 'end' && i === this.held.length - 1)) this.drawBaby(R, cxr, gy - 22, h.blanket, 0); });
 
@@ -360,6 +331,99 @@ export class BirthScene {
     } else if (st === 'caught' && this.timer > 2.7 && this.round < this.rounds.length - 1) {
       R(0, 0, v.w, v.h, `rgba(10,6,20,${clamp((this.timer - 2.7) / 0.7, 0, 1).toFixed(2)})`);
     }
+  }
+
+  // A cama de partos vista de lado, com a Luísa deitada: o encosto levantado com a almofada, a
+  // cabeça de perfil, a camisa do hospital, a barriga redonda e os joelhos levantados debaixo do
+  // lençol, até aos pés. Atrás, o soro e o monitor; ao lado, a parteira, que durante o salto do
+  // bebé agita os braços em pânico.
+  drawBed(ctx, R, gy, st, t) {
+    const busy = st === 'push', flying = st === 'fly';
+    const push = busy ? Math.round(Math.abs(Math.sin(t * 9)) * 2) : 0;
+    const bx = 6, T = gy - 30;                               // canto da cama e topo do colchão
+    const SKIN = '#f6c9a0', SKIND = '#e0a888', HAIR = '#b07a45', HAIRD = '#8a5a30';
+    const SHEET = '#a8dcf7', SHEETD = '#6fb0dc', SHEETL = '#dff3ff', GOWN = '#ffc6de', GOWND = '#e89ab8';
+    const STEEL = '#8a93a7', STEELD = '#5a6478';
+    const disc = (cx, cy, r, c, to = r) => { for (let dy = -r; dy < to; dy++) { const hw = Math.round(Math.sqrt(r * r - (dy + 0.5) ** 2)); R(cx - hw, cy + dy, 2 * hw, 1, c); } };
+
+    // o soro e o monitor, atrás da cabeceira
+    R(1, gy - 84, 2, 80, STEEL); R(0, gy - 84, 5, 2, STEEL); R(0, gy - 5, 8, 2, STEEL);
+    R(4, gy - 81, 8, 12, INK); R(5, gy - 80, 6, 10, '#eaf8ff'); R(5, gy - 75, 6, 5, '#8fd0f5'); R(8, gy - 69, 1, 30, '#bfe9ff');
+    R(12, gy - 94, 26, 18, INK); R(13, gy - 93, 24, 14, '#0f2a2a');
+    for (let x = 0; x < 24; x++) { const ph = (x + Math.floor(t * (busy ? 40 : 18))) % 12; const d = ph === 5 ? -4 : ph === 6 ? 2 : 0; R(13 + x, gy - 86 + Math.min(0, d), 1, Math.abs(d) + 1, '#5cf08a'); }
+    R(24, gy - 76, 2, 12, STEELD);
+
+    // a parteira (desenhada antes da cama, para o colchão lhe tapar as pernas)
+    const mx = 44, my = gy - 70, bob = busy ? Math.floor(t * 6) % 2 : 0;
+    ctx.drawImage(this.midwife.stand.l, mx, my - bob, 32, 48);
+    if (flying) {
+      // em pânico: os braços no ar a abanar, e pontos de exclamação a piscar
+      const a = Math.sin(t * 22);
+      for (const [sx, dir] of [[mx + 7, -1], [mx + 25, 1]]) {
+        for (let k = 0; k < 9; k++) {
+          const x = sx + Math.round(dir * (2 + k * 0.8) + a * 2.5 * dir), y = my + 18 - k * 2;
+          R(x - 1, y, 4, 2, INK); R(x, y, 2, 2, SKIN);
+        }
+      }
+      if (Math.floor(t * 8) % 2) { R(mx + 12, my - 13, 2, 6, '#ff3b3b'); R(mx + 12, my - 5, 2, 2, '#ff3b3b'); R(mx + 18, my - 15, 2, 6, GOLD); R(mx + 18, my - 7, 2, 2, GOLD); }
+    } else {
+      // de toalha nas mãos, a ajudar
+      R(mx + 10, my + 18 - bob, 12, 7, INK); R(mx + 11, my + 19 - bob, 10, 5, '#ffffff'); R(mx + 11, my + 21 - bob, 10, 1, '#ffd1e0');
+    }
+
+    // o encosto levantado (inclinado) e a almofada
+    for (let i = 0; i < 30; i++) R(bx + 2 + Math.round(i * 0.45), T - 32 + i, 9, 1, INK);
+    for (let i = 1; i < 29; i++) R(bx + 3 + Math.round(i * 0.45), T - 32 + i, 7, 1, i % 6 === 0 ? STEELD : STEEL);
+    disc(bx + 17, T - 20, 9, INK); disc(bx + 17, T - 20, 8, '#ffffff'); R(bx + 11, T - 23, 6, 2, '#e8ecf4');
+
+    // a Luísa, de perfil: o cabelo espalhado na almofada e a cara virada para cima
+    disc(bx + 20, T - 18, 8, INK); disc(bx + 25, T - 16, 7, INK);
+    disc(bx + 20, T - 18, 7, HAIR); R(bx + 8, T - 18, 10, 4, HAIR); R(bx + 7, T - 15, 9, 3, HAIR); R(bx + 10, T - 12, 8, 2, HAIRD);
+    disc(bx + 25, T - 16, 6, SKIN);
+    R(bx + 20, T - 23, 8, 3, HAIR); R(bx + 22, T - 21, 7, 2, HAIR);               // a franja
+    R(bx + 24, T - 20, 4, 1, HAIRD);                                                 // a sobrancelha
+    if (busy) {
+      R(bx + 24, T - 18, 4, 1, INK); R(bx + 27, T - 13, 3, 3, '#7a1f2e');            // olhos fechados e boca aberta, a fazer força
+      R(bx + 33, T - 23 - (Math.floor(t * 8) % 3), 2, 3, '#8fd0f5');                  // uma gota de esforço
+    } else {
+      R(bx + 24, T - 19, 3, 2, '#ffffff'); R(bx + 25, T - 19, 2, 2, '#55703f'); R(bx + 26, T - 13, 4, 1, '#c2544c');
+    }
+    R(bx + 29, T - 16, 1, 2, SKIND);                                                  // o nariz
+    R(bx + 27, T - 15, 2, 1, '#f09a8c');                                              // a face corada
+
+    // o pescoço, a camisa do hospital (às pintinhas) e o braço pousado em cima do lençol
+    R(bx + 24, T - 11, 10, 4, SKIN);
+    R(bx + 26, T - 10, 24, 11, INK); R(bx + 27, T - 9, 22, 9, GOWN);
+    for (let k = 0; k < 6; k++) R(bx + 29 + k * 4, T - 7 + (k % 2) * 3, 1, 1, GOWND);
+    R(bx + 30, T - 7, 20, 5, INK); R(bx + 31, T - 6, 18, 3, SKIN); R(bx + 47, T - 7, 5, 5, INK); R(bx + 48, T - 6, 3, 3, SKIN);
+
+    // a barriga redonda, debaixo do lençol
+    disc(bx + 58, T - 1, 13, INK, 0); disc(bx + 58, T - 1, 12, SHEET, 0); disc(bx + 54, T - 3, 6, SHEETL, 0);
+
+    // os joelhos levantados (dois, um atrás do outro) e o lençol a descer até aos pés
+    const kx = bx + 74, ky = T - 24 - push;
+    const tent = (ox, oy, c, line) => {
+      for (let y = 0; y <= 23 - oy; y++) {
+        const l = Math.round(y * 0.8), r = Math.round(y * 0.6);
+        R(kx + ox - l, ky + oy + y, l + r + 2, 1, c);
+        if (line && y) { R(kx + ox - l, ky + oy + y, 1, 1, line); R(kx + ox + r + 1, ky + oy + y, 1, 1, line); }
+      }
+    };
+    tent(-6, 3, INK); tent(-6, 3, SHEETD);                                   // o joelho de trás
+    tent(0, 0, INK); tent(0, 0, SHEET, SHEETD);                              // o joelho da frente
+    R(kx - 2, ky + 1, 4, 1, SHEETL); R(kx - 1, ky + 2, 2, 1, SHEETL);        // a luz no joelho
+    R(bx + 86, T - 9, 8, 9, INK); R(bx + 87, T - 8, 6, 7, SHEET); R(bx + 88, T - 9, 2, 1, SHEET);   // os pés
+    R(bx + 91, T - 7, 2, 1, SHEETD); R(bx + 91, T - 5, 2, 1, SHEETD);
+
+    // o colchão, o lençol a cair sobre ele (com dobras), os pés da cama, o estrado e as rodas
+    R(bx + 2, T, 96, 11, INK); R(bx + 3, T + 1, 94, 9, '#ffffff'); R(bx + 3, T + 7, 94, 3, '#d8dce6');
+    R(bx + 44, T, 52, 7, SHEET); R(bx + 44, T + 6, 52, 1, SHEETD);
+    for (let x = bx + 50; x < bx + 94; x += 9) R(x, T + 1, 1, 5, SHEETD);
+    R(bx + 96, T - 18, 4, 30, INK); R(bx + 97, T - 17, 2, 28, STEEL);
+    R(bx + 1, T + 11, 98, 4, STEELD); R(bx + 1, T + 11, 98, 1, STEEL);
+    R(bx + 8, T + 15, 4, gy - T - 19, STEEL); R(bx + 88, T + 15, 4, gy - T - 19, STEEL);
+    for (const wx of [bx + 6, bx + 86]) { R(wx, gy - 5, 8, 5, INK); R(wx + 2, gy - 4, 4, 3, '#4a4458'); }
+    if (st === 'caught' || st === 'end') ctx.drawImage(this.spr.heart, bx + 20, T - 42 + Math.round(Math.sin(t * 4) * 2));
   }
 
   // Um bebé embrulhado numa mantinha; `spin` roda-o enquanto voa.

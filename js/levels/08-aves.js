@@ -34,27 +34,24 @@ export default {
   order: ['flamingo', 'garca', 'poupa', 'pardal', 'pernilongo', 'guardarios', 'abelharuco', 'colhereiro', 'pardal', 'aguia', 'mocho'],
 
   // A pintura: no fim da manhã, a Luísa (que desenha e pinta muito bem) pinta três das aves que
-  // viram, pela ordem de `priority` (primeiro as identificadas). Cada ave tem duas partes a pintar:
+  // viram, pela ordem de `priority` (primeiro as identificadas). Cada ave tem três partes a pintar:
   // o pincel vai passando pelas cores da paleta e toca-se na certa (`keys` são as letras do desenho
-  // em js/scenes/birds.js que ganham cor). Sem enganos, cada aguarela vale um coração. A do
-  // guarda-rios fica depois pendurada na sala da casa nova (nível 11).
+  // PAINT_ART, em js/scenes/birds.js, que ganham cor). Sem enganos, cada aguarela vale um coração.
+  // A do guarda-rios fica depois pendurada na sala da casa nova (nível 11).
   painting: {
     intro: 'Luísa: «Antes de irmos, deixa-me pintar algumas!» Toca quando o pincel estiver na cor certa.',
     step: 'A pintar [ave]: [parte], a [cor]. Toca quando o pincel estiver nessa cor!',
     wrong: 'Luísa: «Hã... essa cor não é bem.» Outra vez!',
     right: 'Luísa: «Ficou igualzinho!»',
     done: 'Três aguarelas para a parede lá de casa. Que bela manhã!',
-    priority: ['guardarios', 'flamingo', 'poupa', 'abelharuco', 'mocho', 'pernilongo', 'cegonha', 'aguia', 'colhereiro'],
+    priority: ['guardarios', 'flamingo', 'poupa', 'abelharuco', 'mocho', 'cegonha'],
     birds: {
-      guardarios: [{ keys: 'bc', color: 'azul', part: 'as costas' }, { keys: 'r', color: 'laranja', part: 'o peito' }],
-      flamingo: [{ keys: 'pPr', color: 'rosa', part: 'as penas' }, { keys: 'k', color: 'preto', part: 'a ponta do bico' }],
-      poupa: [{ keys: 'n', color: 'laranja', part: 'o corpo e a crista' }, { keys: 'k', color: 'preto', part: 'as riscas das asas' }],
-      abelharuco: [{ keys: 'n', color: 'castanho', part: 'as costas' }, { keys: 'y', color: 'amarelo', part: 'a garganta' }],
-      mocho: [{ keys: 'n', color: 'castanho', part: 'as penas' }, { keys: 'y', color: 'amarelo', part: 'os olhos' }],
-      pernilongo: [{ keys: 'r', color: 'rosa', part: 'as pernas' }, { keys: 'k', color: 'preto', part: 'as asas' }],
-      cegonha: [{ keys: 'r', color: 'laranja', part: 'o bico e as patas' }, { keys: 'k', color: 'preto', part: 'as pontas das asas' }],
-      aguia: [{ keys: 'd', color: 'castanho', part: 'as asas' }, { keys: 'e', color: 'amarelo', part: 'o olho' }],
-      colhereiro: [{ keys: 'y', color: 'amarelo', part: 'o bico' }, { keys: 'k', color: 'preto', part: 'as patas' }],
+      guardarios: [{ keys: 'bBd', color: 'azul', part: 'a cabeça e as costas' }, { keys: 'rR', color: 'laranja', part: 'o peito e a face' }, { keys: 'kl', color: 'preto', part: 'o bico' }],
+      flamingo: [{ keys: 'pPdr', color: 'rosa', part: 'as penas e as pernas' }, { keys: 'k', color: 'preto', part: 'a ponta do bico e das asas' }, { keys: 'a', color: 'azul', part: 'a água da lagoa' }],
+      poupa: [{ keys: 'nN', color: 'laranja', part: 'o corpo e a crista' }, { keys: 'k', color: 'preto', part: 'as riscas das asas e o bico' }, { keys: 'l', color: 'castanho', part: 'as patas' }],
+      abelharuco: [{ keys: 'nN', color: 'castanho', part: 'a cabeça e as costas' }, { keys: 'y', color: 'amarelo', part: 'a garganta' }, { keys: 'tTg', color: 'verde', part: 'a barriga e a cauda' }],
+      mocho: [{ keys: 'nN', color: 'castanho', part: 'as penas' }, { keys: 'y', color: 'amarelo', part: 'os olhos' }, { keys: 'kl', color: 'preto', part: 'as pupilas e o bico' }],
+      cegonha: [{ keys: 'r', color: 'laranja', part: 'o bico e as patas' }, { keys: 'kK', color: 'preto', part: 'as asas' }, { keys: 'lL', color: 'castanho', part: 'o ninho' }],
     },
   },
 };

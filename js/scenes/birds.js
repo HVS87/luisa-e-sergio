@@ -22,6 +22,214 @@ const PALETTE = [
   { id: 'verde', c: '#3f9e5a' }, { id: 'castanho', c: '#8a6a48' }, { id: 'preto', c: '#2b2b3a' },
 ];
 const BRUSH_STEP = 0.5, SKETCH = '#d8d2c6', SKETCH_LINE = '#8a8494';
+
+// ---------- As aguarelas da Luísa: desenhos maiores e com sombreado, só para a pintura ----------
+// Cada letra é uma cor (ver `pal`); 'o' é o contorno a lápis e 'w' o branco do papel. Enquanto não
+// se pinta, as outras letras ficam em cinzento-claro (esboço). `wash` são as manchas de aguarela
+// que aparecem por trás quando se pinta a primeira parte.
+const PAINT_ART = {
+  guardarios: {
+    pal: { o: INK, b: '#1f7ad0', B: '#5ec8f0', d: '#155a9a', r: '#f08a3c', R: '#ffb070', w: '#ffffff', k: '#2b2b3a', e: INK, l: '#8a6a48' },
+    wash: ['#a8dcf7', '#ffd9b8'],
+    rows: [
+      '.........oooooo.............',
+      '.......ooBBbbbboo...........',
+      '......oBbbbBbbbbbo..........',
+      '.....obbBbbbbbbbbbo.........',
+      '.....obbbbbbbewbbbboooooooo.',
+      '....obbbwwbbbbbbbbokkkkkkkko',
+      '....obbwwrrbbbbbbbbokkkkkko.',
+      '....obbwwrrbbbbbbbbbooooo...',
+      '....obbbwwbbbbbbbbbbo.......',
+      '...oBBbbbbbbbbbbbbbbo.......',
+      '...oBbbbbbdbbbbRRrrro.......',
+      '...oBbbbbddbbbRRrrrro.......',
+      '...obbbbbdddbbRrrrrrro......',
+      '...obbbbddddbbRrrrrrro......',
+      '...obbbddddddbrrrrrrro......',
+      '....oddddddddrrrrrrro.......',
+      '....oddddddddrrrrrro........',
+      '.....ooddddddrrrrro.........',
+      '.......oooodddrroo..........',
+      '..........oooooo............',
+      '...........orro.............',
+      '...........orro.............',
+      '......lllllorrollllllll.....',
+      '....llllllllllllllllllllll..',
+      '......llllllllllllllllll....',
+    ],
+  },
+  flamingo: {
+    pal: { o: INK, p: '#ffb3c7', P: '#ffd1de', d: '#e86a8a', r: '#e86a8a', k: '#2b2b3a', w: '#ffffff', e: INK, a: '#8fd0f5' },
+    wash: ['#ffd1de', '#cfeeff'],
+    rows: [
+      '..........oooo............',
+      '........ooPPppoo..........',
+      '.......oPPppppppo.........',
+      '.......oPpppewpppo........',
+      '.......oPppppppppoo.......',
+      '........oppppppokkkko.....',
+      '........opppppo.okkko.....',
+      '.........oppo....ooo......',
+      '.........oppo.............',
+      '........oppo..............',
+      '........oppo..............',
+      '.......oppo...............',
+      '.......oppo...............',
+      '......oppo................',
+      '......oppo................',
+      '.....oppo.................',
+      '....ooppoooo..............',
+      '...oPPpppppppooo..........',
+      '..oPPPpppppppppppo........',
+      '.oPPPPPpppddddppppo.......',
+      '.oPPPPPppdddddddpppo......',
+      '.oPPPPpppddddddddpppo.....',
+      '..oPPppppppdddddddkkko....',
+      '...opppppppppppdddkkko....',
+      '....oppppppppppppppoo.....',
+      '.....ooppppppppppoo.......',
+      '.......ooooppoooo.........',
+      '..........rr..............',
+      '..........rr..............',
+      '..........rr..............',
+      '..........rr..............',
+      '.aaaaaaaaarraaaaaaaaaaaa..',
+      '..aaaaaaaarraaaaaaaaaaa...',
+      '....aaaaarrrraaaaaaaa.....',
+    ],
+  },
+  poupa: {
+    pal: { o: INK, n: '#e8a060', N: '#f5c48a', k: '#2b2b3a', w: '#ffffff', l: '#8a7a6a', e: INK },
+    wash: ['#ffe0b8', '#d8f0c8'],
+    rows: [
+      '...k..k..k..k...............',
+      '..nk.nk.nk.nk...............',
+      '..NnnnnnnnnnN...............',
+      '...onnnnnnnno...............',
+      '..onnNNnnnnnnoo.............',
+      '..onnnnewnnnnnokkkkkkkkkkk..',
+      '..onnnnnnnnnnnnokkkkkkkkk...',
+      '...onnnnnnnnnnnoooooooo.....',
+      '...onnNNnnnnnnno............',
+      '..okkkwwwkkknnnno...........',
+      '..okwwwkkkwwwnnnno..........',
+      '.okkkwwwkkkwwwnnnno.........',
+      '.okwwwkkkwwwkkknnnno........',
+      '.okkkwwwkkkwwwkkknnno.......',
+      '..okwwwkkkwwwkkkwwnno.......',
+      '..okkkwwwkkkwwwkkknno.......',
+      '...okkwwwkkkwwwkkkkno.......',
+      '....okkkkwwwkkkwwkkko.......',
+      '.....ooookkkkkkkkkkoo.......',
+      '.........ooooooooo..........',
+      '..........l...l.............',
+      '..........l...l.............',
+      '.........ll..ll.............',
+    ],
+  },
+  abelharuco: {
+    pal: { o: INK, n: '#b5562a', N: '#d4784a', y: '#ffd23e', t: '#3cc9c0', T: '#2aa89e', g: '#3f9e5a', k: '#2b2b3a', e: '#c2384a', w: '#ffffff', l: '#8a6a48' },
+    wash: ['#ffe9a8', '#c8f0ec'],
+    rows: [
+      '..........oooooo............',
+      '........ooNNnnnnoo..........',
+      '.......oNNnnnnnnnno.........',
+      '......oNnnnnnnnnnnnoooooooo.',
+      '......onkkkkkewkkkkkkkkkkkko',
+      '.....onnkkkkkkkkkkokkkkkkko.',
+      '.....onnyyyyyyyyynooooooo...',
+      '.....onnyyyyyyyyyyo.........',
+      '....onnnnyyyyyyyyyo.........',
+      '....onnnnnttttttttto........',
+      '...onNnnnntttttttttto.......',
+      '...onNnnnnnttttttttTo.......',
+      '...onnnnnnnnttttttttTo......',
+      '...onnnnnnnnnttttttttTo.....',
+      '....onnnnnnnnnttttttttTo....',
+      '....ogggnnnnnnnttttttTTo....',
+      '.....ogggnnnnnnnttttTTTo....',
+      '......ogggggnnnnnnTTTTo.....',
+      '.......ogggggggnnnTTTTo.....',
+      '........oggggggggnTTTo......',
+      '.........ooggggggggoo.......',
+      '...........ooggggo..........',
+      '.............oggo...........',
+      '..............oo............',
+      '..llllllllllllllllllll......',
+      '...lllllllllllllllllll......',
+    ],
+  },
+  mocho: {
+    pal: { o: INK, n: '#8a6a48', N: '#b08a60', y: '#ffd23e', k: '#2b2b3a', w: '#e8dcc8', l: '#6b5238' },
+    wash: ['#e8dcc8', '#d8e8d0'],
+    rows: [
+      '......oooooooooo........',
+      '....oonNNNnnNNNnoo......',
+      '...onnwnnnnnnnnwnno.....',
+      '..onnnnnyyynnyyynnno....',
+      '..onnnnyyyyyyyyyynnno...',
+      '.onnnnyykyyyyyykyynnno..',
+      '.onnnnyykyyyyyykyynnno..',
+      '.onnnnnyyyynnyyyynnnnno.',
+      '.onnwnnnyynkknyynnwnnno.',
+      '.onnnnnnnnnkknnnnnnnnno.',
+      '.oNnwnnwnnnnnnnnwnnwnNo.',
+      '.oNnnnnnnwnnnnwnnnnnnNo.',
+      '..onnwnnnnnwwnnnnnwnno..',
+      '..onnnnwnnnnnnnnwnnnno..',
+      '..onnnnnnnwnnwnnnnnnno..',
+      '...onnwnnnnnnnnnnwnno...',
+      '...onnnnnwnnnnwnnnnno...',
+      '....onnnnnnwwnnnnnno....',
+      '.....oonnnnnnnnnnoo.....',
+      '.......ooooooooo........',
+      '........ll....ll........',
+      '.......lll....lll.......',
+      '..llllllllllllllllllll..',
+      '...lllllllllllllllllll..',
+    ],
+  },
+  cegonha: {
+    pal: { o: INK, w: '#ffffff', k: '#2b2b3a', K: '#4a4a5e', r: '#e0523f', e: INK, l: '#8a6a48', L: '#b08a54' },
+    wash: ['#cfeeff', '#ffe9a8'],
+    rows: [
+      '.........oooo.............',
+      '.......oowwwwoo...........',
+      '......owwwwwwwwo..........',
+      '......owwwewwwwwoooooooo..',
+      '......owwwwwwwwwrrrrrrrrro',
+      '.......owwwwwwwworrrrrrro.',
+      '........owwwwwwooooooooo..',
+      '.........owwwo............',
+      '.........owwwo............',
+      '.........owwwo............',
+      '........owwwo.............',
+      '........owwwo.............',
+      '......oowwwwoooo..........',
+      '....oowwwwwwwwwwoo........',
+      '...owwwwwwwwwwwwwwoo......',
+      '..owwwwwwwwwwwwwwwwwo.....',
+      '..owwwwwkkkkwwwwwwwwwo....',
+      '..owwwwkkKKkkkwwwwwwwwo...',
+      '..owwwwkkKKKkkkkwwwwwwo...',
+      '..owwwwwkkKKkkkkkkwwwwo...',
+      '...owwwwwkkkkkkkkkkkwwo...',
+      '...owwwwwwkkkkkkkkkkkko...',
+      '....owwwwwwwkkkkkkkkkkko..',
+      '.....oowwwwwwwkkkkkkkkko..',
+      '.......oowwwwwwkkkkkkko...',
+      '.........ooooooookkkkoo...',
+      '...........rr....oooo.....',
+      '...........rr.............',
+      '.....lLllllllLllllllll....',
+      '...llllLllllllllLllllllll.',
+      '..lllllllllLlllllllllllll.',
+      '..oooooooooooooooooooooo..',
+    ],
+  },
+};
+
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 // ---------- Desenhos das aves (viradas para a direita) ----------
@@ -525,13 +733,14 @@ export class BirdsScene {
     this.say(P.right, 2);
   }
 
-  // O desenho de uma ave na folha: só as partes já pintadas têm cor; o resto é um esboço a lápis.
+  // O desenho de uma ave na folha (ver PAINT_ART): só as partes já pintadas têm cor; o resto é um
+  // esboço a lápis, e o branco das penas é o do papel.
   sheetImg(id, keys) {
     const key = id + ':' + keys;
     if (this.sheets.has(key)) return this.sheets.get(key);
-    const a = ART[id], rows = a.frames[0], pal = {};
-    for (const ch of rows.join('')) if (ch !== '.') pal[ch] = keys.includes(ch) ? a.pal[ch] : ch === 'o' ? SKETCH_LINE : SKETCH;
-    const img = makeSprite(rows, pal);
+    const a = PAINT_ART[id], pal = {};
+    for (const ch of a.rows.join('')) if (ch !== '.') pal[ch] = keys.includes(ch) || ch === 'w' ? a.pal[ch] : ch === 'o' ? SKETCH_LINE : SKETCH;
+    const img = makeSprite(a.rows, pal);
     this.sheets.set(key, img);
     return img;
   }
@@ -707,19 +916,31 @@ export class BirdsScene {
   // A folha de aguarela com a ave da vez, a paleta e o pincel; no fim, as três aguarelas lado a lado.
   drawPainting(ctx, v, G, R) {
     const p = this.paint, cx = Math.round(v.w / 2);
-    const sheet = (x, y, w, h, id, keys, scale) => {
+    const sheet = (x, y, w, h, id, keys, done) => {
       R(x + 2, y + 3, w, h, 'rgba(43,29,46,0.25)');
       R(x - 1, y - 1, w + 2, h + 2, INK); R(x, y, w, h, '#fffaf0'); R(x, y, w, 2, '#e8dcc0');
-      const img = this.sheetImg(id, keys);
-      ctx.drawImage(img, Math.round(x + (w - img.width * scale) / 2), Math.round(y + (h - img.height * scale) / 2), img.width * scale, img.height * scale);
+      const img = this.sheetImg(id, keys), a = PAINT_ART[id];
+      const scale = Math.max(1, Math.floor(Math.min((w - 10) / img.width, (h - 8) / img.height)));
+      const ix = Math.round(x + (w - img.width * scale) / 2), iy = Math.round(y + (h - img.height * scale) / 2);
+      if (keys) {
+        // manchas de aguarela por trás do desenho, como num caderno de campo
+        ctx.globalAlpha = 0.45;
+        R(ix - 6, iy + Math.round(img.height * scale * 0.15), img.width * scale + 12, Math.round(img.height * scale * 0.3), a.wash[0]);
+        R(ix - 3, iy + Math.round(img.height * scale * 0.55), img.width * scale + 6, Math.round(img.height * scale * 0.3), a.wash[1]);
+        ctx.globalAlpha = 1;
+      }
+      ctx.drawImage(img, ix, iy, img.width * scale, img.height * scale);
+      if (done) {   // a assinatura da Luísa: um «L» e um ponto, ao canto
+        R(x + w - 9, y + h - 8, 1, 5, INK); R(x + w - 9, y + h - 4, 3, 1, INK); R(x + w - 4, y + h - 4, 1, 1, INK);
+      }
     };
     if (this.state === 'gallery') {
-      const w = 56, h = 44, gap = 8, x0 = cx - Math.round((p.birds.length * (w + gap) - gap) / 2), y = Math.round(G.hy - 14);
-      p.birds.forEach((id, i) => sheet(x0 + i * (w + gap), y + Math.round(Math.sin(this.t * 3 + i) * 2), w, h, id, p.painted[i], 2));
+      const w = 60, h = 50, gap = 8, x0 = cx - Math.round((p.birds.length * (w + gap) - gap) / 2), y = Math.round(G.hy - 20);
+      p.birds.forEach((id, i) => sheet(x0 + i * (w + gap), y + Math.round(Math.sin(this.t * 3 + i) * 2), w, h, id, p.painted[i], true));
       return;
     }
     const w = 120, h = 84, x = cx - 60, y = v.portrait ? 44 : 30;
-    sheet(x, y, w, h, p.birds[p.k], p.painted[p.k], 3);
+    sheet(x, y, w, h, p.birds[p.k], p.painted[p.k], p.showT > 0);
     // a paleta e o pincel a passar pelas cores
     const n = PALETTE.length, bw = 14, px0 = cx - Math.round((n * bw) / 2), py = y + h + 10;
     R(px0 - 3, py - 3, n * bw + 6, 16, INK); R(px0 - 2, py - 2, n * bw + 4, 14, '#e8dcc0');

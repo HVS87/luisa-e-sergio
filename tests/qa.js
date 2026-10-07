@@ -328,7 +328,7 @@ function testData() {
   check('aves: a ordem só usa espécies do caderno (ou o pardal)', aves.order.every((id) => sp.has(id) || id === 'pardal'), aves.order.join(','));
   check('aves: todas as espécies visitantes aparecem', aves.species.slice(1).every((s) => aves.order.includes(s.id)));
   const pal = ['rosa', 'azul', 'laranja', 'amarelo', 'verde', 'castanho', 'preto'];
-  check('aves: a pintura tem três ou mais aves do caderno, cada uma com duas partes e cores da paleta', aves.painting.priority.length >= 3 && aves.painting.priority.every((id) => sp.has(id) && aves.painting.birds[id] && aves.painting.birds[id].length === 2 && aves.painting.birds[id].every((p) => pal.includes(p.color) && p.keys && p.part)));
+  check('aves: a pintura tem três ou mais aves do caderno, cada uma com três partes e cores da paleta', aves.painting.priority.length >= 3 && aves.painting.priority.every((id) => sp.has(id) && aves.painting.birds[id] && aves.painting.birds[id].length === 3 && aves.painting.birds[id].every((p) => pal.includes(p.color) && p.keys && p.part)));
   const enc = LEVELS[0];
   check('encontro: sete ossos, paragem cardíaca a meio e a zona verde a andar na 2.ª parte', enc.bones.length === 7 && enc.arrestAfter > 0 && enc.arrestAfter < enc.bones.length && enc.bones.slice(enc.arrestAfter).every((b) => b.drift > 0) && enc.bones.slice(0, enc.arrestAfter).every((b) => !b.drift));
   const casa = LEVELS.find((L) => L.type === 'house'), ci = LEVELS.indexOf(casa);
