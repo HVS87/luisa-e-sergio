@@ -900,22 +900,52 @@ export class BirdsScene {
       }
     }
 
-    // O casal, de binóculos e guia de campo na mão, e o telescópio no tripé
+    // O casal: de binóculos e guia de campo na mão, com o telescópio no tripé; durante a
+    // pintura, a Luísa está ao cavalete e o Sérgio a ver
     const by = G.baseY, hop = this.joy > 0 ? Math.round(Math.abs(Math.sin(t * 9)) * 3) : 0;
-    R(74, by - 30, 14, 5, INK); R(75, by - 29, 12, 3, '#5a6a7a'); R(86, by - 31, 4, 7, INK);
-    R(79, by - 25, 1, 25, INK); R(75, by - 14, 1, 14, INK); R(84, by - 14, 1, 14, INK);
-    R(76, by - 16, 2, 2, INK); R(82, by - 16, 2, 2, INK);
     ctx.drawImage(this.sergio.stand.r, 6, by - 48, 32, 48);
-    R(26, by - 34, 11, 6, INK); R(27, by - 33, 9, 4, '#3a3a44'); R(35, by - 33, 2, 4, '#9fd3e8');
-    ctx.drawImage(this.luisa.stand.r, 38, by - 48 - hop, 32, 48);
-    R(57, by - 20 - hop, 11, 9, INK); R(58, by - 19 - hop, 9, 7, '#c2384a'); R(59, by - 18 - hop, 7, 2, '#ffffff');
+    if (this.state === 'paint' || this.state === 'gallery') this.drawEasel(ctx, R, by, hop, t);
+    else {
+      R(74, by - 30, 14, 5, INK); R(75, by - 29, 12, 3, '#5a6a7a'); R(86, by - 31, 4, 7, INK);
+      R(79, by - 25, 1, 25, INK); R(75, by - 14, 1, 14, INK); R(84, by - 14, 1, 14, INK);
+      R(76, by - 16, 2, 2, INK); R(82, by - 16, 2, 2, INK);
+      R(26, by - 34, 11, 6, INK); R(27, by - 33, 9, 4, '#3a3a44'); R(35, by - 33, 2, 4, '#9fd3e8');
+      ctx.drawImage(this.luisa.stand.r, 38, by - 48 - hop, 32, 48);
+      R(57, by - 20 - hop, 11, 9, INK); R(58, by - 19 - hop, 9, 7, '#c2384a'); R(59, by - 18 - hop, 7, 2, '#ffffff');
+    }
 
     this.drawNotebook(ctx, v, G, R);
   }
 
+  // Cá em baixo, a Luísa ao cavalete, de pincel e paleta na mão, com a aguarela em curso na tábua.
+  drawEasel(ctx, R, by, hop, t) {
+    const p = this.paint, i = Math.min(p.k, p.birds.length - 1), ex = 98;
+    // o cavalete: duas pernas à frente, uma atrás, a travessa e a tábua com a folha
+    R(ex + 14, by - 48, 2, 48, '#8a5a34');
+    R(ex + 1, by - 46, 2, 46, '#a8743f'); R(ex + 27, by - 46, 2, 46, '#a8743f'); R(ex, by - 30, 30, 2, '#a8743f');
+    R(ex - 1, by - 54, 32, 24, INK); R(ex, by - 53, 30, 22, '#fffaf0');
+    const img = this.sheetImg(p.birds[i], p.painted[i]);
+    const k = Math.min(26 / img.width, 18 / img.height), iw = Math.round(img.width * k), ih = Math.round(img.height * k);
+    ctx.drawImage(img, ex + 15 - Math.round(iw / 2), by - 42 - Math.round(ih / 2), iw, ih);
+    // a Luísa, virada para o cavalete: o pincel numa mão (a mexer) e a paleta na outra
+    const arm = p.showT > 0 || this.state === 'gallery' ? 0 : Math.round(Math.sin(t * 7) * 2);
+    ctx.drawImage(this.luisa.stand.r, 62, by - 48 - hop, 32, 48);
+    R(84, by - 31 - hop + arm, 12, 2, '#c98f52'); R(95, by - 32 - hop + arm, 3, 3, PALETTE[p.brush].c);
+    R(54, by - 26 - hop, 11, 8, INK); R(55, by - 25 - hop, 9, 6, '#e8dcc0');
+    R(56, by - 24 - hop, 2, 2, '#ff7fa5'); R(59, by - 24 - hop, 2, 2, '#2a8fe0'); R(62, by - 24 - hop, 2, 2, '#ffd23e'); R(57, by - 21 - hop, 2, 2, '#3f9e5a');
+  }
+
+  // Até onde chega, em píxeis de jogo, a caixa de instruções (para a folha não ficar por baixo dela).
+  hintBottom(v) {
+    const h = document.getElementById('hint'), c = document.getElementById('game');
+    if (!h || !c || !h.textContent) return 0;
+    const hr = h.getBoundingClientRect(), cr = c.getBoundingClientRect();
+    return cr.height ? ((hr.bottom - cr.top) / cr.height) * v.h : 0;
+  }
+
   // A folha de aguarela com a ave da vez, a paleta e o pincel; no fim, as três aguarelas lado a lado.
   drawPainting(ctx, v, G, R) {
-    const p = this.paint, cx = Math.round(v.w / 2);
+    const p = this.paint, cx = Math.round(v.w / 2), top = Math.round(this.hintBottom(v)) + 4;
     const sheet = (x, y, w, h, id, keys, done) => {
       R(x + 2, y + 3, w, h, 'rgba(43,29,46,0.25)');
       R(x - 1, y - 1, w + 2, h + 2, INK); R(x, y, w, h, '#fffaf0'); R(x, y, w, 2, '#e8dcc0');
@@ -935,11 +965,12 @@ export class BirdsScene {
       }
     };
     if (this.state === 'gallery') {
-      const w = 60, h = 50, gap = 8, x0 = cx - Math.round((p.birds.length * (w + gap) - gap) / 2), y = Math.round(G.hy - 20);
+      const w = 60, h = 50, gap = 8, x0 = cx - Math.round((p.birds.length * (w + gap) - gap) / 2), y = Math.max(Math.round(G.hy - 20), top);
       p.birds.forEach((id, i) => sheet(x0 + i * (w + gap), y + Math.round(Math.sin(this.t * 3 + i) * 2), w, h, id, p.painted[i], true));
       return;
     }
-    const w = 120, h = 84, x = cx - 60, y = v.portrait ? 44 : 30;
+    const w = 120, x = cx - 60, y = Math.max(v.portrait ? 44 : 30, top);
+    const h = Math.max(60, Math.min(84, G.baseY - 56 - 30 - y));   // em ecrãs baixos, a folha encolhe para caber com a paleta
     sheet(x, y, w, h, p.birds[p.k], p.painted[p.k], p.showT > 0);
     // a paleta e o pincel a passar pelas cores
     const n = PALETTE.length, bw = 14, px0 = cx - Math.round((n * bw) / 2), py = y + h + 10;
