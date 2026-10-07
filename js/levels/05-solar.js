@@ -18,6 +18,10 @@
 //   .  relva   ,  saibro   B  sebe de buxo   T  buxo talhado   f  japoneira   t  árvore
 //   F  fonte (x = borda da fonte)   s  regador   R  telhado   W  fachada   w  janela   b  brasão
 //   =  abertura da casa para a varanda   :  chão da varanda   e  balaustrada (D = escadaria)
+// Factos históricos (ficha do Património Cultural, imovel.patrimoniocultural.gov.pt, código 72380):
+// casa primitiva dos finais do século XIII, reconstruída no século XVI e, em 1640, com o aspeto atual;
+// brasão dos Albergaria por cima do portão nobre; tetos de alfarge (madeira com desenhos geométricos);
+// capela privativa de 1666, de nave única, com retábulo-mor de talha policroma da Árvore de Jessé.
 export default {
   id: 'solar',
   type: 'tour',
@@ -35,12 +39,12 @@ export default {
   // O que se conta em cada ponto. O ponto com `final` só conta depois de todos os outros.
   pois: {
     1: { text: 'Luísa: «A cozinha velha. Nesta lareira já se cozinhou para muitas gerações.»' },
-    2: { text: 'Luísa: «A capela de Nossa Senhora da Conceição, fundada pela família em 1688.»' },
+    2: { text: 'Luísa: «A capela da casa, de 1666. O retábulo, de talha policroma, mostra a Árvore de Jessé: os antepassados de Jesus, ramo a ramo.»' },
     0: { text: 'Luísa: «A ponte coberta: é por aqui que se passa da ala norte para a ala sul, sem apanhar chuva!»' },
-    3: { text: 'Luísa: «Os retratos dos antepassados. Parece que estão todos a olhar para ti, Sérgio!»' },
+    3: { text: 'Luísa: «Os retratos dos antepassados. Parece que estão todos a olhar para ti, Sérgio! E o teto de madeira, com desenhos geométricos, é do século XVII.»' },
     4: { text: 'Luísa: «O quarto da cama de dossel: antiga, de madeira esculpida, com cortinas e tudo!»' },
     8: { text: 'Avó Jose: «Então este é que é o Sérgio! Venha cá. Desta varanda vê-se o jardim todo: é o meu lugar preferido. Diga-me uma coisa: o menino gosta de jardins?»' },
-    5: { text: 'Luísa: «O brasão dos Soares de Albergaria, em granito, por cima da porta.»' },
+    5: { text: 'Luísa: «O brasão dos Soares de Albergaria, por cima do portão nobre.»' },
     6: { text: 'Luísa: «O jardim de buxo tem centenas de anos. Não te percas!»' },
     7: { text: 'Luísa: «As japoneiras dão flor em pleno inverno, quando tudo o resto dorme.»' },
     9: { final: true, text: 'Luísa: «E a fonte, no coração do jardim. Bem-vindo à Casa da Beira!»' },

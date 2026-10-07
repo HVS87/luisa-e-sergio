@@ -235,7 +235,7 @@ A Luísa mostra ao Sérgio o Solar dos Soares de Albergaria, em Oliveira do Cond
 Avó Jose (a avó da Luísa). É uma visita guiada vista de cima, em dois mapas:
 
 - **A casa**, em duas alas ligadas por uma **ponte coberta** envidraçada: na ala norte, a
-  entrada, a cozinha velha e a capela; na ala sul, o salão dos retratos, o quarto da **cama de
+  entrada, a cozinha velha e a capela (de 1666, com o retábulo da Árvore de Jessé); na ala sul, o salão dos retratos, o quarto da **cama de
   dossel** (antiga, de madeira esculpida, com cortinas) e a **grande varanda** sobre o jardim,
   o lugar preferido da Avó Jose, que lá está à espera para conhecer o Sérgio. Da varanda
   desce-se por uma escadaria para o jardim.
