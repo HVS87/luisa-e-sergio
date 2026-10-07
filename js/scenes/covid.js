@@ -54,7 +54,23 @@ export class CovidScene {
     this.sergio = getCharacter('sergio', 'ppe');
     this.virus = {};
     for (const [k, tp] of Object.entries(TYPES)) this.virus[k] = makeSprite(VIRUS, tp.pal);
-    this.family = ['pai', 'beatriz', 'tia1', 'tia2'].map((look) => getCharacter(look));
+    // A videochamada do confinamento: a família toda, cada um no seu quadradinho. O Henrique
+    // ainda não tinha nascido: é a Carminho que conta, toda contente, que vai ter um irmão.
+    const C = (look, outfit) => getCharacter(look, outfit);
+    this.callTiles = [
+      { who: [C('luisa'), C('sergio')], bg: '#cfe8e4', wave: false },
+      { who: [C('avojose')], bg: '#7fcf72', scene: 'solar' },
+      { who: [C('maeluisa'), C('pailuisa')], bg: '#e8b86a' },
+      { who: [C('rosarinho')], bg: '#f5a3c0' },
+      { who: [C('catarina')], bg: '#8fd0f5' },
+      { who: [C('antonio')], bg: '#b9a2e0' },
+      { who: [C('carminho')], bg: '#ffd166', hop: true, bubble: true },
+      { who: [C('alberto', 'casa')], bg: '#9ab8d8' },
+      { who: [C('pai')], bg: '#3d8fe0' },
+      { who: [C('andre')], bg: '#e07a5a' },
+      { who: [C('beatriz')], bg: '#3fae8a' },
+      { who: [C('tia1'), C('tia2')], bg: '#8e8a82', scene: 'snow' },
+    ];
     this.total = this.level.waves.reduce((s, w) => s + w.hearts, 0);
     // Sequência do nível: vagas intercaladas com momentos do confinamento
     this.phases = [];
@@ -509,33 +525,45 @@ export class CovidScene {
         }
       }
     } else if (this.inter === 'video') {
-      // Videochamada: a família, cada um no seu quadradinho
+      // Videochamada: a família toda, cada um no seu quadradinho (ver callTiles)
       R(0, 0, v.w, v.h, '#1a1433');
-      const cols = v.portrait ? 2 : 3, rows = v.portrait ? 3 : 2;
-      const tw = Math.min(70, Math.floor((L.FW - 16) / cols) - 6), th = Math.min(58, Math.floor((v.h - 90) / rows) - 6);
-      const gx = cx - (cols * (tw + 6) - 6) / 2, gy = Math.round((v.h - rows * (th + 6)) / 2) + 14;
-      const tiles = ['pai', 'beatriz', 'tia1', 'tia2', 'solar', 'nos'];
-      const bgs = ['#3d8fe0', '#3fae8a', '#8e8a82', '#8e8a82', '#7fcf72', '#cfe8e4'];
-      tiles.forEach((who, i) => {
-        const x = Math.round(gx + (i % cols) * (tw + 6)), y = Math.round(gy + Math.floor(i / cols) * (th + 6));
-        R(x - 2, y - 2, tw + 4, th + 4, '#fff6e6');
-        R(x, y, tw, th, bgs[i]);
+      const tiles = this.callTiles;
+      const cols = v.portrait ? 3 : 4, rows = Math.ceil(tiles.length / cols);
+      const tw = Math.min(70, Math.floor((L.FW - 10) / cols) - 4), th = Math.min(58, Math.floor((v.h - 46) / rows) - 4);
+      const gx = cx - (cols * (tw + 4) - 4) / 2, gy = Math.round((v.h - rows * (th + 4)) / 2) + 12;
+      tiles.forEach((tile, i) => {
+        const x = Math.round(gx + (i % cols) * (tw + 4)), y = Math.round(gy + Math.floor(i / cols) * (th + 4));
+        R(x - 1, y - 1, tw + 2, th + 2, '#fff6e6');
+        R(x, y, tw, th, tile.bg);
         ctx.save();
         ctx.beginPath();
         ctx.rect(x, y, tw, th);
         ctx.clip();
-        const wave = Math.round(Math.sin(t * 6 + i) * 2);
-        if (who === 'solar') { drawHouseIcon(ctx, x + tw / 2, y + th - 2); ctx.drawImage(getCharacter('avojose').stand.l, Math.round(x + tw / 2 + 6), y + th - 27); }
-        else if (who === 'nos') {
-          ctx.drawImage(this.luisa.stand.r, x + tw / 2 - 30, y + th - 44, 32, 48);
-          ctx.drawImage(this.sergio.stand.l, x + tw / 2 - 2, y + th - 44, 32, 48);
-        } else {
-          ctx.drawImage(this.family[i].stand.r, Math.round(x + tw / 2 - 16), y + th - 44, 32, 48);
-          R(x + tw / 2 + 14, y + th - 26 + wave, 5, 5, '#f6c9a0');
+        if (tile.scene === 'solar') drawHouseIcon(ctx, x + tw / 2 + 8, y + th - 2);
+        if (tile.scene === 'snow') {
+          // em Pretarouca, em janeiro, neva
+          R(x, y + th - 5, tw, 5, '#eef2f8');
+          for (let k = 0; k < 9; k++) R(x + ((k * 13 + Math.floor(t * 9)) % tw), y + ((k * 11 + Math.floor(t * 16)) % th), 1, 1, '#ffffff');
+        }
+        const n = tile.who.length, span = n > 1 ? 22 : 0;
+        const hop = tile.hop ? Math.round(Math.abs(Math.sin(t * 8)) * 3) : 0;
+        tile.who.forEach((fr, k) => {
+          const img = fr.stand[k === 0 ? 'r' : 'l'], kid = img.height <= 16;
+          const sx = Math.round(x + tw / 2 - 16 - span / 2 + k * span - (tile.scene === 'solar' ? 6 : 0));
+          if (kid) ctx.drawImage(img, sx, y + th - 30 - hop, 32, 32);
+          else ctx.drawImage(img, sx, y + th - 38, 32, 48);
+        });
+        if (tile.wave !== false) R(x + tw / 2 + 12 + span / 2, y + th - 24 + Math.round(Math.sin(t * 6 + i) * 2), 5, 5, '#f6c9a0');   // a acenar
+        if (tile.bubble) {
+          // a Carminho conta que vai ter um irmão: um balão com um bebé e um coração
+          const bx = x + 3, by = y + 3 + Math.round(Math.sin(t * 5));
+          R(bx, by, 24, 14, INK); R(bx + 1, by + 1, 22, 12, '#ffffff'); R(bx + 6, by + 14, 3, 2, INK);
+          R(bx + 4, by + 4, 6, 6, '#f6c9a0'); R(bx + 4, by + 3, 6, 2, '#3b2a20'); R(bx + 5, by + 6, 1, 1, INK); R(bx + 8, by + 6, 1, 1, INK);
+          ctx.drawImage(this.spr.heart, bx + 13, by + 3, 9, 8);
         }
         ctx.restore();
-        R(x, y + th - 3, tw, 3, 'rgba(26,20,51,0.5)');
-        R(x + 3, y + 3, 4, 4, Math.floor(t * 2 + i) % 3 ? GREEN : '#3a3046');
+        R(x, y + th - 2, tw, 2, 'rgba(26,20,51,0.5)');
+        R(x + 2, y + 2, 3, 3, Math.floor(t * 2 + i) % 3 ? GREEN : '#3a3046');
       });
     } else if (this.inter === 'vacina') {
       // Chega a vacina

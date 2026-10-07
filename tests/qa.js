@@ -174,7 +174,9 @@ const BOTS = {
   HouseScene(s) {
     const g = s.geo(game.view);
     if (s.state === 'crane' && s.lock <= 0 && Math.abs(s.hookX - g.cx) < 2) { I.action = true; I.actionPressed = true; }
+    else if (s.state === 'paint' && s.lock <= 0 && s.paint.chosen < 0 && s.paints[s.paint.idx].ok) { I.action = true; I.actionPressed = true; }
     else if (s.state === 'pool') { if (s.pool.level < 0.83) { I.action = true; I.actionPressed = !s.pool.holding; } }
+    else if (s.state === 'plant' && s.lock <= 0 && Math.abs(s.plant.x - s.plantSpots(g, game.view)[s.plant.k].x) < 1.5) { I.action = true; I.actionPressed = true; }
     else if (s.state === 'photo' && s.timer > 0.55 && s.lock <= 0 && Math.abs(s.angle) < 2) { I.action = true; I.actionPressed = true; }
   },
   BirthScene(s) {
@@ -328,6 +330,7 @@ function testData() {
   check('casa: uma fotografia por cada nível anterior', casa.photos.length === ci, `${casa.photos.length} fotografias para ${ci} níveis`);
   check('casa: as fotografias são as recordações do pedido, mais o pedido', ped.memories.every((m) => casa.photos.some((p) => p.icon === m.icon)) && casa.photos.some((p) => p.icon === 'colar'));
   check('casa: uma instrução por cada peça da obra (5)', casa.pieces.length === 5);
+  check('casa: três plantas, cada uma com estaca e instrução', casa.plants.length === 3 && casa.plants.every((p) => p.kind && /: «/.test(p.line)) && /\[cor\]/.test(casa.paintWrong));
   const prep = LEVELS.find((L) => L.type === 'prep');
   const family = ['avojose', 'maeluisa', 'pailuisa', 'rosarinho', 'catarina', 'antonio', 'beatriz', 'pai', 'andre'];
   const inMap = Object.keys(prep.npcs).filter((ch) => prep.maps.relvado.rows.some((r) => r.includes(ch))).map((ch) => prep.npcs[ch]);

@@ -44,8 +44,9 @@ export class TourScene {
     this.spr = getSprites();
     // Quem guia a visita (o jogador) e quem segue: por omissão, a Luísa guia o Sérgio.
     const leader = this.level.leader || 'luisa';
-    this.lead = getCharacter(leader, 'casual');
-    this.follow = getCharacter(leader === 'luisa' ? 'sergio' : 'luisa', 'casual');
+    const outfit = this.level.outfit || 'casual';          // em Pretarouca, no inverno, vão agasalhados
+    this.lead = getCharacter(leader, outfit);
+    this.follow = getCharacter(leader === 'luisa' ? 'sergio' : 'luisa', outfit);
     this.followName = leader === 'luisa' ? 'ao Sérgio' : 'à Luísa';
     const cow = makeSprite(COW, { b: '#c98f52', B: '#a8744e', w: '#fff6e6', k: INK, p: '#f0a8a0', t: '#8a5a34' });
     this.cowImg = { r: cow, l: flip(cow) };
@@ -335,7 +336,7 @@ export class TourScene {
   draw(ctx, v) {
     const m = this.map, t = this.t;
     const camX = Math.round(this.camX), camY = Math.round(this.camY);
-    ctx.fillStyle = m.def.indoor ? '#1a1420' : '#3f8a4a';
+    ctx.fillStyle = m.def.indoor ? '#1a1420' : m.def.snow ? '#dfe5ee' : '#3f8a4a';
     ctx.fillRect(0, 0, v.w, v.h);
     const R = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x - camX, y - camY, w, h); };
     const x0 = Math.max(0, Math.floor(camX / T)), x1 = Math.min(m.cols - 1, Math.floor((camX + v.w) / T));
@@ -373,6 +374,7 @@ export class TourScene {
 
     if (this.overlay) this.overlay(ctx, v, R, camX, camY, t);
     this.fx.draw(ctx, camX, camY);
+    if (m.def.snow) this.drawSnow(ctx, v, t);
     if (this.overlay) return;
 
     // Progresso da visita: um ponto por sítio a mostrar
@@ -383,6 +385,17 @@ export class TourScene {
       ctx.fillStyle = q.done ? GOLD : '#5a4a6e';
       ctx.fillRect(px + i * 7, v.h - 10, 5, 5);
     });
+  }
+
+  // Neve a cair (em coordenadas do ecrã, por cima de tudo).
+  drawSnow(ctx, v, t) {
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    for (let i = 0; i < 46; i++) {
+      const speed = 14 + hash(i * 1.3) * 14, big = hash(i * 2.1) > 0.7;
+      const y = ((hash(i) * v.h + t * speed) % (v.h + 4)) - 2;
+      const x = (((hash(i * 3.3) * v.w + Math.sin(t * 1.3 + i) * 5) % v.w) + v.w) % v.w;
+      ctx.fillRect(Math.round(x), Math.round(y), big ? 2 : 1, big ? 2 : 1);
+    }
   }
 
   drawPerson(ctx, frames, e, camX, camY, lost) {
@@ -420,6 +433,14 @@ export class TourScene {
     }
     if (!kind) kind = m.def.indoor ? FLOORS[this.floorNear(m.grid, c, r)] : ('ftcEK'.includes(ch) || (ch === 'x' && m.def.ground === 'cobble') ? 'grass' : 'gravel');
     if (kind === 'gravel' && m.def.ground === 'cobble') kind = 'cobble';
+    if (m.def.snow && (kind === 'grass' || kind === 'gravel' || kind === 'cobble')) {
+      // neve: cobre a relva e a calçada (na calçada ainda se adivinham as pedras)
+      R(x, y, T, T, '#eef2f8');
+      if (kind === 'cobble') { R(x, y + 7, T, 1, '#d4dae4'); R(x + (r % 2 ? 5 : 11), y, 1, 7, '#d4dae4'); R(x + (r % 2 ? 12 : 3), y + 8, 1, 7, '#d4dae4'); }
+      if (hs > 0.45) R(x + 2 + Math.floor(hs * 10), y + 3 + Math.floor(hs * 7), 3, 2, '#ffffff');
+      if (hs < 0.3) R(x + 9 - Math.floor(hs * 20), y + 11, 2, 1, '#d8e0ea');
+      return;
+    }
     if (kind === 'grass') {
       R(x, y, T, T, '#5fae5a');
       if (hs > 0.5) { R(x + 3 + Math.floor(hs * 8), y + 4, 2, 1, '#7fcf72'); R(x + 9 - Math.floor(hs * 6), y + 11, 2, 1, '#4f9a4f'); }
@@ -458,6 +479,7 @@ export class TourScene {
     if (FLOORS[ch]) return;
     const x = c * T, y = r * T, hs = hash(c * 3.7 + r * 9.1);
     const below = (m.grid[r + 1] || [])[c];
+    const snow = m.def.snow, SNOW = '#f4f6fa', SNOWD = '#d8e0ea';   // neve pousada em cima das coisas
     switch (ch) {
       case 'B': {   // sebe de buxo
         R(x, y - 5, T, T + 5, '#2f7a40');
@@ -493,6 +515,7 @@ export class TourScene {
         R(x - 2, y - 27, 10, 4, '#3f8a4f');
         R(x - 7, y - 19, 8, 3, '#3f8a4f');
         R(x - 8, y - 6, 32, 2, '#1f5230');
+        if (snow) { R(x - 4, y - 31, 24, 3, SNOW); R(x - 8, y - 25, 7, 3, SNOW); R(x + 17, y - 25, 7, 3, SNOW); R(x - 11, y - 17, 8, 3, SNOW); R(x + 19, y - 17, 8, 3, SNOW); R(x - 2, y - 28, 10, 1, SNOWD); }
         break;
       case 'F': {   // fonte
         R(x - 13, y - 3, 42, 19, '#8e8a96');
@@ -507,6 +530,7 @@ export class TourScene {
         R(x + 7, y - 24 + jet, 2, 9 - jet, '#bfe6ff');
         R(x + 3, y - 19 + jet, 2, 3, '#bfe6ff');
         R(x + 11, y - 20 + jet, 2, 3, '#bfe6ff');
+        if (snow) { R(x - 12, y - 5, 40, 2, SNOW); R(x, y - 16, 16, 2, SNOW); R(x - 10, y + 15, 2, 4, '#d8ecff'); R(x + 20, y + 15, 2, 3, '#d8ecff'); }
         break;
       }
       case 's': {   // regador
@@ -526,6 +550,7 @@ export class TourScene {
       case 'M': {   // muro de pedra solta
         R(x, y - 4, T, T + 4, '#8e8a82');
         R(x, y - 4, T, 2, '#b4b0a8');
+        if (snow) { R(x, y - 5, T, 3, SNOW); R(x, y - 2, T, 1, SNOWD); }
         R(x + 1 + Math.floor(hs * 6), y, 6, 3, '#a29e96');
         R(x + 9 - Math.floor(hs * 4), y + 4, 5, 3, '#7a766e');
         R(x + 7, y - 2, 1, 6, '#6e6a62');
@@ -545,7 +570,7 @@ export class TourScene {
           R(x + 3, y + 2, 10, 10, '#f2ece0');
           R(x + 4, y + 3, 8, 8, '#3a4a5e');
           R(x + 7, y + 3, 2, 8, '#f2ece0');
-          R(x + 3, y + 12, 10, 2, '#7e7a72');
+          R(x + 3, y + 12, 10, 2, snow ? SNOW : '#7e7a72');
           R(x + 5, y + 10, 2, 2, '#d43d51');
           R(x + 9, y + 10, 2, 2, '#ff5d8f');
         } else if (ch === 'O') {
@@ -569,6 +594,7 @@ export class TourScene {
         R(x - 15, y - 19, 46, 3, '#a8a49c');
         R(x + 7, y - 25, 2, 6, '#8e8a82');
         R(x + 5, y - 23, 6, 2, '#8e8a82');
+        if (snow) { R(x - 17, y - 20, 50, 3, SNOW); R(x + 4, y - 26, 8, 2, SNOW); }
         break;
       case 'K':     // capela caiada, com sineira e cruz
         R(x - 13, y - 26, 42, 42, '#2b1d2e');
@@ -576,7 +602,9 @@ export class TourScene {
         R(x - 12, y - 25, 4, 41, '#a8a49c');
         R(x + 24, y - 25, 4, 41, '#a8a49c');
         R(x - 14, y - 29, 44, 5, '#c2543a');
+        if (snow) { R(x - 14, y - 30, 44, 3, SNOW); R(x - 14, y - 27, 44, 1, SNOWD); }
         R(x + 2, y - 40, 12, 12, '#f2ece0');
+        if (snow) R(x + 1, y - 41, 14, 2, SNOW);
         R(x + 5, y - 37, 6, 7, '#3a4a5e');
         R(x + 6, y - 35, 4, 4, GOLD);
         R(x + 7, y - 48, 2, 8, '#8e8a82');
@@ -592,12 +620,14 @@ export class TourScene {
         R(x + 5, y + 6, 6, 5, '#6fbf7a');
         R(x + 7, y + 7, 2, 3, '#a8e0a0');
         R(x + 2, y + 12, 12, 1, '#2f6a42');
+        if (snow) { R(x + 3, y + 5, 10, 2, SNOW); R(x + 1, y + 7, 3, 2, SNOW); R(x + 12, y + 7, 2, 2, SNOW); }
         break;
       case 'R':     // telhado
         R(x, y, T, T, '#c2543a');
         for (let k = 0; k < 4; k++) R(x, y + k * 4 + 3, T, 1, '#9a3f2c');
         for (let k = 0; k < 4; k++) R(x + ((k % 2) * 4 + 2), y + k * 4, 1, 3, '#d8704e');
         R(x, y + 14, T, 2, '#7a3022');
+        if (snow) { R(x, y, T, 9, SNOW); R(x + 2, y + 9, 4, 2, SNOW); R(x + 9, y + 9, 5, 1, SNOW); R(x, y + 2, T, 1, SNOWD); }
         break;
       case 'W':
       case 'w':

@@ -2,15 +2,20 @@
 // mesmo junto ao Aqueduto das Águas Livres, com a obra orientada pelo Tio Alberto (arquiteto).
 //
 //   1. A obra: a grua passa de um lado para o outro com cada peça (fundações, rés-do-chão,
-//      laje, 1.º andar, telhado); toca-se para a largar em cima da planta. À primeira e bem
-//      centrada vale um coração; fora da planta, a peça volta a subir.
-//   2. A piscina: mantém-se premido para a encher até à linha dos azulejos.
-//   3. O jardim cresce sozinho e entra-se em casa: penduram-se as fotografias das memórias
-//      dos níveis anteriores. Cada quadro balança; tocar quando está direito vale um coração.
+//      laje, 1.º andar, telhado, ainda em cimento); toca-se para a largar em cima da planta.
+//      À primeira e bem centrada vale um coração; fora da planta, a peça volta a subir.
+//   2. A tinta: uma seta passa pelas latas em fila; toca-se na de azul-claro (à primeira vale
+//      um coração; com a cor errada a casa fica um instante dessa cor).
+//   3. A piscina: mantém-se premido para a encher até à linha dos azulejos.
+//   4. O jardim: o Sérgio anda de um lado para o outro com cada planta; toca-se quando passa
+//      pela estaca (mesmo em cima, à primeira, vale um coração; longe, não se planta). A Luísa
+//      rega e depois o jardim cresce.
+//   5. Dentro de casa penduram-se as fotografias das memórias dos níveis anteriores. Cada
+//      quadro balança; tocar quando está direito vale um coração.
 //
 // Controlos: tocar no ecrã (ou Espaço/Enter); manter premido para encher a piscina.
 import { LEVELS } from '../levels/index.js';
-import { getCharacter } from '../sprites.js';
+import { getCharacter, charFrame } from '../sprites.js';
 import { Particles } from '../fx.js';
 import { drawMemory } from '../memories.js';
 
@@ -26,6 +31,17 @@ const PIECES = [
   { h: 18, w: 1.14 },  // telhado
 ];
 const PERFECT = 5, NEAR = 15;            // desvio (px) para "ao milímetro" e para ainda caber na planta
+// As latas de tinta em fila à frente da obra: só uma é a cor da casa (azul-claro, como no desenho)
+const PAINTS = [
+  { name: 'Rosa-choque', c: '#ff5d8f' },
+  { name: 'Amarelo-torrado', c: '#e8b030' },
+  { name: 'Azul-claro', c: '#bfe0f5', ok: true },
+  { name: 'Verde-alface', c: '#7fcf72' },
+  { name: 'Terracota', c: '#c75a3a' },
+  { name: 'Roxo', c: '#9a7fd0' },
+];
+const PAINT_STEP = 0.55;                                       // segundos que a seta fica em cada lata
+const PLANT_SPEED = 40, PLANT_OK = 12, PLANT_PERFECT = 5;      // o Sérgio a andar (px/s) e as tolerâncias da estaca
 const POOL_LO = 0.74, POOL_HI = 0.92;    // linha dos azulejos (fração da altura da piscina)
 const TILT = 14, STRAIGHT = 4.5;         // balanço dos quadros e tolerância para ficarem direitos (graus)
 const SKY = ['#5aaeea', '#74bdf0', '#93cdf3', '#b5ddf5', '#d8ecf3'];
@@ -34,11 +50,15 @@ const PHOTO_BG = ['#cfe8f5', '#ffe2c8', '#d8f0d0', '#f5e0f0', '#fff1c4'];
 // Cores da vivenda, que por fora é azul-clara, com caixilhos brancos: de dia (na obra) e de
 // noite (no final da família, com as janelas acesas).
 const DAY = { wall: '#bfe0f5', wallD: '#9fc8e4', glass: '#6fa8d4', shine: '#ffffff', frame: '#ffffff', slab: '#a7a39c', slabL: '#c8c4bc', slabD: '#8f8b84', door: '#8a5a34', roof: '#c75a3a', roofD: '#a8462e', roofE: '#8a3a26', rail: INK };
+// Antes da tinta, a casa está em cimento.
 const NIGHT = { wall: '#7f9cc8', wallD: '#6884b0', glass: '#ffd98a', shine: '#fff3c4', frame: '#d0d8ec', slab: '#6f6c88', slabL: '#8a87a2', slabD: '#5a5772', door: '#5a3f2e', roof: '#8a4438', roofD: '#6e352e', roofE: '#522824', rail: INK };
 
+const RAW = { ...DAY, wall: '#d9d3c7', wallD: '#b8b2a6' };
+
 // Peça n da vivenda (ver PIECES), com o fundo em `bottom`, centrada em cx; W é a largura da casa.
-function drawVillaPiece(R, n, cx, bottom, W, night = false) {
-  const C = night ? NIGHT : DAY;
+// pal: false (de dia, pintada), true (de noite), 'raw' (em cimento) ou uma paleta própria.
+function drawVillaPiece(R, n, cx, bottom, W, pal = false) {
+  const C = pal === 'raw' ? RAW : pal === true ? NIGHT : pal && typeof pal === 'object' ? pal : DAY;
   const p = PIECES[n], w = Math.round(W * p.w), x = Math.round(cx - w / 2), y = bottom - p.h;
   if (n === 0 || n === 2) {
     R(x, y, w, p.h, C.slab); R(x, y, w, 1, C.slabL);
@@ -79,7 +99,8 @@ export class HouseScene {
     this.index = index;
     this.level = LEVELS[index];
     this.photos = this.level.photos;
-    this.total = PIECES.length + 1 + this.photos.length;
+    this.paints = PAINTS;
+    this.total = PIECES.length + 1 + 1 + this.level.plants.length + this.photos.length;   // peças, tinta, piscina, plantas e fotografias
     this.luisa = getCharacter('luisa', 'obra');
     this.sergio = getCharacter('sergio', 'obra');
     this.luisaHome = getCharacter('luisa', 'casual');
@@ -93,7 +114,7 @@ export class HouseScene {
   }
 
   setup() {
-    this.state = 'intro';      // intro → crane ⇄ drop → built → pool → garden → inside → photo ⇄ hung → end → done
+    this.state = 'intro';      // intro → crane ⇄ drop → built → paint → pool → plant → garden → inside → photo ⇄ hung → end → done
     this.got = 0;
     this.i = 0;                // peça atual
     this.placed = 0;           // peças já assentes
@@ -107,6 +128,8 @@ export class HouseScene {
     this.joy = 0;
     this.pool = { level: 0, holding: false, clean: true };
     this.garden = 0;
+    this.paint = { idx: 0, timer: 0, chosen: -1, first: true, sweep: 0, flash: 0, flashC: null };
+    this.plant = { k: 0, x: 0, dir: 1, first: true, done: [], water: 0, wx: 0 };
     this.k = 0;                // fotografia atual
     this.angle = 0;
     this.hung = [];            // inclinação final de cada quadro
@@ -219,11 +242,15 @@ export class HouseScene {
       f.y += f.vy * dt;
       if (f.y + p.h >= top) this.land(g, Math.round(f.x - g.cx), top);
     } else if (this.state === 'built') {
-      if (this.timer > 1.8) { this.state = 'pool'; this.timer = 0; this.lock = 0.3; this.setBase(this.level.poolHint); }
+      if (this.timer > 1.8) { this.state = 'paint'; this.timer = 0; this.lock = 0.4; this.setBase(this.level.paintHint); }
+    } else if (this.state === 'paint') {
+      this.pickPaint(dt, pressed, g);
     } else if (this.state === 'pool') {
       this.fillPool(dt, I, pressed, g);
+    } else if (this.state === 'plant') {
+      this.plantGarden(dt, pressed, g, v);
     } else if (this.state === 'garden') {
-      this.garden = clamp(this.timer / 2.2, 0, 1);
+      this.garden = 0.25 + 0.75 * clamp(this.timer / 2.2, 0, 1);
       if (this.timer > 3.6) { this.state = 'inside'; this.timer = 0; }
     } else if (this.state === 'inside') {
       if (this.timer > 1.3) this.startPhoto();
@@ -296,10 +323,8 @@ export class HouseScene {
       else if (p.level >= POOL_LO) {
         if (p.clean) this.heart(g.poolX + g.poolW / 2, g.gy - 10);
         else this.sfx('check');
-        this.say(this.level.poolDone, 3);
-        this.setBase(this.level.gardenLine);
-        this.state = 'garden';
-        this.timer = 0;
+        this.startPlanting(g);
+        this.say(this.level.poolDone, 2.2);
       } else this.say(this.level.poolLow, 1.5);
     }
   }
@@ -313,6 +338,93 @@ export class HouseScene {
     this.sfx('buzz');
     this.fx.burst(g.poolX + g.poolW / 2, g.gy - 2, 16, ['#8fd0f5', '#ffffff'], 70);
     this.say(this.level.poolOver, 2);
+  }
+
+  // A tinta: a seta vai passando pelas latas; toca-se quando está na de azul-claro.
+  pickPaint(dt, pressed, g) {
+    const p = this.paint;
+    if (p.chosen >= 0) {
+      // a tinta espalha-se da esquerda para a direita; depois segue-se a piscina
+      p.sweep = Math.min(1, p.sweep + dt / 1.3);
+      if (p.sweep >= 1 && this.timer > 2.6) { this.state = 'pool'; this.timer = 0; this.lock = 0.3; this.setBase(this.level.poolHint); }
+      return;
+    }
+    if (p.flash > 0) p.flash -= dt;
+    p.timer += dt;
+    p.idx = Math.floor(p.timer / PAINT_STEP) % PAINTS.length;
+    if (!pressed) return;
+    const can = PAINTS[p.idx];
+    if (can.ok) {
+      p.chosen = p.idx;
+      this.timer = 0;
+      this.sfx('win');
+      if (p.first) this.heart(g.cx, this.stackTop(g) + 24);
+      this.say(this.level.paintRight, 2.6);
+    } else {
+      p.first = false;
+      p.flash = 1;
+      p.flashC = can.c;
+      this.lock = 0.5;
+      this.sfx('buzz');
+      this.say(this.level.paintWrong.replace('[cor]', can.name), 2);
+    }
+  }
+
+  // As estacas do jardim: a oliveira à esquerda da casa, o limoeiro ao pé da piscina (ou, se
+  // não houver espaço, à esquerda da oliveira) e a alfazema à frente da sala.
+  plantSpots(g, v) {
+    const fits = g.poolX + g.poolW + 10 < v.w - 14;
+    return [
+      { kind: 'oliveira', x: g.cx - g.W / 2 - 4 },
+      { kind: 'limoeiro', x: fits ? g.poolX + g.poolW + 8 : g.cx - g.W / 2 - 18 },
+      { kind: 'alfazema', x: g.cx },
+    ];
+  }
+
+  startPlanting(g) {
+    const p = this.plant;
+    this.state = 'plant';
+    this.timer = 0;
+    this.lock = 0.6;
+    p.x = g.cx - g.W / 2 - 24;
+    p.dir = 1;
+    this.setBase(this.level.plants[0].line);
+    this.say(this.level.plantHint, 3.5);
+  }
+
+  // O jardim: o Sérgio anda de um lado para o outro com a planta; toca-se quando passa pela estaca.
+  plantGarden(dt, pressed, g, v) {
+    const p = this.plant, spots = this.plantSpots(g, v);
+    const a = g.cx - g.W / 2 - 26, b = Math.min(v.w - 10, g.poolX + g.poolW + 16);
+    p.x += p.dir * PLANT_SPEED * dt;
+    if (p.x > b) { p.x = b; p.dir = -1; } else if (p.x < a) { p.x = a; p.dir = 1; }
+    if (p.water > 0) {
+      // a Luísa a regar a planta acabada de pôr
+      p.water -= dt;
+      if (Math.random() < dt * 18) this.fx.add({ x: p.wx - 3 + Math.random() * 8, y: g.gy - 12, vx: 0, vy: 35, life: 0.35, color: '#8fd0f5', size: 1 });
+    }
+    if (!pressed) return;
+    const spot = spots[p.k], dx = Math.abs(p.x - spot.x);
+    if (dx > PLANT_OK) {
+      p.first = false;
+      this.lock = 0.4;
+      this.sfx('hurt');
+      this.fx.burst(p.x, g.gy, 8, ['#b98a58', '#86603c'], 40);
+      this.say(this.level.plantMiss, 1.6);
+      return;
+    }
+    const perfect = p.first && dx <= PLANT_PERFECT;
+    p.done.push(spot.kind);
+    p.water = 1.3;
+    p.wx = spot.x;
+    p.k++;
+    p.first = true;
+    this.lock = 0.9;
+    this.fx.burst(spot.x, g.gy, 10, ['#b98a58', '#7fbf5f'], 45);
+    if (p.k >= spots.length) { this.state = 'garden'; this.timer = 0; this.setBase(this.level.gardenLine); }
+    else this.setBase(this.level.plants[p.k].line);
+    if (perfect) this.heart(spot.x, g.gy - 18); else this.sfx('check');
+    this.say(perfect ? this.level.plantPerfect : this.level.plantGood, 1.6);
   }
 
   startPhoto() {
@@ -381,20 +493,66 @@ export class HouseScene {
     const total = PIECES.reduce((s, p) => s + p.h, 0);
     for (let y = gy - total; y < gy; y += 4) { R(g.cx - g.W / 2 - 1, y, 1, 2, 'rgba(79,143,224,0.75)'); R(g.cx + g.W / 2, y, 1, 2, 'rgba(79,143,224,0.75)'); }
     for (let x = g.cx - g.W / 2; x < g.cx + g.W / 2; x += 4) R(x, gy - total, 2, 1, 'rgba(79,143,224,0.75)');
-    // a casa, peça a peça
-    let y = gy;
-    for (let n = 0; n < this.placed; n++) { drawVillaPiece(R, n, g.cx, y, g.W); y -= PIECES[n].h; }
+    // a casa, peça a peça: em cimento até ser pintada (a cor errada aparece só um instante);
+    // a tinta certa espalha-se da esquerda para a direita
+    const P = this.paint;
+    const stack = (pal) => { let y = gy; for (let n = 0; n < this.placed; n++) { drawVillaPiece(R, n, g.cx, y, g.W, pal); y -= PIECES[n].h; } };
+    stack(P.flash > 0 ? { ...DAY, wall: P.flashC, wallD: P.flashC } : 'raw');
+    if (P.chosen >= 0) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(Math.round(g.cx - g.W * 0.6), 0, Math.round(g.W * 1.2 * P.sweep), v.h);
+      ctx.clip();
+      stack(false);
+      ctx.restore();
+    }
     // piscina (em corte) e jardim
     this.drawPool(R, g);
-    if (this.garden > 0) this.drawGarden(R, g);
+    this.drawGarden(R, g, v);
     // grua: torre à direita, lança, carrinho e a peça pendurada
     if (this.placed < PIECES.length || this.state === 'built') this.drawCrane(v, R, g);
     // personagens (à escala da casa): o Tio Alberto com a planta, a Luísa e o Sérgio
     const px = Math.max(2, Math.round(g.cx - g.W / 2 - 50)), hop = this.joy > 0 ? Math.round(Math.abs(Math.sin(t * 10)) * 2) : 0;
     ctx.drawImage(this.alberto.stand.r, px, gy - 24);
     R(px + 12, gy - 13, 7, 5, '#dfefff'); R(px + 13, gy - 12, 5, 1, '#4f8fe0'); R(px + 13, gy - 10, 3, 1, '#4f8fe0');
-    ctx.drawImage(this.luisa.stand.r, px + 17, gy - 24 - hop);
-    ctx.drawImage(this.sergio.stand.r, px + 32, gy - 24 - hop);
+    const planting = this.state === 'plant', pl = this.plant, wx = Math.round(pl.wx);
+    // a Luísa: ao pé do tio ou, depois de cada planta, a regá-la
+    if (planting && pl.water > 0) {
+      ctx.drawImage(this.luisa.stand.l, wx + 6, gy - 24);
+      R(wx + 1, gy - 14, 5, 4, '#8a93a7'); R(wx - 1, gy - 13, 2, 1, '#8a93a7');
+    } else ctx.drawImage(this.luisa.stand.r, px + 17, gy - 24 - hop);
+    // o Sérgio: ao pé da Luísa ou, no jardim, de um lado para o outro com a planta no vaso
+    if (planting) {
+      const sx = Math.round(pl.x) - 8;
+      ctx.drawImage(charFrame(this.sergio, pl.dir, true, false, pl.x * 0.9), sx, gy - 24);
+      const hx = sx + (pl.dir > 0 ? 13 : -3);
+      R(hx, gy - 14, 6, 5, '#b05a3a'); R(hx + 1, gy - 18, 4, 4, '#3f8a3f'); R(hx + 2, gy - 20, 2, 2, '#5fae5a');
+      this.drawStakes(R, g, v);
+    } else ctx.drawImage(this.sergio.stand.r, px + 32, gy - 24 - hop);
+    if (this.state === 'paint') this.drawCans(R, g);
+  }
+
+  // As latas de tinta, em fila à frente da obra, e a seta a passar por elas.
+  drawCans(R, g) {
+    const p = this.paint, step = 13, x0 = Math.round(g.cx - (PAINTS.length * step - 4) / 2), y = g.gy + 4;
+    PAINTS.forEach((can, i) => {
+      const x = x0 + i * step;
+      R(x, y, 9, 9, INK); R(x + 1, y + 1, 7, 7, can.c); R(x + 2, y - 1, 5, 2, '#8a93a7'); R(x + 2, y + 2, 2, 1, 'rgba(255,255,255,0.6)');
+      if (i === p.idx && p.chosen < 0) {
+        const b = Math.round(Math.abs(Math.sin(this.t * 7)) * 2);
+        R(x + 3, y - 10 - b, 3, 4, GOLD); R(x + 2, y - 6 - b, 5, 1, GOLD); R(x + 3, y - 5 - b, 3, 1, GOLD); R(x + 4, y - 4 - b, 1, 1, GOLD);
+      }
+    });
+  }
+
+  // As estacas das plantas ainda por pôr (a da vez pisca).
+  drawStakes(R, g, v) {
+    const spots = this.plantSpots(g, v), gy = g.gy;
+    spots.forEach((s, i) => {
+      if (this.plant.done.includes(s.kind)) return;
+      R(s.x, gy - 9, 2, 9, '#b98a58'); R(s.x + 2, gy - 9, 5, 3, i === this.plant.k ? GOLD : '#d8d0c0');
+      if (i === this.plant.k && Math.floor(this.t * 4) % 2) R(s.x - 4, gy - 1, 10, 1, GOLD);
+    });
   }
 
   drawAqueduct(v, R, g, skyAt) {
@@ -435,8 +593,9 @@ export class HouseScene {
     if (this.state === 'pool' && p.holding) { R(x + 4, top - 10, 2, 10 - wh, '#8fd0f5'); R(x + 2, top - 12, 6, 2, '#6a7480'); }
   }
 
-  drawGarden(R, g) {
-    const k = this.garden, gy = g.gy;
+  // O jardim: só o que o Sérgio já plantou; enquanto se planta são rebentos, depois cresce.
+  drawGarden(R, g, v) {
+    const k = this.state === 'plant' ? 0.25 : this.garden, gy = g.gy;
     const tree = (x, h, leaf, fruit) => {
       const th = Math.round(h * k);
       if (th < 2) return;
@@ -444,9 +603,12 @@ export class HouseScene {
       R(x - 5, gy - th - 6, 12, 7, leaf); R(x - 3, gy - th - 9, 8, 3, leaf);
       if (fruit && k > 0.8) { R(x - 3, gy - th - 3, 2, 2, fruit); R(x + 3, gy - th - 5, 2, 2, fruit); }
     };
-    tree(g.cx - g.W / 2 - 4, 16, '#7f9a5a', null);                  // oliveira
-    if (g.poolX + g.poolW + 10 < this.game.view.w - 14) tree(g.poolX + g.poolW + 8, 14, '#3f8a3f', '#ffd84a');   // limoeiro
-    for (let x = g.cx - g.W / 2 + 4; x < g.cx + g.W / 2 - 4; x += 5) if (k > 0.5) { R(x, gy - 3, 1, 3, '#5f9a52'); R(x, gy - 4, 1, 1, '#9a7fd0'); }   // alfazema
+    for (const s of this.plantSpots(g, v)) {
+      if (!this.plant.done.includes(s.kind)) continue;
+      if (s.kind === 'oliveira') tree(s.x, 16, '#7f9a5a', null);
+      else if (s.kind === 'limoeiro') tree(s.x, 14, '#3f8a3f', '#ffd84a');
+      else for (let x = g.cx - g.W / 2 + 4; x < g.cx + g.W / 2 - 4; x += k > 0.5 ? 5 : 10) { R(x, gy - 3, 1, 3, '#5f9a52'); if (k > 0.5) R(x, gy - 4, 1, 1, '#9a7fd0'); }
+    }
   }
 
   drawCrane(v, R, g) {
@@ -466,10 +628,10 @@ export class HouseScene {
     if (this.state === 'crane') {
       const bottom = top - 16;
       R(hx, jy + 6, 1, bottom - p.h - jy - 6, INK);
-      drawVillaPiece(R, this.i, hx, bottom, g.W);
+      drawVillaPiece(R, this.i, hx, bottom, g.W, 'raw');
       R(hx - pw / 2, bottom - p.h - 1, pw, 1, 'rgba(43,29,46,0.5)');
     } else if (this.fall) {
-      drawVillaPiece(R, this.i, this.fall.x, this.fall.y + p.h, g.W);
+      drawVillaPiece(R, this.i, this.fall.x, this.fall.y + p.h, g.W, 'raw');
     }
   }
 

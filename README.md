@@ -239,8 +239,11 @@ está em `js/scenes/tour.js`.
 
 ### Nível 6 — "Pretarouca"
 
-O Sérgio mostra à Luísa a aldeia onde nasceu, perto de Lamego, na serra de Montemuro.
-Tem duas partes:
+O Sérgio mostra à Luísa a aldeia onde viveu em pequenino, perto de Lamego, na serra de
+Montemuro (os textos não dizem que nasceu lá). É em pleno inverno: neva (a calçada, os muros,
+os telhados, as árvores e as couves ficam brancos, e caem flocos), os dois vão agasalhados
+(roupa `winter`) e as falas são sobre o frio. O mapa tem `snow: true` e a neve desenha-se em
+`js/scenes/tour.js`. Tem duas partes:
 
 1. **Passeio pela aldeia** (o mesmo motor do nível 5, agora com o Sérgio a guiar): calçada
    e muros de granito, a fonte, o espigueiro, a capela, a horta das tias, e vacas que
@@ -271,7 +274,8 @@ setas) e o desinfetante dispara sozinho contra os vírus que descem em direção
   as caixas de equipamento de proteção criam uma barreira temporária.
 - Os vírus dourados largam corações, que é preciso apanhar.
 - Entre vagas há momentos do confinamento: as palmas à janela às 22h, a videochamada com a
-  família e a chegada da vacina. Nas três últimas vagas os tiros são vacinas, que atravessam
+  família toda, cada um no seu quadradinho (menos o Henrique, que ainda não tinha nascido: a
+  Carminho conta, toda animada, que vai ter um irmão), e a chegada da vacina. Nas três últimas vagas os tiros são vacinas, que atravessam
   tudo o que apanham. As palmas à janela não têm vírus: é só bater palmas.
 - Os disparos têm contorno escuro e cores vivas, para se verem bem contra a parede clara.
 
@@ -332,15 +336,22 @@ arcos em ogiva e o Arco Grande. Quem orienta a obra é o Tio Alberto, o tio arqu
 (`js/scenes/house.js`):
 
 1. **A obra**: a grua passa de um lado para o outro com cada peça (fundações, rés-do-chão,
-   laje, primeiro andar com varanda e telhado de telha; por fora a casa é azul-clara, com
-   caixilhos brancos) e toca-se para a largar em cima da
-   planta azul. À primeira e bem ao centro vale um coração; fora da planta, a peça volta a
-   subir. A grua vai ficando mais rápida. A meio, o Tio Alberto conta que o Aqueduto resistiu
-   ao terramoto de 1755 e que o Arco Grande tem mais de 65 metros.
-2. **A piscina**: mantém-se premido para a encher e larga-se com a água na linha dos
-   azulejos (se transbordar, perde-se o coração e tenta-se outra vez). Depois o jardim cresce:
-   uma oliveira, um limoeiro e alfazema.
-3. **As fotografias**: dentro de casa, penduram-se na sala as fotografias dos momentos dos
+   laje, primeiro andar com varanda e telhado de telha, ainda em cimento) e toca-se para a
+   largar em cima da planta azul. À primeira e bem ao centro vale um coração; fora da planta,
+   a peça volta a subir. A grua vai ficando mais rápida. A meio, o Tio Alberto conta que o
+   Aqueduto resistiu ao terramoto de 1755 e que o Arco Grande tem mais de 65 metros.
+2. **A tinta**: há seis latas em fila à frente da obra e uma seta a passar por elas; toca-se
+   quando está na de azul-claro (a cor da casa, como no desenho). Com a cor errada, a casa
+   fica um instante dessa cor e o Tio Alberto protesta; à primeira vale um coração. A tinta
+   espalha-se da esquerda para a direita e a casa fica azul-clara, com caixilhos brancos.
+3. **A piscina**: mantém-se premido para a encher e larga-se com a água na linha dos
+   azulejos (se transbordar, perde-se o coração e tenta-se outra vez).
+4. **O jardim**: o Sérgio anda de um lado para o outro com cada planta (a oliveira à esquerda
+   da casa, o limoeiro ao pé da piscina, a alfazema à frente da sala) e toca-se quando passa
+   pela estaca certa. Mesmo na estaca, à primeira, vale um coração; ao lado, planta-se na mesma;
+   longe, «aí passa a canalização» e volta a tentar. A Luísa rega cada planta e, no fim, o
+   jardim cresce.
+5. **As fotografias**: dentro de casa, penduram-se na sala as fotografias dos momentos dos
    níveis anteriores (as mesmas recordações do pedido, mais o próprio pedido). Cada quadro
    balança; tocar quando está direito vale um coração, e os outros ficam um pouco tortos.
 
