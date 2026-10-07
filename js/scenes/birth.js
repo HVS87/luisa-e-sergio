@@ -389,9 +389,12 @@ export class BirthScene {
       if (Math.floor(t * 8) % 2) { R(mx + 12, my - 13, 2, 6, '#ff3b3b'); R(mx + 12, my - 5, 2, 2, '#ff3b3b'); R(mx + 18, my - 15, 2, 6, GOLD); R(mx + 18, my - 7, 2, 2, GOLD); }
     }
 
-    // o encosto levantado: uma almofada grande, branca e inclinada
-    for (let i = 0; i < 30; i++) R(bx + 1 + Math.round(i * 0.45), T - 32 + i, 12, 1, INK);
-    for (let i = 1; i < 29; i++) R(bx + 2 + Math.round(i * 0.45), T - 32 + i, 10, 1, i % 7 === 0 ? '#e8ecf4' : '#ffffff');
+    // a cabeceira: o varão da cama e, apoiada nele, a almofada grande do encosto, branca e
+    // inclinada, que vai até ao colchão
+    R(bx, T - 38, 5, 40, INK); R(bx + 1, T - 37, 3, 38, STEEL); R(bx + 2, T - 37, 1, 38, '#b8c4d6');
+    for (let i = 0; i < 34; i++) R(bx + 4, T - 33 + i, Math.round(i * 0.45) + 1, 1, STEELD);     // o apoio por trás
+    for (let i = 0; i < 34; i++) R(bx + 3 + Math.round(i * 0.45), T - 33 + i, 12, 1, INK);
+    for (let i = 1; i < 34; i++) R(bx + 4 + Math.round(i * 0.45), T - 33 + i, 10, 1, i % 7 === 0 ? '#e8ecf4' : '#ffffff');
     disc(bx + 17, T - 20, 9, INK); disc(bx + 17, T - 20, 8, '#ffffff'); R(bx + 11, T - 23, 6, 2, '#e8ecf4');
 
     // a camisa do hospital (às pintinhas), que vai desde debaixo da cabeça até à barriga
