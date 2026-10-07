@@ -115,6 +115,7 @@ export class OperationScene {
     this.game.input.reset();
     this.game.ui.setHud(this.got, this.total, this.level.title);
     this.game.ui.setLevelMode(true, true);
+    this.game.audio.setTrack(this.level.music || 'play');   // se se recomeça a meio da paragem cardíaca
     this.hintBone();
   }
 
@@ -238,7 +239,6 @@ export class OperationScene {
         break;
       case 'arrestIntro':
         this.timer -= dt;
-        if (Math.floor(this.timer * 2.5) !== Math.floor((this.timer + dt) * 2.5)) audio.play('buzz');   // o alarme
         if (this.timer <= 0) this.armDefib(this.level.defibHint);
         break;
       case 'defib':
@@ -264,6 +264,7 @@ export class OperationScene {
             this.state = 'revived';
             this.timer = 2.4;
             audio.play('check');
+            audio.setTrack(this.level.music || 'play');   // o coração voltou: a música volta ao normal
             if (this.defibClean) {
               this.got++;
               this.fx.heart(80, 40);
@@ -326,7 +327,8 @@ export class OperationScene {
     this.lock = 0.5;
     this.shocks = 0;
     this.defibClean = true;
-    this.game.audio.play('hurt');
+    this.game.audio.play('flatline');                  // o zumbido do monitor em linha reta...
+    this.game.audio.setTrack('tense');                 // ...e a música frenética da reanimação
     this.hint(this.level.alarm);
   }
 

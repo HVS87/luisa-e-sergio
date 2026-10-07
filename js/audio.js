@@ -21,7 +21,25 @@ function tone(freq, at, dur, type = 'square', vol = 0.06, slideTo = 0, bus = sfx
   osc.stop(t0 + dur + 0.02);
 }
 
+// Um apito contínuo (sem o decair dos outros sons), como o do monitor cardíaco em linha reta.
+function hold(freq, dur, type = 'square', vol = 0.03, at = 0) {
+  const t0 = ac.currentTime + at;
+  const osc = ac.createOscillator(), gain = ac.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t0);
+  gain.gain.setValueAtTime(vol, t0);
+  gain.gain.setValueAtTime(vol, t0 + dur - 0.05);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(gain);
+  gain.connect(sfxBus);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.02);
+}
+
 const SOUNDS = {
+  flatline: () => { hold(1000, 2.4, 'square', 0.028); hold(1000, 2.4, 'sine', 0.03); },
+  plim: () => { tone(1568, 0, 0.32, 'triangle', 0.09); tone(2349, 0.03, 0.45, 'sine', 0.06); tone(3136, 0.06, 0.3, 'sine', 0.03); },
+  catchWin: () => [784, 988, 1175, 1568, 1175, 1568, 1976, 2349].forEach((f, i) => tone(f, i * 0.09, 0.2, 'square', 0.05)),
   click: () => tone(660, 0, 0.06, 'square', 0.04),
   jump: () => tone(330, 0, 0.14, 'square', 0.05, 660),
   heart: () => { tone(988, 0, 0.08, 'square', 0.05); tone(1319, 0.07, 0.14, 'square', 0.05); },
@@ -72,6 +90,15 @@ const TRACKS = {
     melody: [
       'E5 - - - A5 - - -', 'C6 - - - A5 - G5 -', 'G5 - - - E5 - - -', 'D5 - - - G5 - B4 -',
       'C5 - E5 - A5 - - -', 'A5 - C6 - F6 - E6 -', 'E6 - D6 - C6 - G5 -', 'B5 - - - . . . .',
+    ],
+  },
+  // tensão: a paragem cardíaca e o desfibrilhador (rápida, em lá menor, com o baixo a martelar)
+  tense: {
+    bpm: 176, lead: 'square', leadVol: 0.03, arp: 'sawtooth', arpVol: 0.014, bassVol: 0.075,
+    chords: ['Am', 'Am', 'F', 'E', 'Am', 'Am', 'Dm', 'E'],
+    melody: [
+      'A5 A5 . A5 C6 B5 A5 .', 'E5 E5 . E5 A5 G5 E5 .', 'F5 F5 . F5 A5 G5 F5 .', 'E5 - G5 E5 D5 - B4 .',
+      'A5 A5 . A5 C6 B5 A5 .', 'E6 - D6 C6 B5 - A5 .', 'D6 D6 . D6 F6 E6 D6 .', 'E6 - - - E5 - - .',
     ],
   },
   // festa: o casamento e os finais
@@ -171,7 +198,7 @@ export const audio = {
     if (musicMuted) stopMusic(true); else startMusic();
   },
 
-  // Escolhe a faixa de música ('menu', 'play', 'calm', 'party').
+  // Escolhe a faixa de música ('menu', 'play', 'calm', 'party', 'tense').
   setTrack(name) {
     if (!TRACKS[name]) name = 'play';
     if (music.want === name) return;

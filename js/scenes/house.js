@@ -127,9 +127,8 @@ export class HouseScene {
     this.sayT = 0;
     this.joy = 0;
     this.pool = { level: 0, holding: false, clean: true };
-    this.garden = 0;
     this.paint = { idx: 0, timer: 0, chosen: -1, first: true, sweep: 0, flash: 0, flashC: null };
-    this.plant = { k: 0, x: 0, dir: 1, first: true, done: [], water: 0, wx: 0 };
+    this.plant = { k: 0, x: 0, dir: 1, first: true, done: [], grow: {}, water: 0, wx: 0 };   // grow: segundos desde que cada planta foi posta
     this.k = 0;                // fotografia atual
     this.angle = 0;
     this.hung = [];            // inclinação final de cada quadro
@@ -223,6 +222,7 @@ export class HouseScene {
     }
     const pressed = I.actionPressed && this.lock <= 0;
     this.timer += dt;
+    for (const k of Object.keys(this.plant.grow)) this.plant.grow[k] += dt;   // o jardim a crescer
 
     if (this.state === 'crane' || this.state === 'drop') {
       // a grua vai e vem, cada vez um pouco mais depressa
@@ -250,7 +250,6 @@ export class HouseScene {
     } else if (this.state === 'plant') {
       this.plantGarden(dt, pressed, g, v);
     } else if (this.state === 'garden') {
-      this.garden = 0.25 + 0.75 * clamp(this.timer / 2.2, 0, 1);
       if (this.timer > 3.6) { this.state = 'inside'; this.timer = 0; }
     } else if (this.state === 'inside') {
       if (this.timer > 1.3) this.startPhoto();
@@ -415,6 +414,7 @@ export class HouseScene {
     }
     const perfect = p.first && dx <= PLANT_PERFECT;
     p.done.push(spot.kind);
+    p.grow[spot.kind] = 0;
     p.water = 1.3;
     p.wx = spot.x;
     p.k++;
@@ -487,7 +487,7 @@ export class HouseScene {
     R(0, gy, v.w, v.h - gy, '#9a7048');
     R(0, gy, v.w, 3, '#7fbf5f');
     const lotA = g.cx - g.W / 2 - 10, lotB = Math.min(v.w - 4, g.poolX + g.poolW + 8);
-    R(lotA, gy, lotB - lotA, 3, this.garden > 0.3 ? '#7fbf5f' : '#b98a58');
+    R(lotA, gy, lotB - lotA, 3, this.plant.done.length ? '#7fbf5f' : '#b98a58');
     for (let k = 0; k < 30; k++) R((k * 53) % v.w, gy + 6 + ((k * 29) % Math.max(6, v.h - gy - 8)), 2, 1, '#86603c');
     // planta da casa (contorno azul tracejado)
     const total = PIECES.reduce((s, p) => s + p.h, 0);
@@ -593,10 +593,12 @@ export class HouseScene {
     if (this.state === 'pool' && p.holding) { R(x + 4, top - 10, 2, 10 - wh, '#8fd0f5'); R(x + 2, top - 12, 6, 2, '#6a7480'); }
   }
 
-  // O jardim: só o que o Sérgio já plantou; enquanto se planta são rebentos, depois cresce.
+  // O jardim: só o que o Sérgio já plantou; cada planta começa por ser um rebento e cresce
+  // nos segundos seguintes (ver plant.grow).
   drawGarden(R, g, v) {
-    const k = this.state === 'plant' ? 0.25 : this.garden, gy = g.gy;
-    const tree = (x, h, leaf, fruit) => {
+    const gy = g.gy;
+    const grown = (kind) => 0.25 + 0.75 * clamp((this.plant.grow[kind] || 0) / 2.4, 0, 1);
+    const tree = (x, h, leaf, fruit, k) => {
       const th = Math.round(h * k);
       if (th < 2) return;
       R(x, gy - th, 2, th, '#6b4a2e');
@@ -605,8 +607,9 @@ export class HouseScene {
     };
     for (const s of this.plantSpots(g, v)) {
       if (!this.plant.done.includes(s.kind)) continue;
-      if (s.kind === 'oliveira') tree(s.x, 16, '#7f9a5a', null);
-      else if (s.kind === 'limoeiro') tree(s.x, 14, '#3f8a3f', '#ffd84a');
+      const k = grown(s.kind);
+      if (s.kind === 'oliveira') tree(s.x, 16, '#7f9a5a', null, k);
+      else if (s.kind === 'limoeiro') tree(s.x, 14, '#3f8a3f', '#ffd84a', k);
       else for (let x = g.cx - g.W / 2 + 4; x < g.cx + g.W / 2 - 4; x += k > 0.5 ? 5 : 10) { R(x, gy - 3, 1, 3, '#5f9a52'); if (k > 0.5) R(x, gy - 4, 1, 1, '#9a7fd0'); }
     }
   }

@@ -11,6 +11,12 @@ import { Particles } from '../fx.js';
 
 const INK = '#2b1d2e', GOLD = '#ffd166', PINK = '#ff5d8f';
 const MATS = ['#a8d8f0', '#ffe9a8', '#ffc6de', '#bfe6c8'];
+// Os números da contagem («Três, dois, um!»), em grande, 5x7 píxeis cada
+const DIGITS = {
+  3: ['11110', '00001', '00001', '01110', '00001', '00001', '11110'],
+  2: ['11110', '00001', '00001', '01110', '10000', '10000', '11111'],
+  1: ['00100', '01100', '00100', '00100', '00100', '00100', '01110'],
+};
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 export class BirthScene {
@@ -86,7 +92,7 @@ export class BirthScene {
     this.timer = 0;
     this.baby = null;
     this.bounces = 0;
-    this.count = 3;
+    this.count = 0;
     this.kid = r.toddler ? { x: 0.75, dir: -1, wait: 0, dist: 0, cool: 0 } : null;
     document.body.classList.add('caption');
     this.game.ui.setHint(r.when);
@@ -147,19 +153,22 @@ export class BirthScene {
         this.state = 'push';
         this.timer = 0;
         document.body.classList.remove('caption');
-        this.game.ui.setHint(`Parteira: «Força, Luísa!» — Prepara-te, Sérgio... ${this.count}`);
+        this.count = 0;
       }
     } else if (this.state === 'push') {
-      const left = 3 - Math.floor(this.timer / 1.1);
-      if (left !== this.count && left > 0) {
-        this.count = left;
+      // a parteira faz a contagem decrescente: «Faça força! Três, dois, um!!» (os números aparecem em grande)
+      const n = Math.max(1, 3 - Math.floor(this.timer / 1.1));
+      if (n !== this.count) {
+        this.count = n;
+        this.countT = 0;
         this.game.audio.play('click');
-        this.game.ui.setHint(`Parteira: «Força, Luísa!» — Prepara-te, Sérgio... ${left}`);
+        this.game.ui.setHint('Parteira: «Faça força! ' + ['Três...', 'Três, dois...', 'Três, dois, um!!'][3 - n] + '»');
       }
+      this.countT += dt;
       if (this.timer > 3.3) {
         this.state = 'fly';
         this.timer = 0;
-        this.game.audio.play('pop');
+        this.game.audio.play('plim');                    // o bebé salta: «plim!»
         this.launch(v, 80, g.gy - 58, r.toddler ? 1.9 : 2.2);
         this.fx.burst(82, g.gy - 56, 14, ['#ffffff', GOLD, r.blanket], 70);
         this.game.ui.setHint(`Lá vai ${r.article} ${r.name}! Apanha!`);
@@ -216,7 +225,7 @@ export class BirthScene {
     this.game.ui.setHud(this.got, this.total, this.level.title);
     this.state = 'caught';
     this.timer = 0;
-    this.game.audio.play('win');
+    this.game.audio.play('catchWin');                    // apanhado: a fanfarra da vitória
     this.fx.burst(this.baby.x, this.baby.y, 16, [GOLD, '#ffffff', r.blanket], 70);
     const apanhado = r.article === 'a' ? 'Apanhada' : 'Apanhado';
     this.game.ui.setHint((this.bounces ? apanhado + '! ' : apanhado + ' à primeira! ') + r.born);
@@ -324,6 +333,17 @@ export class BirthScene {
 
     this.fx.draw(ctx);
 
+    // o número da contagem, em grande, a saltar quando aparece
+    if (st === 'push' && this.count) {
+      const rows = DIGITS[this.count], sc = 5, pop = Math.max(0, 1 - this.countT * 4);
+      const dx = Math.round(v.w * 0.55) - Math.round((5 * sc) / 2), dy = Math.round(gy * 0.3) - Math.round(pop * 10);
+      rows.forEach((row, ry) => [...row].forEach((c, rx) => {
+        if (c !== '1') return;
+        R(dx + rx * sc - 1, dy + ry * sc - 1, sc + 2, sc + 2, INK);
+      }));
+      rows.forEach((row, ry) => [...row].forEach((c, rx) => { if (c === '1') R(dx + rx * sc, dy + ry * sc, sc, sc, this.count === 1 ? '#ff5d8f' : GOLD); }));
+    }
+
     // "Fade" a negro entre rondas
     if (st === 'fade') {
       const a = this.timer < 1.9 ? 1 : clamp(1 - (this.timer - 1.9) / 0.7, 0, 1);
@@ -334,16 +354,16 @@ export class BirthScene {
   }
 
   // A cama de partos vista de lado, com a Luísa deitada: o encosto levantado com a almofada, a
-  // cabeça de perfil, a camisa do hospital, a barriga redonda e os joelhos levantados debaixo do
+  // cabeça na almofada, a camisa do hospital, a barriga redonda e os joelhos levantados debaixo do
   // lençol, até aos pés. Atrás, o soro e o monitor; ao lado, a parteira, que durante o salto do
   // bebé agita os braços em pânico.
   drawBed(ctx, R, gy, st, t) {
     const busy = st === 'push', flying = st === 'fly';
     const push = busy ? Math.round(Math.abs(Math.sin(t * 9)) * 2) : 0;
     const bx = 6, T = gy - 30;                               // canto da cama e topo do colchão
-    const SKIN = '#f6c9a0', SKIND = '#e0a888', HAIR = '#b07a45', HAIRD = '#8a5a30';
+    const SKIN = '#f6c9a0';
     const SHEET = '#a8dcf7', SHEETD = '#6fb0dc', SHEETL = '#dff3ff', GOWN = '#ffc6de', GOWND = '#e89ab8';
-    const STEEL = '#8a93a7', STEELD = '#5a6478';
+    const STEEL = '#8a93a7', STEELD = '#5a6478';   // (o STEELD é do monitor e do estrado)
     const disc = (cx, cy, r, c, to = r) => { for (let dy = -r; dy < to; dy++) { const hw = Math.round(Math.sqrt(r * r - (dy + 0.5) ** 2)); R(cx - hw, cy + dy, 2 * hw, 1, c); } };
 
     // o soro e o monitor, atrás da cabeceira
@@ -357,45 +377,33 @@ export class BirthScene {
     const mx = 44, my = gy - 70, bob = busy ? Math.floor(t * 6) % 2 : 0;
     ctx.drawImage(this.midwife.stand.l, mx, my - bob, 32, 48);
     if (flying) {
-      // em pânico: os braços no ar a abanar, e pontos de exclamação a piscar
+      // em pânico: os braços, a partir dos ombros, abertos para os lados e a abanar no ar, e
+      // pontos de exclamação a piscar
       const a = Math.sin(t * 22);
-      for (const [sx, dir] of [[mx + 7, -1], [mx + 25, 1]]) {
-        for (let k = 0; k < 9; k++) {
-          const x = sx + Math.round(dir * (2 + k * 0.8) + a * 2.5 * dir), y = my + 18 - k * 2;
-          R(x - 1, y, 4, 2, INK); R(x, y, 2, 2, SKIN);
+      for (const [sx, dir] of [[mx + 5, -1], [mx + 27, 1]]) {
+        for (let k = 0; k < 8; k++) {
+          const x = sx + Math.round(dir * (1 + k * 1.6) + a * 2 * dir), y = my + 25 - Math.round(k * 2.4) - Math.round(a * 2);
+          R(x - 1, y, 4, 3, INK); R(x, y + 1, 2, 2, SKIN);
         }
       }
       if (Math.floor(t * 8) % 2) { R(mx + 12, my - 13, 2, 6, '#ff3b3b'); R(mx + 12, my - 5, 2, 2, '#ff3b3b'); R(mx + 18, my - 15, 2, 6, GOLD); R(mx + 18, my - 7, 2, 2, GOLD); }
-    } else {
-      // de toalha nas mãos, a ajudar
-      R(mx + 10, my + 18 - bob, 12, 7, INK); R(mx + 11, my + 19 - bob, 10, 5, '#ffffff'); R(mx + 11, my + 21 - bob, 10, 1, '#ffd1e0');
     }
 
-    // o encosto levantado (inclinado) e a almofada
-    for (let i = 0; i < 30; i++) R(bx + 2 + Math.round(i * 0.45), T - 32 + i, 9, 1, INK);
-    for (let i = 1; i < 29; i++) R(bx + 3 + Math.round(i * 0.45), T - 32 + i, 7, 1, i % 6 === 0 ? STEELD : STEEL);
+    // o encosto levantado: uma almofada grande, branca e inclinada
+    for (let i = 0; i < 30; i++) R(bx + 1 + Math.round(i * 0.45), T - 32 + i, 12, 1, INK);
+    for (let i = 1; i < 29; i++) R(bx + 2 + Math.round(i * 0.45), T - 32 + i, 10, 1, i % 7 === 0 ? '#e8ecf4' : '#ffffff');
     disc(bx + 17, T - 20, 9, INK); disc(bx + 17, T - 20, 8, '#ffffff'); R(bx + 11, T - 23, 6, 2, '#e8ecf4');
 
-    // a Luísa, de perfil: o cabelo espalhado na almofada e a cara virada para cima
-    disc(bx + 20, T - 18, 8, INK); disc(bx + 25, T - 16, 7, INK);
-    disc(bx + 20, T - 18, 7, HAIR); R(bx + 8, T - 18, 10, 4, HAIR); R(bx + 7, T - 15, 9, 3, HAIR); R(bx + 10, T - 12, 8, 2, HAIRD);
-    disc(bx + 25, T - 16, 6, SKIN);
-    R(bx + 20, T - 23, 8, 3, HAIR); R(bx + 22, T - 21, 7, 2, HAIR);               // a franja
-    R(bx + 24, T - 20, 4, 1, HAIRD);                                                 // a sobrancelha
-    if (busy) {
-      R(bx + 24, T - 18, 4, 1, INK); R(bx + 27, T - 13, 3, 3, '#7a1f2e');            // olhos fechados e boca aberta, a fazer força
-      R(bx + 33, T - 23 - (Math.floor(t * 8) % 3), 2, 3, '#8fd0f5');                  // uma gota de esforço
-    } else {
-      R(bx + 24, T - 19, 3, 2, '#ffffff'); R(bx + 25, T - 19, 2, 2, '#55703f'); R(bx + 26, T - 13, 4, 1, '#c2544c');
-    }
-    R(bx + 29, T - 16, 1, 2, SKIND);                                                  // o nariz
-    R(bx + 27, T - 15, 2, 1, '#f09a8c');                                              // a face corada
+    // a camisa do hospital (às pintinhas), que vai desde debaixo da cabeça até à barriga
+    R(bx + 20, T - 11, 31, 12, INK); R(bx + 21, T - 10, 29, 10, GOWN);
+    for (let k = 0; k < 7; k++) R(bx + 24 + k * 4, T - 8 + (k % 2) * 3, 1, 1, GOWND);
 
-    // o pescoço, a camisa do hospital (às pintinhas) e o braço pousado em cima do lençol
-    R(bx + 24, T - 11, 10, 4, SKIN);
-    R(bx + 26, T - 10, 24, 11, INK); R(bx + 27, T - 9, 22, 9, GOWN);
-    for (let k = 0; k < 6; k++) R(bx + 29 + k * 4, T - 7 + (k % 2) * 3, 1, 1, GOWND);
-    R(bx + 30, T - 7, 20, 5, INK); R(bx + 31, T - 6, 18, 3, SKIN); R(bx + 47, T - 7, 5, 5, INK); R(bx + 48, T - 6, 3, 3, SKIN);
+    // a Luísa: a cabeça (a do boneco dela) deitada na almofada, com uma gota de esforço quando faz força
+    ctx.drawImage(this.luisa.stand.r, 2, 3, 12, 11, bx + 9, T - 29 + push, 24, 22);
+    if (busy) { R(bx + 35, T - 26 - (Math.floor(t * 8) % 3), 2, 3, '#8fd0f5'); R(bx + 6, T - 30 + (Math.floor(t * 8 + 2) % 3), 2, 3, '#8fd0f5'); }
+
+    // o braço pousado em cima do lençol
+    R(bx + 34, T - 7, 18, 5, INK); R(bx + 35, T - 6, 16, 3, SKIN); R(bx + 49, T - 7, 5, 5, INK); R(bx + 50, T - 6, 3, 3, SKIN);
 
     // a barriga redonda, debaixo do lençol
     disc(bx + 58, T - 1, 13, INK, 0); disc(bx + 58, T - 1, 12, SHEET, 0); disc(bx + 54, T - 3, 6, SHEETL, 0);

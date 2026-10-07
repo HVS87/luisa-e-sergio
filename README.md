@@ -155,8 +155,9 @@ um minijogo inspirado no clássico "Operação", em duas partes (`js/scenes/oper
    tem de tocar quando ele passa na zona verde, três vezes por osso. Se falhar, o doente
    acorda aos saltos e a Luísa tem de lhe dar mais anestesia (manter premido para encher a
    seringa e largar na zona verde).
-2. **A paragem cardíaca**: a meio, o monitor fica em linha reta e o doente entra em paragem
-   cardíaca. A Luísa pega nas pás do desfibrilhador: mantém-se premido para carregar e
+2. **A paragem cardíaca**: a meio, o monitor fica em linha reta (com o apito contínuo do
+   monitor) e o doente entra em paragem cardíaca; durante a reanimação toca uma música
+   frenética (`tense`, em `js/audio.js`). A Luísa pega nas pás do desfibrilhador: mantém-se premido para carregar e
    larga-se na zona verde para dar o choque; são precisos dois. Sem nenhuma carga falhada,
    vale um coração.
 3. **Segunda parte** (clavícula, rótula, tíbia, calcâneo): igual à primeira, mas a zona verde
@@ -366,8 +367,8 @@ arcos em ogiva e o Arco Grande. Quem orienta a obra é o Tio Alberto, o tio arqu
 4. **O jardim**: o Sérgio anda de um lado para o outro com cada planta (a oliveira à esquerda
    da casa, o limoeiro ao pé da piscina, a alfazema à frente da sala) e toca-se quando passa
    pela estaca certa. Mesmo na estaca, à primeira, vale um coração; ao lado, planta-se na mesma;
-   longe, «aí passa a canalização» e volta a tentar. A Luísa rega cada planta e, no fim, o
-   jardim cresce.
+   longe, «aí passa a canalização» e volta a tentar. A Luísa rega cada planta, que cresce
+   logo nos segundos seguintes.
 5. **As fotografias**: dentro de casa, penduram-se na sala as fotografias dos momentos dos
    níveis anteriores (as mesmas recordações do pedido, mais o próprio pedido e a aguarela do guarda-rios que a
    Luísa pintou no nível 8). Cada quadro
@@ -423,7 +424,8 @@ estão em `js/config.js`.
 Depois do casamento há um nível bónus (`js/scenes/birth.js`, textos em
 `js/levels/b1-maternidade.js`), em duas rondas separadas por um "fade" a negro:
 
-1. **"1 ano depois..."** — a Luísa está na maca a dar à luz, a parteira conta até três e o
+1. **"1 ano depois..."** — a Luísa está na cama a dar à luz, a parteira faz a contagem («Faça força!
+   Três, dois, um!!», com os números em grande no ecrã), ouve-se um «plim» e o
    Xavier salta pelo ar: o Sérgio tem de se pôr debaixo dele (a sombra no chão mostra onde
    vai cair) e apanhá-lo.
 2. **"2 anos depois..."** — a mesma coisa com a Luisinha, mais rápida, enquanto o Xavier,
@@ -436,9 +438,9 @@ casa que construíram no nível 11 (azul-clara, de janelas acesas), com o Aquedu
 horizonte e fogo de artifício. O desenho da vivenda é partilhado (`drawVilla` em
 `js/scenes/house.js`).
 
-A Luísa está numa cama de partos (cabeceira alta, almofada, lençol azul com os joelhos
-levantados, grades e rodas, e o suporte do soro à cabeceira), com a parteira de pé ao lado,
-de toalha nas mãos, a ajudar.
+A Luísa está numa cama de partos vista de lado (encosto levantado, almofada, camisa do
+hospital, barriga e joelhos levantados debaixo do lençol, rodas, soro e monitor), com a
+parteira de pé ao lado; enquanto o bebé voa, a parteira agita os braços em pânico.
 
 ### Dificuldade
 
