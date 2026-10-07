@@ -39,7 +39,7 @@ export default {
     0: { text: 'Luísa: «A ponte coberta: é por aqui que se passa da ala norte para a ala sul, sem apanhar chuva!»' },
     3: { text: 'Luísa: «Os retratos dos antepassados. Parece que estão todos a olhar para ti, Sérgio!»' },
     4: { text: 'Luísa: «O quarto da cama de dossel: antiga, de madeira esculpida, com cortinas e tudo!»' },
-    8: { text: 'Avó Jose: «Então este é que é o Sérgio! Chegue-se cá, menino. Desta varanda vê-se o jardim todo: é o meu lugar preferido. O menino gosta de jardins?»' },
+    8: { text: 'Avó Jose: «Então este é que é o Sérgio! Venha cá. Desta varanda vê-se o jardim todo: é o meu lugar preferido. Diga-me uma coisa: o menino gosta de jardins?»' },
     5: { text: 'Luísa: «O brasão dos Soares de Albergaria, em granito, por cima da porta.»' },
     6: { text: 'Luísa: «O jardim de buxo tem centenas de anos. Não te percas!»' },
     7: { text: 'Luísa: «As japoneiras dão flor em pleno inverno, quando tudo o resto dorme.»' },
