@@ -37,7 +37,7 @@ html, body {
 
 body {
   position: fixed;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;   /* (inset: 0, para Safari antigos) */ inset: 0;
   font-family: 'Press Start 2P', 'Courier New', monospace;
   font-size: var(--u);
   line-height: 1.5;
@@ -376,7 +376,7 @@ body.ctl-bar #touch {
   padding: 0 calc(var(--sar) + 5vw) var(--sab) calc(var(--sal) + 5vw);
 }
 body.ctl-side #touch {
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;   /* (inset: 0, para Safari antigos) */ inset: 0;
   align-items: flex-end;
   padding: 0 calc(var(--sar) + 10px) calc(var(--sab) + var(--gh) * 0.15) calc(var(--sal) + 10px);
 }
@@ -413,4 +413,4 @@ body.ctl-bar #game, body.ctl-side #game { box-shadow: 0 0 0 var(--b) var(--ink-s
 .install-steps li { position: relative; padding-left: 2.4em; margin-bottom: 0.9em; counter-increment: passo; }
 .install-steps li::before { content: counter(passo); position: absolute; left: 0; top: -0.1em; width: 1.7em; height: 1.7em; line-height: 1.75em; text-align: center; color: #fff; background: var(--pink); }
 
-noscript { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 2em; text-align: center; }
+noscript { position: absolute; top: 0; right: 0; bottom: 0; left: 0;   /* (inset: 0, para Safari antigos) */ inset: 0; display: flex; align-items: center; justify-content: center; padding: 2em; text-align: center; }
