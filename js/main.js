@@ -96,6 +96,9 @@ function resize() {
   const k = Math.max(1, Math.floor(portrait
     ? (L.w * dpr) / VIEW_PORTRAIT_W + 0.25
     : Math.min((L.h * dpr) / VIEW_LANDSCAPE_H, (L.w * dpr) / VIEW_LANDSCAPE_MIN_W) + 0.2));
+  // Arredonda para cima de propósito: a tela cobre a área toda sem deixar uma risca vazia; o que
+  // sobra (menos de um píxel de jogo, p. ex. 640,5 px num ecrã de 640) fica cortado pelo
+  // overflow: hidden do body.
   const w = Math.ceil((L.w * dpr) / k), h = Math.ceil((L.h * dpr) / k);
   if (canvas.width !== w || canvas.height !== h) {
     canvas.width = w;
