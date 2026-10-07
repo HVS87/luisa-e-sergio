@@ -332,7 +332,7 @@ function testData() {
   const family = ['avojose', 'maeluisa', 'pailuisa', 'rosarinho', 'catarina', 'antonio', 'beatriz', 'pai', 'andre'];
   const inMap = Object.keys(prep.npcs).filter((ch) => prep.maps.relvado.rows.some((r) => r.includes(ch))).map((ch) => prep.npcs[ch]);
   check('preparativos: a família toda está no relvado e tem falas', family.every((id) => inMap.includes(id) && prep.folk[id] && prep.folk[id].any), family.filter((id) => !inMap.includes(id) || !prep.folk[id]).join(','));
-  check('preparativos: o nível chama-se «Casa da Beira»', prep.title === 'Casa da Beira');
+  check('títulos: o nível 5 chama-se «A Casa da Beira» e o 12 «Preparativos do Casamento»', LEVELS[4].title === 'A Casa da Beira' && prep.title === 'Preparativos do Casamento', LEVELS[4].title + ' / ' + prep.title);
   const spoken = collectStrings(LEVELS, 'L', []).map(([, t]) => t).filter((t) => /^(Luísa|Avó Jose|Mãe da Luísa|Pai da Luísa|Rosarinho|Catarina|António|Carminho|Henrique)[^:]*: «/.test(t));
   check('a família da Luísa chama «Casa da Beira» à casa (nunca «solar» nas falas, salvo ao explicar o nome)', spoken.every((t) => !/\bsolar\b/i.test(t) || /Casa da Beira/.test(t)), spoken.filter((t) => /\bsolar\b/i.test(t) && !/Casa da Beira/.test(t)).join(' | '));
   const mat = LEVELS.find((L) => L.type === 'birth');

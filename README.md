@@ -132,14 +132,14 @@ tools/                servidor local e gerador de ícones
 | 2 | `02-date.js` | O Primeiro Date | microjogos num restaurante |
 | 3 | `03-madeira.js` | Na Madeira | plataformas: Funchal, levada, carro de cesto, Santana |
 | 4 | `04-ciclismo.js` | De Bicicleta | viagem de bicicleta: serra, planície e costa |
-| 5 | `05-solar.js` | O Solar da Família | visita vista de cima: interior do solar e jardim de buxo |
+| 5 | `05-solar.js` | A Casa da Beira | visita vista de cima: interior do solar e jardim de buxo |
 | 6 | `06-pretarouca.js` | Pretarouca | passeio pela aldeia de granito + forno de lenha |
 | 7 | `07-covid.js` | Na Linha da Frente | arcada por vagas numa enfermaria, durante a pandemia |
 | 8 | `08-aves.js` | Birdwatching | binóculos e caderno de campo num observatório de aves |
 | 9 | `09-noruega.js` | Aurora Boreal | cidade nevada, trenó de huskies e a aurora |
 | 10 | `10-pedido.js` | O Pedido | Natal: jogo de memória com os presentes e o pedido de casamento |
 | 11 | `11-casa.js` | A Nossa Casa | a obra da vivenda junto ao Aqueduto e as fotografias na parede |
-| 12 | `12-preparativos.js` | Casa da Beira (final) | a véspera do casamento: a família toda nos preparativos |
+| 12 | `12-preparativos.js` | Preparativos do Casamento (final) | a véspera do casamento: a família toda nos preparativos |
 | Bónus | `b1-maternidade.js` | Na Maternidade | o Sérgio apanha o Xavier e, 2 anos depois, a Luisinha |
 
 Os doze níveis da história e o nível bónus estão feitos.
@@ -209,7 +209,7 @@ sagrada no café. Se a energia de quem puxa chega a zero, "bate o homem da marre
 velocidade cai até trocarem. O percurso define-se troço a troço em `route`, no ficheiro
 `js/levels/04-ciclismo.js`; a lógica e o desenho estão em `js/scenes/bike.js`.
 
-### Nível 5 — "O Solar da Família"
+### Nível 5 — "A Casa da Beira"
 
 A Luísa mostra ao Sérgio o Solar dos Soares de Albergaria, em Oliveira do Conde, onde mora a
 Avó Jose (a avó da Luísa). É uma visita guiada vista de cima, em dois mapas:
@@ -345,7 +345,7 @@ arcos em ogiva e o Arco Grande. Quem orienta a obra é o Tio Alberto, o tio arqu
 As fotografias vêm de `js/levels/10-pedido.js` (a suite de testes confirma que há uma por cada
 nível anterior); os textos estão em `js/levels/11-casa.js`.
 
-### Nível 12 — "Casa da Beira"
+### Nível 12 — "Preparativos do Casamento"
 
 A véspera do casamento, no relvado da Casa da Beira (o Solar dos Soares de Albergaria). É um
 corre-corre visto de cima (`js/scenes/prep.js`, que estende o motor das visitas), com a

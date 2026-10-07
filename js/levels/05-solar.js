@@ -21,7 +21,7 @@
 export default {
   id: 'solar',
   type: 'tour',
-  title: 'O Solar da Família',
+  title: 'A Casa da Beira',
   story: 'É a vez de a Luísa mostrar as suas raízes: o Solar dos Soares de Albergaria, em Oliveira do Conde, há centenas de anos na família, com os seus jardins históricos de buxo. A família chama-lhe simplesmente a Casa da Beira, e é lá que mora a Avó Jose, a avó da Luísa.',
   help: 'Leva a Luísa a mostrar a casa e o jardim ao Sérgio: passa por todos os pontos a brilhar. No ecrã tátil, toca e mantém o dedo no sítio para onde queres ir; no teclado, usa as setas.',
   outro: 'Visita concluída. O Sérgio ficou rendido à Casa da Beira, à Avó Jose... e à guia!',

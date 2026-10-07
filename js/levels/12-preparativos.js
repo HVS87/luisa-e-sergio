@@ -22,7 +22,7 @@ export default {
   id: 'preparativos',
   type: 'prep',
   final: true,             // depois deste nível vem o final do jogo
-  title: 'Casa da Beira',
+  title: 'Preparativos do Casamento',
   story: 'Véspera do casamento, na Casa da Beira — é assim que a família chama ao Solar dos Soares de Albergaria. Veio a família toda ajudar: há uma tenda para montar, mesas para pôr, luzes para pendurar, dois meninos das alianças para ensaiar e um bolo que tem de chegar inteiro. Que azáfama!',
   help: 'Anda pelo relvado (toca e mantém o dedo no sítio para onde queres ir, ou usa as setas) e vai aonde aparecem as setas: aos postes, à carrinha, ao canteiro, às mesas... e atrás da Carminho e do Henrique! Chega-te à família para ouvir o que têm a dizer. Tudo o que ficar pronto antes do pôr do sol vale um coração.',
   outro: 'Está tudo pronto. Amanhã é o grande dia!',
