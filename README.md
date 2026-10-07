@@ -435,7 +435,7 @@ estão em `js/config.js`.
 Depois do casamento há um nível bónus (`js/scenes/birth.js`, textos em
 `js/levels/b1-maternidade.js`), em duas rondas separadas por um "fade" a negro:
 
-1. **"1 ano depois..."** — a Luísa está na cama a dar à luz, a parteira faz a contagem («Faça força!
+1. **"1 ano e meio depois..."** — a Luísa está na cama a dar à luz, a parteira faz a contagem («Faça força!
    Três, dois, um!!», com os números em grande no ecrã), ouve-se um «plim» e o
    Xavier salta pelo ar: o Sérgio tem de se pôr debaixo dele (a sombra no chão mostra onde
    vai cair) e apanhá-lo.

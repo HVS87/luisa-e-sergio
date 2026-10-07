@@ -310,7 +310,7 @@ body.in-level .hud { display: flex; }
 /* a classe .on é posta pelo ui.js quando há texto: o Safari nem sempre reavalia :empty quando o
    texto muda por JavaScript, e as instruções ficavam escondidas */
 body.in-level .hint.on { display: block; }
-/* legenda grande ao centro, sobre o ecrã a negro ("1 ano depois...") */
+/* legenda grande ao centro, sobre o ecrã a negro ("1 ano e meio depois...") */
 body.caption .hint { top: calc(var(--gy) + var(--gh) * 0.42); font-size: 1em; background: none; color: var(--gold); }
 
 /* ---------- Vitória ---------- */
