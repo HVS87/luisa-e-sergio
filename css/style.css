@@ -291,6 +291,10 @@ body.in-level .hud { display: flex; }
 .hint {
   position: absolute;
   top: calc(var(--gy) + var(--sat) + 0.6em + 50px);
+  /* logo abaixo do botão de pausa do HUD: 0,6u de margem do HUD + 0,2u da margem do botão + a
+     altura do botão (44 px no mínimo, ou 0,7u x 2,6 em ecrãs grandes) + 0,3u de folga. Com um
+     valor fixo, nos tablets e telemóveis deitados as instruções tapavam a pausa e os corações. */
+  top: calc(var(--gy) + var(--sat) + 1.1 * var(--u) + max(44px, 1.82 * var(--u)));
   left: calc(var(--gx) + var(--gw) / 2);
   -webkit-transform: translate3d(-50%, 0, 0);   /* centrada e numa camada própria (ver .hud) */
   transform: translate3d(-50%, 0, 0);
