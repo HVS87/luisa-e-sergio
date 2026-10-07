@@ -73,10 +73,13 @@ export class UI {
     $('#hint').textContent = this.local(text || '');
   }
 
-  // A jogar com teclado, «Toca para...» passa a «Carrega em Espaço para...».
+  // A jogar com teclado, «Toca para...» passa a «Carrega em Espaço para...» (e também «Toca quando...»,
+  // «Toca a um ritmo...»). Frases como «Toca nos presentes (ou usa as setas...)» já dizem as teclas.
   local(text) {
     if (this.game.input.touch) return text;
-    return text.replace(/\b([Tt])oca para\b/g, (m, t) => (t === 'T' ? 'Carrega' : 'carrega') + ' em Espaço para').replace(/\bToca-lhe!/g, 'Carrega em Espaço!');
+    return text
+      .replace(/\b([Tt])oca (para|quando|a um ritmo)\b/g, (m, t, rest) => (t === 'T' ? 'Carrega' : 'carrega') + ' em Espaço ' + rest)
+      .replace(/\bToca-lhe!/g, 'Carrega em Espaço!');
   }
 
   // Substitui {eu}, {par}, {ao_par}... pelos nomes certos conforme a personagem escolhida.

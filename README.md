@@ -26,6 +26,8 @@ QA de `tests/qa.js`, com o resultado num painel por cima do jogo (demora cerca d
 Com `?qa&touch` simula um ecrã tátil, para correr num telemóvel. **A suite apaga o progresso
 guardado nesse browser.** Verifica, entre outras coisas:
 
+- os ficheiros do jogo (sem caracteres de controlo perdidos nem acentos estragados por uma má
+  conversão de codificação);
 - os dados dos níveis (ids, etiquetas, textos sem marcadores por substituir, sem formas do
   português do Brasil, nenhum tema proibido) e os cruzamentos entre níveis (uma
   recordação do pedido por cada nível anterior, as aves, as rondas da maternidade);

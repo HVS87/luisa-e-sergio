@@ -652,6 +652,21 @@ async function testAwake() {
   }
 }
 
+// Ficheiros do jogo: sem caracteres de controlo perdidos nem acentos estragados por uma má
+// conversão de codificação (um A maiúsculo com til seguido de outro símbolo, em vez de uma letra acentuada).
+async function testSources() {
+  log('— Ficheiros do jogo —');
+  const files = [...new Set(performance.getEntriesByType('resource').map((e) => new URL(e.name).pathname)
+    .filter((f) => /\.(js|css)$/.test(f)))].concat(['/index.html', '/manifest.webmanifest', '/sw.js']);
+  const bad = [];
+  for (const f of files) {
+    const text = await (await fetch(f, { cache: 'no-store' })).text();
+    if (/[\x00-\x08\x0B\x0C\x0E-\x1F\uFFFD]/.test(text)) bad.push(f + ' (caracteres de controlo)');
+    if (/Ã[\u0080-\u00BF]|Â[«»ºª]/.test(text)) bad.push(f + ' (acentos estragados)');
+  }
+  check(`ficheiros do jogo limpos: sem caracteres de controlo nem acentos estragados (${files.length} ficheiros)`, files.length > 30 && !bad.length, bad.join(', '));
+}
+
 function testSettings() {
   log('— Opções e gravação —');
   game.goMenu();
@@ -910,6 +925,8 @@ async function testInteractions() {
   // instruções «Toca para...» adaptam-se ao teclado
   game.ui.setHint('Toca para continuar.');
   check('teclado: «Toca para...» passa a «Carrega em Espaço para...»', $('#hint').textContent === 'Carrega em Espaço para continuar.');
+  game.ui.setHint('Toca quando os dois corações se encontrarem ao centro! Toca a um ritmo certo. Toca nos presentes (ou usa as setas e o Espaço).');
+  check('teclado: «Toca quando» e «Toca a um ritmo» também passam a «Carrega em Espaço»; as outras ficam', $('#hint').textContent === 'Carrega em Espaço quando os dois corações se encontrarem ao centro! Carrega em Espaço a um ritmo certo. Toca nos presentes (ou usa as setas e o Espaço).', $('#hint').textContent);
   I.setTouch(true);
   game.ui.setHint('Toca para continuar.');
   check('toque: a instrução fica «Toca para...»', $('#hint').textContent === 'Toca para continuar.');
@@ -1190,7 +1207,7 @@ export async function run(g) {
   if (new URLSearchParams(location.search).has('touch')) I.setTouch(true);
   log('QA — Luísa & Sérgio (' + new Date().toLocaleString('pt-PT') + ')');
   const t0 = performance.now();
-  const steps = [testData, testReachable, testLayout, testInteractions, testOffline, testMenus, testSettings, testAudio, testFullGame, testRestart, testCovidRules, testAwake, testViewports, testMonkey];
+  const steps = [testData, testSources, testReachable, testLayout, testInteractions, testOffline, testMenus, testSettings, testAudio, testFullGame, testRestart, testCovidRules, testAwake, testViewports, testMonkey];
   // ?qa&only=monkey corre só os testes cujo nome contém essa palavra (ex.: monkey, layout)
   const only = new URLSearchParams(location.search).get('only');
   for (const fn of steps.filter((x) => !only || x.name.toLowerCase().includes(only.toLowerCase()))) {
