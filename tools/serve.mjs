@@ -1,6 +1,8 @@
 // Servidor local simples para testar o jogo (sem dependências).
 //   node tools/serve.mjs        → http://localhost:8080
 // Também fica acessível na rede local, para testar no telemóvel ligado ao mesmo Wi-Fi.
+// A página tools/logo.html pode guardar as imagens do logótipo em assets/ (só a partir deste
+// computador): POST /__guardar/<nome>.png com o PNG no corpo do pedido.
 import http from 'node:http';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -22,9 +24,25 @@ const TYPES = {
   '.woff2': 'font/woff2',
 };
 
+const LOCAL = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
+const SAVEABLE = /^(share|icon-\d{3})\.png$/;
+
 http.createServer((req, res) => {
   let rel;
   try { rel = decodeURIComponent(new URL(req.url, 'http://x').pathname); } catch (err) { rel = '/'; }
+  if (req.method === 'POST' && rel.startsWith('/__guardar/')) {
+    const name = rel.slice('/__guardar/'.length);
+    if (!LOCAL.has(req.socket.remoteAddress) || !SAVEABLE.test(name)) { res.writeHead(403).end('Proibido'); return; }
+    const parts = [];
+    req.on('data', (d) => parts.push(d));
+    req.on('end', () => {
+      const data = Buffer.concat(parts);
+      if (data.length < 8 || data.readUInt32BE(0) !== 0x89504e47 || data.length > 4e6) { res.writeHead(400).end('Não é um PNG'); return; }
+      fs.writeFileSync(path.join(ROOT, 'assets', name), data);
+      res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' }).end('Guardado em assets/' + name);
+    });
+    return;
+  }
   if (rel.endsWith('/')) rel += 'index.html';
   const file = path.join(ROOT, rel);
   if (!file.startsWith(ROOT + path.sep)) {

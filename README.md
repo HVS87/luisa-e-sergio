@@ -98,6 +98,14 @@ menu principal e na pausa); a escolha fica guardada.
   iPhone desde o iOS 18.4), e volta a pedir a cada toque e sempre que se regressa ao jogo
   (`Awake` em `js/device.js`). Em poupança de energia alguns telemóveis recusam o pedido; por
   isso a animação do casamento tem também dois momentos em que é preciso tocar.
+- **Logótipo, ícones e pré-visualização ao partilhar**: a página `tools/logo.html` (com o
+  servidor a correr, <http://localhost:8080/tools/logo.html>) desenha, com os bonecos e a fonte
+  do jogo, a imagem de partilha `assets/share.png` (1200×630, usada nas etiquetas `og:image` e
+  `twitter:image` do `index.html`, para a pré-visualização no WhatsApp, Facebook, etc.) e os
+  ícones da app (`assets/icon-512.png`, `icon-192.png` e `icon-180.png`, com o casal dentro da
+  zona segura dos ícones «maskable»). O botão «Guardar todas em assets/» grava-as através do
+  servidor local (rota `POST /__guardar/<nome>.png`, só a partir do próprio computador); os
+  outros botões transferem cada imagem.
 - **Som no iPhone**: o som só começa depois do primeiro toque (regra dos browsers) e, no
   iPhone, segue o botão de silêncio lateral.
 
@@ -123,7 +131,7 @@ js/memories.js        ícones das recordações (presentes do pedido e fotografi
 js/levels/            um ficheiro por nível + troços de plataformas (chunks.js)
 sw.js                 service worker (jogar sem rede)
 tests/qa.js           suite de testes automáticos (abrir o jogo com ?qa)
-tools/                servidor local e gerador de ícones
+tools/                servidor local e a página que desenha o logótipo (logo.html)
 ```
 
 ## Níveis
