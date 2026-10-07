@@ -3,6 +3,33 @@
 
 const ua = navigator.userAgent || '';
 // O iPad com iPadOS identifica-se como um Mac, mas tem ecrã tátil.
+// Ecrã sempre aceso enquanto o jogo está à vista (Screen Wake Lock API: Chrome/Android, Safari 16.4+,
+// app instalada no iPhone desde o iOS 18.4). O sistema larga o pedido quando a página fica escondida,
+// por isso volta a pedir-se ao regressar e a cada toque. Em poupança de energia alguns telemóveis
+// recusam o pedido: por isso as animações longas também pedem toques pelo meio (ver victory.js).
+export const Awake = {
+  lock: null,
+  pending: false,
+  async request() {
+    if (!('wakeLock' in navigator) || this.lock || this.pending || document.visibilityState !== 'visible') return;
+    this.pending = true;
+    try {
+      const lock = await navigator.wakeLock.request('screen');
+      this.lock = lock;
+      lock.addEventListener('release', () => { if (this.lock === lock) this.lock = null; });
+    } catch (e) {
+      this.lock = null;          // recusado (poupança de energia, página escondida...): tenta-se no próximo toque
+    }
+    this.pending = false;
+  },
+  init() {
+    const again = () => { this.request(); };
+    for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, again, { passive: true, capture: true });
+    document.addEventListener('visibilitychange', again);
+    again();
+  },
+};
+
 const isIOS = /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
 const isAndroid = /Android/.test(ua);
 const isSafari = /Safari/.test(ua) && !/Chrome|CriOS|FxiOS|EdgiOS|Android/.test(ua);

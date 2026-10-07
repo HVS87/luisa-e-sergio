@@ -338,6 +338,10 @@ body.caption .hint { top: calc(var(--gy) + var(--gh) * 0.42); font-size: 1em; ba
 .cutscene .victory-text, .cutscene .victory-actions { display: none; }
 .cutscene .v-caption { display: block; max-width: calc(100% - 1.6em); padding: 0.6em 0.9em; font-size: 0.62em; line-height: 1.6; text-align: center; background: rgba(26, 20, 51, 0.88); }
 .cutscene .v-caption:empty { display: none; }
+.cue .v-caption { color: var(--gold, #ffd166); animation: cue-pulse 0.9s ease-in-out infinite; }
+.cue .v-skip { visibility: hidden; }
+@keyframes cue-pulse { 50% { transform: scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .cue .v-caption { animation: none; } }
 .cutscene .v-skip { display: block; position: absolute; right: calc(var(--sar) + 1em); bottom: calc(var(--sab) + 1em); font-size: 0.45em; opacity: 0.7; text-shadow: 0.15em 0.15em 0 var(--ink); }
 [data-screen="victory"].cutscene { padding-top: calc(var(--sat) + 0.9em); }
 .victory-actions .btn { font-size: 0.68em; }

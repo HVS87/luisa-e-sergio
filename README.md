@@ -91,6 +91,11 @@ menu principal e na pausa); a escolha fica guardada.
   ecrã principal»). Instalado, abre em ecrã inteiro, com ícone próprio, e funciona sem rede
   graças ao service worker (`sw.js`, que vai sempre buscar a versão mais recente quando há
   rede). O manifesto está em `manifest.webmanifest`.
+- **Ecrã sempre aceso**: enquanto o jogo está à vista (na app instalada ou no browser), pede ao
+  sistema para não apagar o ecrã (Screen Wake Lock: Chrome/Android, Safari 16.4+ e app instalada no
+  iPhone desde o iOS 18.4), e volta a pedir a cada toque e sempre que se regressa ao jogo
+  (`Awake` em `js/device.js`). Em poupança de energia alguns telemóveis recusam o pedido; por
+  isso a animação do casamento tem também dois momentos em que é preciso tocar.
 - **Som no iPhone**: o som só começa depois do primeiro toque (regra dos browsers) e, no
   iPhone, segue o botão de silêncio lateral.
 
@@ -376,7 +381,11 @@ Rosarinho, a Catarina, o António e o Tio Alberto; a do Sérgio: o pai, o André
 Carminho e o Henrique, os meninos das alianças, a entrar à frente da noiva com a almofada;
 depois a festa na Casa da Beira até de madrugada e, por fim, a imagem sobe até ao céu, onde
 rebenta o fogo de artifício à volta de "Parabéns! pelos 4 anos de casados" e da data
-08-10-22. Um toque salta a animação. A data e o número de anos estão em `js/config.js`.
+08-10-22. A meio, a animação espera por dois toques: «Toca para beijar a noiva!», na igreja, e
+«Toca para lançar o fogo de artifício!», na festa (assim o ecrã do telemóvel não se apaga por
+falta de interação, mesmo em poupança de energia). Fora desses momentos, um toque avança até ao
+momento seguinte; no ecrã final, cada toque lança mais um foguete. A data e o número de anos
+estão em `js/config.js`.
 
 ### Nível bónus — "Na Maternidade"
 

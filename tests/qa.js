@@ -180,7 +180,7 @@ const BOTS = {
   BirthScene(s) {
     if (s.state === 'fly' && s.baby) I.pointerX = s.baby.tx / game.view.w;
   },
-  VictoryScene() { I.action = true; I.actionPressed = true; },
+  VictoryScene(s) { if (s.cue && s.cueT > 0.6) s.tap(); },
 };
 
 function autoBot(s) {
@@ -608,6 +608,47 @@ async function testCovidRules() {
   game.goMenu();
 }
 
+async function testAwake() {
+  log('— Ecrã sempre aceso —');
+  const { Awake } = await import('../js/device.js');
+  check('o browser tem a API para manter o ecrã aceso (Wake Lock)', 'wakeLock' in navigator, navigator.userAgent);
+  if (!('wakeLock' in navigator)) return;
+  const real = navigator.wakeLock.request;
+  let asked = 0, sentinel = null;
+  navigator.wakeLock.request = async (type) => {
+    asked++;
+    const et = new EventTarget();
+    sentinel = Object.assign(et, { type, released: false, release: async () => { et.released = true; et.dispatchEvent(new Event('release')); } });
+    return sentinel;
+  };
+  try {
+    if (Awake.lock) await Awake.lock.release().catch(() => {});
+    Awake.lock = null;
+    window.dispatchEvent(new PointerEvent('pointerdown', { clientX: 5, clientY: 5, bubbles: true }));
+    await tick();
+    const visible = document.visibilityState === 'visible';
+    check('ecrã aceso: um toque pede o Wake Lock', !visible || (asked === 1 && Awake.lock === sentinel), `pedidos ${asked}, visível ${visible}`);
+    window.dispatchEvent(new PointerEvent('pointerdown', { clientX: 5, clientY: 5, bubbles: true }));
+    await tick();
+    check('ecrã aceso: não repete o pedido enquanto o tem', !visible || asked === 1, `pedidos ${asked}`);
+    if (sentinel) await sentinel.release();
+    check('ecrã aceso: quando o sistema o larga, esquece-o', Awake.lock === null);
+    document.dispatchEvent(new Event('visibilitychange'));
+    await tick();
+    check('ecrã aceso: volta a pedir ao regressar à página', !visible || asked === 2, `pedidos ${asked}`);
+    navigator.wakeLock.request = async () => { throw new DOMException('Poupança de energia', 'NotAllowedError'); };
+    if (Awake.lock) await Awake.lock.release();
+    Awake.lock = null;
+    window.dispatchEvent(new PointerEvent('pointerdown', { clientX: 5, clientY: 5, bubbles: true }));
+    await tick();
+    check('ecrã aceso: um pedido recusado não dá erro', Awake.lock === null && !Awake.pending);
+  } finally {
+    navigator.wakeLock.request = real;
+    Awake.lock = null;
+    Awake.request();
+  }
+}
+
 function testSettings() {
   log('— Opções e gravação —');
   game.goMenu();
@@ -782,11 +823,37 @@ async function testInteractions() {
   const known = ['play', 'levels', 'howto', 'back', 'level', 'character', 'sound', 'music', 'fullscreen', 'install', 'start', 'pause', 'resume', 'restart', 'retry', 'next', 'bonus', 'menu'];
   check('todos os botões têm uma ação conhecida', actions.every((a) => known.includes(a)), actions.filter((a) => !known.includes(a)).join(','));
 
-  // --- animação do casamento: tocar salta para a festa ---
+  // --- animação do casamento: dois momentos de toque (o ecrã não se apaga por falta de interação) ---
+  const touch = () => window.dispatchEvent(new PointerEvent('pointerdown', { clientX: 10, clientY: 10, bubbles: true }));
+  game.showVictory('wedding');
+  const ws = game.scene;
+  game.scene.t = 3;
+  touch();
+  frames(1, null);
+  check('casamento: tocar a meio avança até ao beijo', ws.cue === 'beijo' && /beijar a noiva/.test($('#v-caption').textContent), `${ws.cue} / ${$('#v-caption').textContent}`);
+  const tk = ws.t;
+  frames(60 * 40, null);
+  check('casamento: sem tocar, a animação espera pelo beijo', ws.cue === 'beijo' && ws.t === tk && $('[data-screen=victory]').classList.contains('cue'));
+  check('casamento: com teclado, a legenda diz «Carrega em Espaço»', I.touch || /^Carrega em Espaço para beijar/.test($('#v-caption').textContent), $('#v-caption').textContent);
+  touch();
+  frames(1, null);
+  check('casamento: tocar beija a noiva e a animação continua', ws.done.has('beijo') && !ws.cue && ws.t > tk && $('#v-caption').textContent === 'Vivam os noivos!' && !$('[data-screen=victory]').classList.contains('cue'), $('#v-caption').textContent);
+  frames(60 * 40, null);
+  check('casamento: na festa, espera pelo fogo de artifício', ws.cue === 'fogo' && /fogo de artifício/.test($('#v-caption').textContent), `${ws.cue} / ${$('#v-caption').textContent}`);
+  touch();
+  check('casamento: um toque logo a seguir a chegar ao momento não conta', ws.cue === 'fogo' || ws.cueT >= 0.35);
+  frames(30, null);
+  touch();
+  frames(1, null);
+  check('casamento: tocar lança o fogo de artifício', ws.done.has('fogo') && !ws.cue && ws.fire.rockets.length > 0);
+  touch();
+  frames(2, null);
+  check('casamento: depois do fogo, um toque salta para os parabéns', ws.revealed && game.ui.current === 'victory');
+  const nr = ws.fire.rockets.length;
+  touch();
+  check('ecrã final: cada toque lança mais um foguete', ws.fire.rockets.length === nr + 1);
   game.showVictory('wedding');
   game.scene.t = 3;
-  window.dispatchEvent(new PointerEvent('pointerdown', { clientX: 10, clientY: 10, bubbles: true }));
-  check('casamento: tocar no ecrã salta para a festa', game.scene.t >= 20);
   key('keydown', 'Escape');
   check('casamento: o Esc não sai a meio da animação', game.scene.constructor.name === 'VictoryScene' && game.ui.current === 'victory');
   game.startLevel(0);
@@ -1062,9 +1129,9 @@ export async function sheet(g, v, cols = 3, only = null, secs = 9) {
     }
   }
   if (only !== 'pad') {
-    game.showVictory('wedding'); use(); frames(60 * 12, null); snap('casamento: igreja');
-    frames(60 * 9, null); snap('casamento: festa');
-    frames(60 * 8, null); snap('casamento: céu');
+    game.showVictory('wedding'); use(); frames(60 * 9, null); snap('casamento: beijo');
+    game.scene.tap(); frames(60 * 12, null); snap('casamento: festa');
+    game.scene.tap(); frames(60 * 6, null); snap('casamento: céu');
     game.showVictory('family'); use(); frames(120, null); snap('família');
     game.goMenu(); use(); frames(60, null); snap('menu');
   }
@@ -1112,7 +1179,7 @@ export async function run(g) {
   if (new URLSearchParams(location.search).has('touch')) I.setTouch(true);
   log('QA — Luísa & Sérgio (' + new Date().toLocaleString('pt-PT') + ')');
   const t0 = performance.now();
-  const steps = [testData, testReachable, testLayout, testInteractions, testOffline, testMenus, testSettings, testAudio, testFullGame, testRestart, testCovidRules, testViewports, testMonkey];
+  const steps = [testData, testReachable, testLayout, testInteractions, testOffline, testMenus, testSettings, testAudio, testFullGame, testRestart, testCovidRules, testAwake, testViewports, testMonkey];
   // ?qa&only=monkey corre só os testes cujo nome contém essa palavra (ex.: monkey, layout)
   const only = new URLSearchParams(location.search).get('only');
   for (const fn of steps.filter((x) => !only || x.name.toLowerCase().includes(only.toLowerCase()))) {

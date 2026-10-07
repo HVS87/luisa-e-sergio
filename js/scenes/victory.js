@@ -2,7 +2,10 @@
 // variant 'wedding' → animação do casamento: a cerimónia na igreja (com a família toda nos bancos
 //                     e a Carminho e o Henrique a levar as alianças), a festa na Casa da Beira até
 //                     de madrugada e, por fim, a imagem sobe até ao céu, onde rebenta o fogo de
-//                     artifício à volta dos parabéns pelos anos de casados.
+//                     artifício à volta dos parabéns pelos anos de casados. A meio há dois momentos
+//                     em que a animação espera por um toque (beijar a noiva e lançar o fogo de
+//                     artifício): além de ser mais divertido, impede que o ecrã do telemóvel se apague
+//                     por falta de interação quando está em poupança de energia.
 // variant 'family'  → fim do nível bónus: a família completa, à noite, em frente à casa que a
 //                     Luísa e o Sérgio construíram (a vivenda do nível "A Nossa Casa").
 import { TILE as T, WEDDING_DAY } from '../config.js';
@@ -13,8 +16,13 @@ import { drawVilla, VILLA_H } from './house.js';
 
 const SKY = ['#070920', '#0d1238', '#161c52', '#232a6e', '#34327f', '#4a3a8a'];
 const INK = '#2b1d2e', GOLD = '#ffd166', PINK = '#ff5d8f', CREAM = '#fff6e6';
-// Tempos da animação do casamento (segundos)
-const T_YES = 5.6, T_CHURCH = 9.5, T_PARTY = 20, T_FIRE = 21.5, T_RISE = 24;
+// Tempos da animação do casamento (segundos); em T_KISS e T_PARTY espera-se por um toque
+const T_YES = 5.6, T_KISS = 7.2, T_CHURCH = 10, T_PARTY = 20.5, T_RISE = 24.5;
+const CUE_MIN = 0.35;      // um toque mais rápido do que isto, logo a seguir a chegar ao momento, não conta
+const CUES = {
+  beijo: { at: T_KISS, cap: 5, text: 'Toca para beijar a noiva!' },
+  fogo: { at: T_PARTY, cap: 6, text: 'Toca para lançar o fogo de artifício!' },
+};
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const ease = (x) => { const c = clamp(x, 0, 1); return c * c * (3 - 2 * c); };
 
@@ -37,13 +45,25 @@ export class VictoryScene {
     this.spr = getSprites();
     this.fire = new Fireworks();
     this.fx = new Particles();
-    this.t = 0;
+    this.t = 0;                // tempo da história (para enquanto se espera por um toque)
+    this.rt = 0;               // tempo real, para o que mexe sempre (velas, danças, estrelas)
+    this.cue = null;           // momento à espera de um toque: 'beijo' ou 'fogo'
+    this.cueT = 0;
+    this.done = new Set();     // momentos já feitos
     this.lastBoom = 0;
     this.cap = -1;
     this.revealed = false;
   }
 
   enter() {
+    // Tocar no ecrã (ou Espaço/Enter): nos momentos de toque faz a ação; no resto da animação
+    // avança até ao momento seguinte; no ecrã final lança mais um foguete.
+    this.onTap = (e) => {
+      if (e && e.type === 'keydown' && e.code !== 'Space' && e.code !== 'Enter') return;
+      this.tap();
+    };
+    window.addEventListener('pointerdown', this.onTap);
+    window.addEventListener('keydown', this.onTap);
     if (this.variant !== 'wedding') {
       this.revealed = true;
       this.game.ui.showVictory(this.variant);
@@ -51,20 +71,51 @@ export class VictoryScene {
       return;
     }
     this.game.ui.startCutscene('');
-    // Tocar no ecrã (ou Espaço/Enter) salta para o final da animação.
-    this.skip = (e) => {
-      if (e.type === 'keydown' && e.code !== 'Space' && e.code !== 'Enter') return;
-      if (this.t > 1.5 && this.t < T_PARTY) this.t = T_PARTY;
-      else if (this.t >= T_PARTY && this.t < T_RISE) this.t = T_RISE;
-    };
-    window.addEventListener('pointerdown', this.skip);
-    window.addEventListener('keydown', this.skip);
   }
 
   exit() {
-    if (this.skip) {
-      window.removeEventListener('pointerdown', this.skip);
-      window.removeEventListener('keydown', this.skip);
+    window.removeEventListener('pointerdown', this.onTap);
+    window.removeEventListener('keydown', this.onTap);
+    this.game.ui.setCue(false);
+  }
+
+  tap() {
+    if (this.cue) {
+      if (this.cueT >= CUE_MIN) this.act();
+      return;
+    }
+    if (this.revealed) {
+      const v = this.game.view;
+      this.fire.launch(v.w, v.h, v.h * 0.06, v.h * (this.variant === 'wedding' ? 0.52 : 0.45));
+      return;
+    }
+    if (this.t > 1.5 && !this.done.has('beijo')) this.t = T_KISS;
+    else if (this.t > T_KISS && this.t < T_PARTY) this.t = T_PARTY;
+    else if (this.t > T_PARTY && this.t < T_RISE) this.t = T_RISE;
+  }
+
+  startCue(name) {
+    const c = CUES[name];
+    this.t = c.at;
+    this.cue = name;
+    this.cueT = 0;
+    this.caption(c.cap, c.text, 'pop');
+    this.game.ui.setCue(true);
+  }
+
+  act() {
+    const name = this.cue, v = this.game.view;
+    this.cue = null;
+    this.done.add(name);
+    this.game.ui.setCue(false);
+    if (name === 'beijo') {
+      this.caption(7, 'Vivam os noivos!', 'fanfare');
+      const gy = Math.round(v.h * 0.8), ax = Math.round(Math.min(v.w - 44, v.w / 2 + 64));
+      for (let k = 0; k < 14; k++) this.fx.heart(ax - 40 + Math.random() * 34, gy - 50 - Math.random() * 24, Math.random() < 0.3 ? GOLD : PINK);
+    } else {
+      this.caption(3, '');
+      this.game.audio.play('boom');
+      for (let k = 0; k < 3; k++) this.fire.launch(v.w, v.h, v.h * 0.06, v.h * 0.52);
     }
   }
 
@@ -80,32 +131,39 @@ export class VictoryScene {
   }
 
   update(dt) {
-    this.t += dt;
-    const v = this.game.view, t = this.t;
+    this.rt += dt;
+    if (this.cue) this.cueT += dt;
+    else this.t += dt;
+    const v = this.game.view;
     this.fx.update(dt);
 
     if (this.variant !== 'wedding') {
-      const gy = this.groundY(v);
+      const gy = this.groundY(v), t = this.t;
       this.boom(dt, v, gy, v.h * 0.06, gy * 0.72);
       if (Math.floor(t * 3) !== Math.floor((t - dt) * 3)) this.fx.heart(v.w / 2 - 14 + Math.random() * 28, gy - 52, Math.random() < 0.3 ? GOLD : PINK);
       return;
     }
 
+    // os momentos de toque: a animação para e espera
+    if (!this.cue && !this.done.has('beijo') && this.t >= T_KISS) this.startCue('beijo');
+    else if (!this.cue && !this.done.has('fogo') && this.t >= T_PARTY) this.startCue('fogo');
+    const t = this.t;
+
     const gy = Math.round(v.h * 0.8), cx = v.w / 2;
     if (t < 2.6) this.caption(0, `${WEDDING_DAY}. O grande dia chegou!`, 'check');
     else if (t < T_YES) this.caption(4, 'À frente da noiva, a Carminho e o Henrique levam as alianças.');
     else if (t < T_CHURCH) {
-      this.caption(1, '«Sim!» — Marido e mulher!', 'fanfare');
+      if (!this.cue && !this.done.has('beijo')) this.caption(1, '«Sim!» — Marido e mulher!', 'fanfare');
       // pétalas a cair e corações
       if (Math.random() < dt * 22) this.fx.add({ x: Math.random() * v.w, y: -4, vx: (Math.random() - 0.5) * 16, vy: 30 + Math.random() * 25, life: 4, color: [PINK, '#ffffff', '#ffd1e0'][Math.floor(Math.random() * 3)], size: 2 });
       if (Math.random() < dt * 5) this.fx.heart(cx + 20 + Math.random() * 40, gy - 54);
-    } else if (t < T_PARTY) {
-      this.caption(2, 'E depois... festa na Casa da Beira, até de madrugada!', 'win');
+    } else if (t < T_PARTY || this.cue === 'fogo') {
+      if (!this.cue) this.caption(2, 'E depois... festa na Casa da Beira, até de madrugada!', 'win');
       if (Math.random() < dt * 6) this.fx.add({ x: cx - 80 + Math.random() * 160, y: gy - 40, vx: (Math.random() - 0.5) * 20, vy: -22, life: 1.6, color: [GOLD, PINK, '#7be0b0', '#8fd0f5'][Math.floor(Math.random() * 4)], size: 2 });
       if (Math.random() < dt * 3) this.fx.heart(cx - 20 + Math.random() * 40, gy - 54);
     } else {
       this.caption(3, '');
-      if (t >= T_FIRE) this.boom(dt, v, v.h, v.h * 0.06, v.h * 0.52);
+      this.boom(dt, v, v.h, v.h * 0.06, v.h * 0.52);
       if (t >= T_RISE && !this.revealed) {
         this.revealed = true;
         this.game.ui.showVictory('wedding');
@@ -126,13 +184,13 @@ export class VictoryScene {
   draw(ctx, v) {
     const t = this.t;
     if (this.variant !== 'wedding') this.drawFamily(ctx, v, t);
-    else if (t < T_CHURCH) this.drawChurch(ctx, v, t);
-    else this.drawParty(ctx, v, t);
+    else if (t < T_CHURCH) this.drawChurch(ctx, v, t, this.rt);
+    else this.drawParty(ctx, v, t, this.rt);
     this.fx.draw(ctx);
   }
 
   // ---------- 1. A cerimónia, na igreja ----------
-  drawChurch(ctx, v, t) {
+  drawChurch(ctx, v, t, a) {
     const R = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), w, h); };
     const gy = Math.round(v.h * 0.8), cx = Math.round(v.w / 2);
     const ax = Math.round(Math.min(v.w - 44, cx + 64));       // onde fica o altar
@@ -160,7 +218,7 @@ export class VictoryScene {
     R(ax + 8, gy - 27, 30, 22, INK);
     R(ax + 9, gy - 26, 28, 20, '#ffffff');
     R(ax + 9, gy - 26, 28, 3, GOLD);
-    const fl = Math.floor(t * 8) % 2;
+    const fl = Math.floor(a * 8) % 2;
     for (const k of [12, 32]) { R(ax + k, gy - 36, 2, 10, CREAM); R(ax + k, gy - 39 - fl, 2, 3, '#ff8a4b'); }
     drawArch(ctx, ax - 18, gy - 5);
 
@@ -177,7 +235,7 @@ export class VictoryScene {
       const x0 = 4 + r * 10, gap = Math.max(13, Math.min(24, Math.floor((ax - 50 - x0) / row.length)));
       const base = gy - 10 + r * 8, len = (row.length - 1) * gap + 32;
       row.forEach((g, i) => {
-        const up = yes ? Math.round(Math.abs(Math.sin(t * 6 + i + r * 2)) * 3) : 0;
+        const up = yes ? Math.round(Math.abs(Math.sin(a * 6 + i + r * 2)) * 3) : 0;
         ctx.drawImage(g.stand.r, x0 + 2 + i * gap, base - 40 - up, 32, 48);
       });
       // o banco tapa-os da cintura para baixo
@@ -191,18 +249,22 @@ export class VictoryScene {
     ctx.drawImage(this.padre.stand.l, ax + 26, gy - 53, 32, 48);
     const meet = ax - 50;
     const walk = ease((t - 0.6) / (T_YES - 1.2));
-    const kiss = t > T_YES + 1.2 ? 5 : 0;
+    const kiss = this.done.has('beijo') ? 5 : 0;
     const lx = Math.round(-40 + (meet + 40) * walk) + kiss;
-    const hop = t > T_YES ? Math.round(Math.abs(Math.sin(t * 5)) * 2) : 0;
+    const hop = t > T_YES && !this.cue ? Math.round(Math.abs(Math.sin(a * 5)) * 2) : 0;
     ctx.drawImage(this.sergio.stand.l, ax - 24 - kiss, gy - 53 - hop, 32, 48);
     const frame = walk < 1 ? charFrame(this.luisa, 1, true, false, lx * 0.6 + 400) : this.luisa.stand.r;
     ctx.drawImage(frame, lx, gy - 53 - hop, 32, 48);
-    if (t > T_YES) ctx.drawImage(this.spr.heart, ax - 30, gy - 76 + Math.round(Math.sin(t * 3) * 2), 18, 16);
+    if (this.cue === 'beijo') {
+      // à espera do beijo: o coração por cima dos noivos pulsa
+      const s = 18 + Math.round(Math.abs(Math.sin(a * 4)) * 8);
+      ctx.drawImage(this.spr.heart, ax - 21 - s / 2, gy - 72 - s / 2, s, Math.round((s * 16) / 18));
+    } else if (t > T_YES) ctx.drawImage(this.spr.heart, ax - 30, gy - 76 + Math.round(Math.sin(a * 3) * 2), 18, 16);
 
     // os meninos das alianças: a Carminho (aos saltinhos) e o Henrique, à frente da noiva
     const kw = ease((t - 0.3) / (T_YES - 1.6));
     const kx = Math.round(-30 + (meet - 34 + 30) * kw);
-    const kidHop = Math.round(Math.abs(Math.sin(t * 9)) * 3);
+    const kidHop = Math.round(Math.abs(Math.sin(a * 9)) * 3);
     const hImg = kw < 1 ? charFrame(this.henrique, 1, true, false, kx * 0.5 + 300) : this.henrique.stand.r;
     const cImg = kw < 1 ? charFrame(this.carminho, 1, true, false, kx * 0.5 + 300) : this.carminho.stand.r;
     ctx.drawImage(hImg, kx - 20, gy + 6 - 32, 32, 32);
@@ -213,7 +275,7 @@ export class VictoryScene {
     // os convidados, de costas, nos bancos da frente
     const by = gy + 16;
     for (let x = 6, i = 0; x < v.w - 20; x += 22, i++) {
-      const k = hash(i * 3.7), up = t > T_YES ? Math.round(Math.abs(Math.sin(t * 6 + i)) * 3) : 0;
+      const k = hash(i * 3.7), up = t > T_YES ? Math.round(Math.abs(Math.sin(a * 6 + i)) * 3) : 0;
       R(x + 3, by - 4 - up, 12, 12, INK);
       R(x + 4, by - 3 - up, 10, 10, ['#3b2a20', '#b07a45', '#8a8794', '#6b4a2e', '#d8b25a'][Math.floor(k * 5)]);
       R(x + 1, by + 7 - up, 16, 12, ['#3d5aa8', '#d43d51', '#3fae8a', '#7a4a9a', '#2a3358'][Math.floor(k * 37) % 5]);
@@ -223,7 +285,7 @@ export class VictoryScene {
   }
 
   // ---------- 2. A festa na Casa da Beira e 3. a subida ao céu ----------
-  drawParty(ctx, v, t) {
+  drawParty(ctx, v, t, a) {
     const R = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), w, h); };
     const cx = Math.round(v.w / 2);
     const p = clamp((t - T_CHURCH) / (T_PARTY - T_CHURCH), 0, 1);       // a noite a avançar
@@ -234,12 +296,12 @@ export class VictoryScene {
     const n = SKY.length;
     for (let i = 0; i < n; i++) R(0, (i * v.h) / n, v.w, v.h / n + 1, SKY[i]);
     const dusk = p < 0.25 ? 0.5 * (1 - p / 0.25) : 0, dawn = p > 0.8 ? 0.45 * ((p - 0.8) / 0.2) : 0;
-    const rgb = dusk ? '240,138,126' : '196,90,138', a = Math.max(dusk, dawn);
-    if (a > 0.02) for (let k = 0; k < 5; k++) R(0, gy - 84 + k * 14, v.w, 14, `rgba(${rgb},${((a * (k + 1)) / 5).toFixed(2)})`);
-    stars(ctx, v.w, v.h * 0.9, t, 21, 80);
+    const rgb = dusk ? '240,138,126' : '196,90,138', glow = Math.max(dusk, dawn);
+    if (glow > 0.02) for (let k = 0; k < 5; k++) R(0, gy - 84 + k * 14, v.w, 14, `rgba(${rgb},${((glow * (k + 1)) / 5).toFixed(2)})`);
+    stars(ctx, v.w, v.h * 0.9, a, 21, 80);
     disc(ctx, Math.round(v.w * (0.12 + 0.76 * p)), Math.round(v.h * 0.16 + Math.sin(p * Math.PI) * -v.h * 0.06) + Math.round(off * 0.35), 9, '#fff6d6');
 
-    if (t >= T_FIRE) this.fire.draw(ctx);
+    if (this.done.has('fogo')) this.fire.draw(ctx);
 
     // o solar, com as janelas acesas
     const bw = Math.min(v.w - 16, 230), bx = cx - bw / 2;
@@ -251,7 +313,7 @@ export class VictoryScene {
     for (let x = bx + 14; x < bx + bw - 20; x += 26) {
       for (const wy2 of [gy - 56, gy - 32]) {
         R(x, wy2, 12, 14, '#8e8a86');
-        R(x + 2, wy2 + 2, 8, 10, Math.sin(t * 2 + x) > -0.8 ? '#ffe9a8' : '#c9a060');
+        R(x + 2, wy2 + 2, 8, 10, Math.sin(a * 2 + x) > -0.8 ? '#ffe9a8' : '#c9a060');
       }
     }
 
@@ -271,13 +333,13 @@ export class VictoryScene {
     for (const x of [tx, tx + tw / 3, tx + (2 * tw) / 3, tx + tw - 2]) R(x, ty, 2, 44, '#e8e2f0');
     const cols = [GOLD, PINK, '#5cf08a', '#8fd0f5'];
     for (let k = 0; k * 7 < tw - 4; k++) {
-      const on = Math.sin(t * 5 + k * 1.3) > -0.3;
+      const on = Math.sin(a * 5 + k * 1.3) > -0.3;
       R(tx + 3 + k * 7, ty + 7 + Math.round(Math.sin((k / 4) * Math.PI) * 2), 2, 2, on ? cols[k % 4] : '#6a5a4a');
     }
     // luzes de pista de dança
     for (let k = 0; k < 4; k++) {
-      const a = 0.10 + 0.08 * Math.sin(t * 6 + k * 2);
-      R(cx - 70 + k * 40, gy - 34, 22, 34, `rgba(${['255,93,143', '255,209,102', '123,224,176', '143,208,245'][k]},${a.toFixed(2)})`);
+      const al = 0.10 + 0.08 * Math.sin(a * 6 + k * 2);
+      R(cx - 70 + k * 40, gy - 34, 22, 34, `rgba(${['255,93,143', '255,209,102', '123,224,176', '143,208,245'][k]},${al.toFixed(2)})`);
     }
 
     // relvado
@@ -295,18 +357,18 @@ export class VictoryScene {
     // convidados a dançar (com os meninos à frente) e, ao centro, os noivos
     const spots = [-118, -98, -78, -56, 30, 52];
     this.guests.forEach((g, i) => {
-      const hop = Math.round(Math.abs(Math.sin(t * 6 + i * 1.7)) * 4);
-      const face = Math.floor(t * 1.5 + i) % 2 ? 'r' : 'l';
+      const hop = Math.round(Math.abs(Math.sin(a * 6 + i * 1.7)) * 4);
+      const face = Math.floor(a * 1.5 + i) % 2 ? 'r' : 'l';
       ctx.drawImage(g.stand[face], cx + spots[i] - 16, gy - 48 - hop, 32, 48);
     });
-    ctx.drawImage(this.carminho.stand[Math.floor(t * 3) % 2 ? 'r' : 'l'], cx - 100, gy - 32 - Math.round(Math.abs(Math.sin(t * 9)) * 5), 32, 32);
-    ctx.drawImage(this.henrique.stand[Math.floor(t * 2) % 2 ? 'l' : 'r'], cx + 46, gy - 32 - Math.round(Math.abs(Math.sin(t * 7 + 1)) * 3), 32, 32);
-    const spin = Math.floor(t * 1.2) % 2;
-    const hop = Math.round(Math.abs(Math.sin(t * 5)) * 3);
-    const sway = Math.round(Math.sin(t * 2.5) * 4);
+    ctx.drawImage(this.carminho.stand[Math.floor(a * 3) % 2 ? 'r' : 'l'], cx - 100, gy - 32 - Math.round(Math.abs(Math.sin(a * 9)) * 5), 32, 32);
+    ctx.drawImage(this.henrique.stand[Math.floor(a * 2) % 2 ? 'l' : 'r'], cx + 46, gy - 32 - Math.round(Math.abs(Math.sin(a * 7 + 1)) * 3), 32, 32);
+    const spin = Math.floor(a * 1.2) % 2;
+    const hop = Math.round(Math.abs(Math.sin(a * 5)) * 3);
+    const sway = Math.round(Math.sin(a * 2.5) * 4);
     ctx.drawImage(this.luisa.stand[spin ? 'l' : 'r'], cx - 30 + sway + (spin ? 20 : 0), gy - 48 - hop, 32, 48);
     ctx.drawImage(this.sergio.stand[spin ? 'r' : 'l'], cx - 6 + sway - (spin ? 20 : 0), gy - 48 - hop, 32, 48);
-    ctx.drawImage(this.spr.heart, cx - 9 + sway, gy - 70 + Math.round(Math.sin(t * 3) * 2), 18, 16);
+    ctx.drawImage(this.spr.heart, cx - 9 + sway, gy - 70 + Math.round(Math.sin(a * 3) * 2), 18, 16);
   }
 
   // ---------- Fim do nível bónus: a família em frente à casa nova ----------

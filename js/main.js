@@ -18,7 +18,7 @@ import { BirthScene } from './scenes/birth.js';
 import { BirdsScene } from './scenes/birds.js';
 import { HouseScene } from './scenes/house.js';
 import { VictoryScene } from './scenes/victory.js';
-import { Installer, registerServiceWorker, isMobile, safeInsets } from './device.js';
+import { Installer, registerServiceWorker, isMobile, safeInsets, Awake } from './device.js';
 import { computeLayout } from './layout.js';
 
 const canvas = document.getElementById('game');
@@ -134,6 +134,7 @@ audio.setMuted(save.data.muted);
 audio.setMusicMuted(save.data.musicMuted);
 game.ui = new UI(game);
 game.installer = new Installer(game.ui);
+Awake.init();               // o ecrã não se apaga enquanto se joga
 registerServiceWorker();
 input.init({
   onEscape: () => game.ui.escape(),

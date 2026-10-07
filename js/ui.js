@@ -70,10 +70,13 @@ export class UI {
 
   // Linha de instruções por baixo do HUD (usada pelos minijogos).
   setHint(text) {
-    text = text || '';
-    // a jogar com teclado, «Toca para...» passa a «Carrega em Espaço para...»
-    if (!this.game.input.touch) text = text.replace(/\b([Tt])oca para\b/g, (m, t) => (t === 'T' ? 'Carrega' : 'carrega') + ' em Espaço para').replace(/\bToca-lhe!/g, 'Carrega em Espaço!');
-    $('#hint').textContent = text;
+    $('#hint').textContent = this.local(text || '');
+  }
+
+  // A jogar com teclado, «Toca para...» passa a «Carrega em Espaço para...».
+  local(text) {
+    if (this.game.input.touch) return text;
+    return text.replace(/\b([Tt])oca para\b/g, (m, t) => (t === 'T' ? 'Carrega' : 'carrega') + ' em Espaço para').replace(/\bToca-lhe!/g, 'Carrega em Espaço!');
   }
 
   // Substitui {eu}, {par}, {ao_par}... pelos nomes certos conforme a personagem escolhida.
@@ -168,7 +171,10 @@ export class UI {
     this.show('victory');
   }
 
-  setCaption(text) { $('#v-caption').textContent = text || ''; }
+  setCaption(text) { $('#v-caption').textContent = this.local(text || ''); }
+
+  // Momento da animação que espera por um toque: a legenda pulsa e some o «Toca para avançar».
+  setCue(on) { document.querySelector('[data-screen="victory"]').classList.toggle('cue', !!on); }
 
   showVictory(variant) {
     const family = variant === 'family';
