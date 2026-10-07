@@ -41,7 +41,7 @@ export default {
   npcs: { '@': 'avojose', N: 'maeluisa', p: 'pailuisa', z: 'rosarinho', X: 'catarina', a: 'antonio', Y: 'beatriz', Z: 'pai', A: 'andre' },
   folk: {
     avojose: {
-      any: 'Avó Jose (da varanda): «Daqui vejo tudo! Está a ficar uma beleza, meus queridos.»',
+      any: 'Avó Jose (da varanda): «Daqui vejo tudo! A minha neta e o menino estão a deixar isto uma beleza.»',
       meninos: 'Avó Jose (da varanda): «A Carminho passou agora a correr... e o Henrique, cheira-me que anda perto das japoneiras!»',
     },
     maeluisa: {

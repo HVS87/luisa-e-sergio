@@ -335,6 +335,9 @@ function testData() {
   check('títulos: o nível 5 chama-se «A Casa da Beira» e o 12 «Preparativos do Casamento»', LEVELS[4].title === 'A Casa da Beira' && prep.title === 'Preparativos do Casamento', LEVELS[4].title + ' / ' + prep.title);
   const spoken = collectStrings(LEVELS, 'L', []).map(([, t]) => t).filter((t) => /^(Luísa|Avó Jose|Mãe da Luísa|Pai da Luísa|Rosarinho|Catarina|António|Carminho|Henrique)[^:]*: «/.test(t));
   check('a família da Luísa chama «Casa da Beira» à casa (nunca «solar» nas falas, salvo ao explicar o nome)', spoken.every((t) => !/\bsolar\b/i.test(t) || /Casa da Beira/.test(t)), spoken.filter((t) => /\bsolar\b/i.test(t) && !/Casa da Beira/.test(t)).join(' | '));
+  const avo = collectStrings(LEVELS, 'L', []).map(([, t]) => t).filter((t) => /^Avó Jose[^:]*: «/.test(t));
+  const tu = /(^|[^\p{L}])(filho|tu|teu|tua|-te)(?![\p{L}])/iu;
+  check('a Avó Jose trata o Sérgio na terceira pessoa, por «menino» (nunca «tu» nem «filho»)', avo.length >= 3 && avo.every((t) => !tu.test(t)) && avo.some((t) => /menino/.test(t)), avo.filter((t) => tu.test(t)).join(' | '));
   const mat = LEVELS.find((L) => L.type === 'birth');
   check('maternidade: duas rondas, Xavier e depois a Luisinha', mat.rounds.length === 2 && mat.rounds[0].name === 'Xavier' && mat.rounds[1].toddler);
   const date = LEVELS.find((L) => L.type === 'date');
