@@ -25,7 +25,7 @@ const TYPES = {
 };
 
 const LOCAL = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
-const SAVEABLE = /^(share|icon-\d{3})\.png$/;
+const SAVEABLE = /^(share|share-square|icon-\d{3})\.png$/;
 
 http.createServer((req, res) => {
   let rel;

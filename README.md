@@ -100,8 +100,9 @@ menu principal e na pausa); a escolha fica guardada.
   isso a animação do casamento tem também dois momentos em que é preciso tocar.
 - **Logótipo, ícones e pré-visualização ao partilhar**: a página `tools/logo.html` (com o
   servidor a correr, <http://localhost:8080/tools/logo.html>) desenha, com os bonecos e a fonte
-  do jogo, a imagem de partilha `assets/share.png` (1200×630, usada nas etiquetas `og:image` e
-  `twitter:image` do `index.html`, para a pré-visualização no WhatsApp, Facebook, etc.) e os
+  do jogo, as imagens de partilha (`assets/share-square.png`, 512×512, a primeira `og:image`,
+  que o WhatsApp mostra como ícone ao lado do título; e `assets/share.png`, 1200×630, a segunda
+  `og:image` e a `twitter:image`, para as pré-visualizações largas) e os
   ícones da app (`assets/icon-512.png`, `icon-192.png` e `icon-180.png`, com o casal dentro da
   zona segura dos ícones «maskable»). O botão «Guardar todas em assets/» grava-as através do
   servidor local (rota `POST /__guardar/<nome>.png`, só a partir do próprio computador); os

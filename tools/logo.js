@@ -1,6 +1,7 @@
 // Desenha o logótipo do jogo com os próprios bonecos e a fonte do jogo (ver logo.html):
-//   - a imagem de partilha (1200x630): o pôr do sol, a Luísa e o Sérgio de mãos dadas com um
-//     coração por cima, o título e o subtítulo;
+//   - a imagem de partilha (1200x630): o pôr do sol, a Luísa e o Sérgio de mãos dadas, o
+//     título e o subtítulo; e a versão quadrada (512x512, igual ao ícone), que o WhatsApp mostra
+//     como ícone ao lado do título;
 //   - os ícones da app (512, 192 e 180): o mesmo cenário sem texto, com o casal ao centro
 //     dentro da zona segura dos ícones «maskable».
 // Tudo é desenhado em píxeis de jogo e ampliado sem suavização, para ficar bem pixelizado;
@@ -102,6 +103,7 @@ export async function logos() {
   await document.fonts.load('16px "Press Start 2P"');
   return {
     'share.png': shareImage().toDataURL('image/png'),
+    'share-square.png': iconImage(128, 4, 3).toDataURL('image/png'),   // a primeira og:image: o WhatsApp mostra-a como ícone
     'icon-512.png': iconImage(128, 4, 3).toDataURL('image/png'),
     'icon-192.png': iconImage(96, 2, 2).toDataURL('image/png'),
     'icon-180.png': iconImage(90, 2, 2).toDataURL('image/png'),
